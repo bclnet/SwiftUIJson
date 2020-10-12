@@ -19,8 +19,8 @@ extension AnyHashable: DynaCodable {
 }
 
 enum DynaTypeError: Error {
-    case typeNotFound
-    case typeParseError
+    case typeNotFound(named: String)
+    case typeParseError(named: String)
     case typeNameError(actual: String, expected: String)
     case typeNotCodable(named: String)
 }
@@ -113,7 +113,7 @@ public enum DynaType: Codable {
             else { stack.append((token.op, token.value, "")) }
         }
         guard stack.count == 1, let first = stack.first, first.op == "t" else {
-            throw DynaTypeError.typeParseError
+            throw DynaTypeError.typeParseError(named: forName)
         }
         guard forName == knownName else {
             throw DynaTypeError.typeNameError(actual: forName, expected: knownName)
@@ -143,7 +143,7 @@ public enum DynaType: Codable {
     
     private static func typeParse(knownName: String) throws -> DynaType {
         if let knownType = knownTypes[knownName] { return knownType }
-        throw DynaTypeError.typeNotFound
+        throw DynaTypeError.typeNotFound(named: knownName)
     }
     
     private static func typeParse(knownName: String, tuple: [DynaType]) throws -> DynaType {
@@ -194,7 +194,7 @@ public enum DynaType: Codable {
         case .tuple(_, _, let componets) where genericName == "SwiftUI.TupleView": genericKey = "\(genericName):\(componets.count)"
         default: genericKey = genericName
         }
-        guard let type = knownGenerics[genericKey] else { throw DynaTypeError.typeNotFound }
+        guard let type = knownGenerics[genericKey] else { throw DynaTypeError.typeNotFound(named: knownName) }
         knownTypes[knownName] = .generic(type, knownName, generic)
         return knownTypes[knownName]!
     }

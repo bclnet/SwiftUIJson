@@ -117,6 +117,7 @@ public struct JsonUI: Codable {
     }
     
     static func registerDefault_all() {
+        register(AnyView.self)
         register(Button<AnyView>.self)
         register(Color.self)
         register(ContextMenu<AnyView>.self)

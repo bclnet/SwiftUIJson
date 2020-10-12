@@ -23,36 +23,40 @@ public struct JsonPreview<Content>: View where Content: View {
         self.content = content()
         
         // data
-        print("encode")
         let view = self.content
         let context = JsonContext[view]
+        defer {
+            JsonContext.remove(view)
+        }
         do {
             data = try JsonUI.encode(view: view, context: context)
         } catch DynaTypeError.typeNotCodable(let named) {
             data = "typeNotCodable named:\(named)".data(using: .utf8)!
+            content2 = AnyView(Text("ERROR"))
+            return
         } catch {
-            data = error.localizedDescription.data(using: .utf8)!
+            data = "\(error)".data(using: .utf8)!
+            content2 = AnyView(Text("ERROR"))
+            return
         }
-        JsonContext.remove(view)
         
         // content2
-        print("decode")
         do {
             let jsonUI = try JsonUI(from: data)
-            content2 = jsonUI.anyView ?? AnyView(Text("notAnyView"))
+            content2 = jsonUI.anyView ?? AnyView(Text("ERROR:notAnyView"))
         } catch DynaTypeError.typeNotFound {
-            content2 = AnyView(Text("typeNotFound"))
+            content2 = AnyView(Text("ERROR:typeNotFound"))
         } catch DynaTypeError.typeParseError {
-            content2 = AnyView(Text("typeParseError"))
+            content2 = AnyView(Text("ERROR:typeParseError"))
         } catch DynaTypeError.typeNameError(let actual, let expected) {
-            content2 = AnyView(Text("typeNameError actual:\(actual) expected:\(expected)"))
+            content2 = AnyView(Text("ERROR:typeNameError actual:\(actual) expected:\(expected)"))
         } catch DynaTypeError.typeNotCodable(let named) {
-            content2 = AnyView(Text("typeNotCodable named:\(named)"))
+            content2 = AnyView(Text("ERROR:typeNotCodable named:\(named)"))
         } catch {
-            content2 = AnyView(Text("error:\(error.localizedDescription)"))
-            //data = error.localizedDescription.data(using: .utf8)! + "\n".data(using: .utf8)! + data
+            content2 = AnyView(Text("ERROR:\(error)" as String))
+            //data = "\(error)\n".data(using: .utf8)! + data
+            return
         }
-        print("Done")
     }
             
     public var body: some View {
