@@ -123,7 +123,6 @@ public struct JsonUI: Codable {
         register(ContextMenu<AnyView>.self)
         register(DatePicker<AnyView>.self)
         register(Divider.self)
-        register(EditButton.self)
         register(EmptyView.self)
 //        register(EquatableView<Any>.self)
 //        register(ForEach<AnyRandomAccessCollection, AnyHashable, AnyView>.self)
@@ -179,6 +178,7 @@ public struct JsonUI: Codable {
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
     static func registerDefault_iOS() {
+        register(EditButton.self)
     }
     
     @available(tvOS 13.0, *)
