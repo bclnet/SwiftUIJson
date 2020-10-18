@@ -14,10 +14,10 @@ extension LazyHStack: JsonView, DynaCodable where Content : View, Content : Dyna
     enum CodingKeys: CodingKey {
         case root, content
     }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+    public init(from decoder: Decoder, for dynaType: DynaType, depth: Int) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let root = try container.decodeIfPresent(LazyHStackLayout.self, forKey: .root) ?? LazyHStackLayout(alignment: .center, spacing: nil, pinnedViews: .init())
-        let content = try container.decode(Content.self, forKey: .content, dynaType: dynaType)
+        let content = try container.decode(Content.self, forKey: .content, dynaType: dynaType, depth: depth + 1)
         self.init(alignment: root.alignment, spacing: root.spacing, pinnedViews: root.pinnedViews) { content }
     }
     public func encode(to encoder: Encoder) throws {

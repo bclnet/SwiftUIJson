@@ -10,11 +10,11 @@ import SwiftUI
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension Spacer: JsonView, DynaCodable {
     public var anyView: AnyView { AnyView(self) }
-    // MARK - Codable
+    //: Codable
     enum CodingKeys: CodingKey {
         case minLength
     }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+    public init(from decoder: Decoder, for dynaType: DynaType, depth: Int) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let minLength = try container.decodeIfPresent(CGFloat.self, forKey: .minLength)
         self.init(minLength: minLength)

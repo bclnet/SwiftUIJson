@@ -13,43 +13,6 @@ public protocol JsonView {
     var anyView: AnyView { get }
 }
 
-public struct JsonAnyView: View {
-    public let body: AnyView
-    public init(_ view: JsonView) { body = view.anyView }
-    static func any<Element>(_ value: Element) -> JsonAnyView {
-        JsonAnyView(value as? JsonView ?? EmptyView())
-    }
-}
-
-extension View {
-    func dump() -> some View {
-        let context = JsonContext[self]
-        let data = try! JsonUI.encode(view: self.body, context: context)
-        print(String(data: data, encoding: .utf8)!)
-        return self
-    }
-}
-
-extension AnyView: DynaCodable {
-    internal class AnyViewStorageBase {
-        let view: Any
-        init(_ s: Any) { view = Mirror(reflecting: s).descendant("view")! }
-    }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
-        guard let value = try decoder.dynaSuperInit(for: dynaType, index: 0) as? JsonView else { fatalError("AnyView") }
-        self = value.anyView
-    }
-    public func encode(to encoder: Encoder) throws {
-        let single = Mirror(reflecting: self).descendant("storage")!
-        let storage = AnyViewStorageBase(single)
-        try encoder.encodeDynaSuper(storage.view)
-    }
-}
-
-extension CodingUserInfoKey {
-    public static let jsonContext = CodingUserInfoKey(rawValue: "jsonContext")!
-}
-
 public struct JsonUI: Codable {
     public var context = JsonContext()
     public let body: Any
@@ -75,13 +38,13 @@ public struct JsonUI: Codable {
         return try encoder.encode(JsonUI(to: value, context: context))
     }
     
-    // Mark - Codable
+    //: Codable
     enum CodingKeys: CodingKey {
         case _ui
     }
     public init(from decoder: Decoder) throws {
         context = decoder.userInfo[.jsonContext] as! JsonContext
-        let value = try decoder.decodeDynaSuper()
+        let value = try decoder.decodeDynaSuper(depth: 0)
         guard let anyView = value as? AnyView else {
             guard let view = value as? JsonView else { fatalError("init") }
             body = view.anyView
@@ -118,6 +81,8 @@ public struct JsonUI: Codable {
     }
     
     static func registerDefault_all() {
+        register(_ConditionalContent<AnyView, AnyView>.self)
+        register(_PaddingLayout.self)
         register(AnyView.self)
         register(Button<AnyView>.self)
         register(Color.self)
@@ -134,7 +99,7 @@ public struct JsonUI: Codable {
         register(HStack<AnyView>.self)
         register(Image.self)
         register(List<AnyHashable, AnyView>.self)
-        register(ModifiedContent<AnyView, AnyViewModifier>.self)
+        register(ModifiedContent<AnyView, _PaddingLayout>.self)
         register(NavigationLink<AnyView, AnyView>.self)
         register(NavigationView<AnyView>.self)
         register(Never.self)
@@ -160,9 +125,7 @@ public struct JsonUI: Codable {
         register(TupleView<(JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView)>.self)
         register(VStack<AnyView>.self)
         register(ZStack<AnyView>.self)
-        
         if #available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *) {
-            register(_PaddingLayout.self)
             register(LazyHStack<AnyView>.self)
             register(LazyVStack<AnyView>.self)
         }

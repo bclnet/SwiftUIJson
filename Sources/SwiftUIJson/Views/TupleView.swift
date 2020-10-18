@@ -10,12 +10,13 @@ import SwiftUI
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension TupleView: JsonView, DynaCodable {
     public var anyView: AnyView { AnyView(self) }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+    //: Codable
+    public init(from decoder: Decoder, for dynaType: DynaType, depth: Int) throws {
         var container = try decoder.unkeyedContainer()
         var items = [JsonView?]()
         while !container.isAtEnd {
             let baseDecoder = try container.superDecoder()
-            let value = try baseDecoder.decodeDynaSuper() as? JsonView
+            let value = try baseDecoder.decodeDynaSuper(depth: depth + 1) as? JsonView
             items.append(value)
         }
         let value = DynaType.typeBuildTuple(dynaType[0], for: items) as! T

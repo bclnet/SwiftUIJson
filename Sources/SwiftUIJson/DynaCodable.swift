@@ -6,9 +6,13 @@
 //  Copyright © 2020 Sky Morey. All rights reserved.
 //
 
-// MARK - Codable
-enum CodingKeys: CodingKey {
+//: Codable
+fileprivate enum CodingKeys: CodingKey {
     case type, `nil`
+}
+
+fileprivate func printPath(_ value: String) {
+    //Swift.print(value)
 }
 
 extension Encoder {
@@ -26,28 +30,33 @@ extension Encoder {
 }
 
 extension Decoder {
-    public func decodeDynaSuper() throws -> Any {
+    public func decodeDynaSuper(depth: Int) throws -> Any {
         let container = try self.container(keyedBy: CodingKeys.self)
-        if container.contains(.nil) { return Optional<Any>.none as Any }
-        return try dynaSuperInit(for: try container.decode(DynaType.self, forKey: .type))
+        if container.contains(.nil) {
+            printPath("\(String(repeating: "+", count: depth)) nil \(self.codingPath)")
+            return Optional<Any>.none as Any
+        }
+        let dynaType = try container.decode(DynaType.self, forKey: .type)
+        printPath("\(String(repeating: "+", count: depth)) \(dynaType.type()) \(self.codingPath)")
+        return try dynaSuperInit(for: dynaType, depth: depth)
     }
 
-    public func dynaSuperInit(for dynaType: DynaType, index: Int = -1) throws -> Any {
-        switch dynaType[index] {
+    public func dynaSuperInit(for dynaType: DynaType, depth: Int) throws -> Any {
+        switch dynaType {
         case .type(let type, let name):
             let unwrap = DynaType.unwrap(type: type)
             guard let decodable = unwrap as? DynaDecodable.Type else {
                 guard let decodable2 = unwrap as? Decodable.Type else { throw DynaTypeError.typeNotCodable(named: name) }
                 return try decodable2.init(from: self)
             }
-            return try decodable.init(from: self, for: dynaType)
+            return try decodable.init(from: self, for: dynaType, depth: depth)
         case .tuple(let type, let name, _), .generic(let type, let name, _):
             let unwrap = DynaType.unwrap(type: type)
             guard let decodable = unwrap as? DynaDecodable.Type else {
                 guard let decodable2 = unwrap as? Decodable.Type else { throw DynaTypeError.typeNotCodable(named: name) }
                 return try decodable2.init(from: self)
             }
-            return try decodable.init(from: self, for: dynaType)
+            return try decodable.init(from: self, for: dynaType, depth: depth)
         }
     }
 }
@@ -62,7 +71,7 @@ public protocol DynaDecodable {
     /// if the data read is corrupted or otherwise invalid.
     ///
     /// - Parameter decoder: The decoder to read data from.
-    init(from decoder: Decoder, for dynaType: DynaType) throws
+    init(from decoder: Decoder, for dynaType: DynaType, depth: Int) throws
 }
 
 /// A type that can convert itself into and out of an external representation.
@@ -85,14 +94,10 @@ extension KeyedDecodingContainerProtocol {
     ///   for the given key.
     /// - throws: `DecodingError.valueNotFound` if `self` has a null entry for
     ///   the given key.
-    public func decode<T: DynaDecodable>(
-        _ type: T.Type,
-        forKey key: Key,
-        dynaType: DynaType
-    ) throws -> T {
-        //        let _box = Mirror(reflecting: self).descendant("_box")!; print(_box)
+    public func decode<T: DynaDecodable>(_ type: T.Type, forKey key: Key, dynaType: DynaType, depth: Int) throws -> T {
         let decoder = try superDecoder(forKey: key)
-        return try type.init(from: decoder, for: dynaType)
+        printPath("\(String(repeating: "-", count: depth)) \(dynaType.type()) \(self.codingPath)")
+        return try type.init(from: decoder, for: dynaType, depth: depth)
     }
     
     /// Decodes a value of the given type for the given key, if present.
@@ -108,10 +113,13 @@ extension KeyedDecodingContainerProtocol {
     ///   the value is a null value.
     /// - throws: `DecodingError.typeMismatch` if the encountered encoded value
     ///   is not convertible to the requested type.
-    public func decodeIfPresent<T: DynaDecodable>(
-        _ type: T.Type,
-        forKey key: Key
-    ) throws -> T? {
-        fatalError()
+    public func decodeIfPresent<T: DynaDecodable>(_ type: T.Type, forKey key: Key, dynaType: DynaType, depth: Int) throws -> T? {
+        if !contains(key) {
+            printPath("\(String(repeating: "-", count: depth)) nil \(self.codingPath)")
+            return nil
+        }
+        let decoder = try superDecoder(forKey: key)
+        printPath("\(String(repeating: "-", count: depth)) \(dynaType.type()) \(self.codingPath)")
+        return try type.init(from: decoder, for: dynaType, depth: depth)
     }
 }

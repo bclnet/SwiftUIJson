@@ -31,7 +31,7 @@ extension Color: Codable {
         case "purple": self = .purple
         case "primary": self = .primary
         case "secondary": self = .secondary
-        default:
+        default: //TODO: Here
             //        if value.starts(with: "~") {
             //            let colorSpace = try container.decode(String.self, forKey: .colorSpace) as CFString
             //            let components = try container.decode([CGFloat].self, forKey: .cgColor)
@@ -57,7 +57,7 @@ extension Color: Codable {
         case .purple: try container.encode("purple")
         case .primary: try container.encode("primary")
         case .secondary: try container.encode("secondary")
-        default:
+        default: //TODO: Here
             //        if self.cgColor == nil {
             //            try container.encode(self.cgColor!.colorSpace?.name.debugDescription, forKey: .colorSpace)
             //            try container.encode(self.cgColor!.components, forKey: .cgColor)

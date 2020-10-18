@@ -11,9 +11,6 @@ import SwiftUI
 extension EmptyView: JsonView, DynaCodable {
     public var anyView: AnyView { AnyView(self) }
     //: Codable
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
-        self.init()
-    }
-    public func encode(to encoder: Encoder) throws {
-    }
+    public init(from decoder: Decoder, for dynaType: DynaType, depth: Int) throws { self.init() }
+    public func encode(to encoder: Encoder) throws {}
 }

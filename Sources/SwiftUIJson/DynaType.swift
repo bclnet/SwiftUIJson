@@ -8,60 +8,34 @@
 
 import Foundation
 
-extension AnyHashable: DynaCodable {
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
-        guard let value = try decoder.dynaSuperInit(for: dynaType, index: 0) as? AnyHashable else { fatalError("AnyHashable") }
-        self = value
-    }
-    public func encode(to encoder: Encoder) throws {
-        fatalError("AnyHashable")
-    }
-}
-
-enum DynaTypeError: Error {
-    case typeNotFound(named: String)
-    case typeParseError(named: String)
-    case typeNameError(actual: String, expected: String)
-    case typeNotCodable(named: String)
-}
-
 public enum DynaType: Codable {
     case type(_ type: Any.Type, _ name: String)
     case tuple(_ type: Any.Type, _ name: String, _ components: [Self])
     case generic(_ type: Any.Type, _ name: String, _ components: [Self])
-    
+    //: Subscript
     public subscript(index: Int) -> Self {
         guard index > -1 else { return self }
         switch self {
         case .type: return self
-        case .tuple(_, _, let componets), .generic(_, _, let componets):
-            return componets[index]
-        }
+        case .tuple(_, _, let componets), .generic(_, _, let componets): return componets[index] }
     }
-    
-    public func named() -> String {
-        switch self {
-        case .type(_, let name), .tuple(_, let name, _), .generic(_, let name, _): return name
-        }
+    public func name() -> String {
+        switch self { case .type(_, let name), .tuple(_, let name, _), .generic(_, let name, _): return name }
     }
-    
-    public func typed() -> Any.Type {
-        switch self {
-        case .type(let type, _), .tuple(let type, _, _), .generic(let type, _, _): return type
-        }
+    public func type() -> Any.Type {
+        switch self { case .type(let type, _), .tuple(let type, _, _), .generic(let type, _, _): return type }
     }
-    
-    // MARK: - Codable
+    //: Codable
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         self = try Self.typeParse(for: try container.decode(String.self))
     }
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
-        try container.encode(Self.typeName(for: named()))
+        try container.encode(Self.typeName(for: name()))
     }
 
-    // MARK: - Known Type
+    // MARK: - Register
     static var knownTypes = [String:Self]()
     static var knownGenerics = [String:Any.Type]()
     static var unwrapTypes = [ObjectIdentifier:Any.Type]()
@@ -78,7 +52,7 @@ public enum DynaType: Codable {
         knownGenerics[genericKey] = type
     }
     
-    // MARK: - Type Parse
+    // MARK: - Lookup
     public static func type(for type: Any.Type) throws -> Self {
         let _ = registered
         return try typeParse(for: typeName(for: String(reflecting: type)))
@@ -89,14 +63,14 @@ public enum DynaType: Codable {
         return unwrapTypes[ObjectIdentifier(type)] ?? type
     }
     
-    // MARK: - Type Parse
+    // MARK: - Parse/Build
     private static func typeName(for typeName: String) -> String! {
         typeName.replacingOccurrences(of: " ", with: "")
             .replacingOccurrences(of: "Swift.", with: "#")
             .replacingOccurrences(of: "SwiftUI.", with: ":")
     }
 
-    public static func typeParse(for name: String) throws -> Self {
+    private static func typeParse(for name: String) throws -> Self {
         let _ = registered
         let forName = name
             .replacingOccurrences(of: "#", with: "Swift.")
@@ -247,4 +221,11 @@ public enum DynaType: Codable {
         register(String.self)
         register(Int.self)
     }
+}
+
+enum DynaTypeError: Error {
+    case typeNotFound(named: String)
+    case typeParseError(named: String)
+    case typeNameError(actual: String, expected: String)
+    case typeNotCodable(named: String)
 }

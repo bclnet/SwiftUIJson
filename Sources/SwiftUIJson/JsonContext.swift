@@ -10,6 +10,10 @@ import SwiftUI
 
 // https://swiftrocks.com/weak-dictionary-values-in-swift
 
+extension CodingUserInfoKey {
+    public static let jsonContext = CodingUserInfoKey(rawValue: "jsonContext")!
+}
+
 public class JsonContext: Codable {
     // MARK: - Static
     static var cachedContexts = NSMapTable<NSString, JsonContext>.init(
@@ -32,11 +36,11 @@ public class JsonContext: Codable {
         return context
     }
     
-    // MARK - Instance
+    // MARK: - Instance
     struct JsonSlot: Codable {
         public let type: DynaType
         public let value: Any
-        // MARK - Codable
+        //: Codable
         enum CodingKeys: CodingKey {
             case type, `default`
         }
@@ -48,7 +52,7 @@ public class JsonContext: Codable {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             type = try container.decode(DynaType.self, forKey: .type)
             let baseDecoder = try container.superDecoder(forKey: .default)
-            value = try baseDecoder.dynaSuperInit(for: type)
+            value = try baseDecoder.dynaSuperInit(for: type, depth:0)
         }
         public func encode(to encoder: Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
@@ -64,8 +68,7 @@ public class JsonContext: Codable {
     public init() {
         slots = [String:JsonSlot]()
     }
-    
-    // MARK: - Codable
+    //: Codable
     enum CodingKeys: CodingKey {
         case _ui, slots
     }
@@ -80,12 +83,12 @@ public class JsonContext: Codable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         if !slots.isEmpty { try container.encode(slots, forKey: .slots) }
     }
-    
+
+    // MARK: - Variable
     func nextKey(forKey: String?) -> (String, Int) {
         ("\(slots.count)", 1)
     }
     
-    // MARK - Variable
     public func `var`(_ value: Bool, forKey key: String? = nil) -> Bool {
         let (id, _) = nextKey(forKey: key)
         slots[id] = JsonSlot(Bool.self, value: value)

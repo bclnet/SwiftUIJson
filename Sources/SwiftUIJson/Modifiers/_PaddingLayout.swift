@@ -1,5 +1,5 @@
 //
-//  _PaddingLayout.swift
+//  _PaddingLayout.swift (Incomplete, view test fail)
 //
 //  Created by Sky Morey on 8/22/20.
 //  Copyright © 2020 Sky Morey. All rights reserved.
@@ -7,8 +7,7 @@
 
 import SwiftUI
 
-extension _PaddingLayout: JsonViewModifier, Codable {
-    public var anyView: AnyViewModifier { AnyViewModifier(self) }
+extension _PaddingLayout: Codable {
     //: Codable
     enum CodingKeys: CodingKey {
         case edges, insets

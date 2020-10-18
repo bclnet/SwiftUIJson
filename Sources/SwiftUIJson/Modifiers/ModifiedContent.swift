@@ -7,29 +7,17 @@
 
 import SwiftUI
 
-// MARK: - Preamble
-public protocol JsonViewModifier {
-    var anyView: AnyViewModifier { get }
-}
-
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
-public struct AnyViewModifier {
-    public let base: Any
-    public init(_ base: Any) {
-        self.base = base
-    }
-}
-
 // MARK: - First
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
-extension ModifiedContent: DynaCodable where Content : View, Content : DynaCodable, Modifier : ViewModifier, Modifier : Codable {
+extension ModifiedContent: JsonView, DynaCodable where Content : View, Content : DynaCodable, Modifier : ViewModifier, Modifier : Codable {
+    public var anyView: AnyView { AnyView(self) }
     //: Codable
     enum CodingKeys: CodingKey {
         case content, modifier
     }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+    public init(from decoder: Decoder, for dynaType: DynaType, depth: Int) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let content = try container.decode(Content.self, forKey: .content, dynaType: dynaType)
+        let content = try container.decode(Content.self, forKey: .content, dynaType: dynaType[0], depth: depth + 1)
         let modifier = try container.decode(Modifier.self, forKey: .modifier)
         self.init(content: content, modifier: modifier)
     }

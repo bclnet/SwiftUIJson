@@ -14,10 +14,10 @@ extension ZStack: JsonView, DynaCodable where Content : View, Content : DynaCoda
     enum CodingKeys: CodingKey {
         case root, content
     }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+    public init(from decoder: Decoder, for dynaType: DynaType, depth: Int) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let root = try container.decodeIfPresent(_ZStackLayout.self, forKey: .root) ?? _ZStackLayout(alignment: .center)
-        let content = try container.decode(Content.self, forKey: .content, dynaType: dynaType)
+        let content = try container.decode(Content.self, forKey: .content, dynaType: dynaType, depth: depth + 1)
         self.init(alignment: root.alignment) { content }
     }
     public func encode(to encoder: Encoder) throws {
@@ -28,6 +28,7 @@ extension ZStack: JsonView, DynaCodable where Content : View, Content : DynaCoda
     }
 }
 
+@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension Alignment: Codable {
     //: Codable
     public init(from decoder: Decoder) throws {
