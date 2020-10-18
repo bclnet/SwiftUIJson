@@ -8,43 +8,51 @@
 
 // MARK - Codable
 enum CodingKeys: CodingKey {
-    case type
+    case type, `nil`
 }
 
 extension Encoder {
-    public func encodeDynaSuper(_ value: Encodable) throws {
+    public func encodeDynaSuper(_ value: Any) throws {
+        let unwrap = Mirror.unwrap(value: value)
         var container = self.container(keyedBy: CodingKeys.self)
-        try container.encode(DynaType.type(for: type(of: value).self), forKey: .type)
-        try value.encode(to: self)
+        try container.encode(try DynaType.type(for: type(of: value).self), forKey: .type)
+        if case Optional<Any>.none = value {
+            try container.encode("", forKey: .nil)
+            return
+        }
+        guard let encodeable = unwrap as? Encodable else { throw DynaTypeError.typeNotCodable(named: String(reflecting: value)) }
+        try encodeable.encode(to: self)
     }
 }
 
 extension Decoder {
     public func decodeDynaSuper() throws -> Any {
         let container = try self.container(keyedBy: CodingKeys.self)
-        let type = try container.decode(DynaType.self, forKey: .type)
-        return try dynaSuperInit(for: type)
+        if container.contains(.nil) { return Optional<Any>.none as Any }
+        return try dynaSuperInit(for: try container.decode(DynaType.self, forKey: .type))
     }
-    
+
     public func dynaSuperInit(for dynaType: DynaType, index: Int = -1) throws -> Any {
         switch dynaType[index] {
         case .type(let type, let name):
-            guard let decodableType = type as? DynaDecodable.Type else {
-                guard let decodableType2 = type as? Decodable.Type else { throw DynaTypeError.typeNotCodable(named: name) }
-                return try decodableType2.init(from: self)
+            let unwrap = DynaType.unwrap(type: type)
+            guard let decodable = unwrap as? DynaDecodable.Type else {
+                guard let decodable2 = unwrap as? Decodable.Type else { throw DynaTypeError.typeNotCodable(named: name) }
+                return try decodable2.init(from: self)
             }
-            return try decodableType.init(from: self, for: dynaType)
+            return try decodable.init(from: self, for: dynaType)
         case .tuple(let type, let name, _), .generic(let type, let name, _):
-            guard let decodableType = type as? DynaDecodable.Type else {
-                guard let decodableType2 = type as? Decodable.Type else { throw DynaTypeError.typeNotCodable(named: name) }
-                return try decodableType2.init(from: self)
+            let unwrap = DynaType.unwrap(type: type)
+            guard let decodable = unwrap as? DynaDecodable.Type else {
+                guard let decodable2 = unwrap as? Decodable.Type else { throw DynaTypeError.typeNotCodable(named: name) }
+                return try decodable2.init(from: self)
             }
-            return try decodableType.init(from: self, for: dynaType)
+            return try decodable.init(from: self, for: dynaType)
         }
     }
 }
 
-// MARK - DynaDecodable
+// MARK: - DynaDecodable
 
 /// A type that can decode itself from an external representation.
 public protocol DynaDecodable {

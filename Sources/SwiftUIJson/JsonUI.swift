@@ -16,6 +16,9 @@ public protocol JsonView {
 public struct JsonAnyView: View {
     public let body: AnyView
     public init(_ view: JsonView) { body = view.anyView }
+    static func any<Element>(_ value: Element) -> JsonAnyView {
+        JsonAnyView(value as? JsonView ?? EmptyView())
+    }
 }
 
 extension View {
@@ -39,8 +42,7 @@ extension AnyView: DynaCodable {
     public func encode(to encoder: Encoder) throws {
         let single = Mirror(reflecting: self).descendant("storage")!
         let storage = AnyViewStorageBase(single)
-        guard let value = storage.view as? Encodable else { fatalError("AnyView") }
-        try encoder.encodeDynaSuper(value)
+        try encoder.encodeDynaSuper(storage.view)
     }
 }
 
@@ -90,11 +92,10 @@ public struct JsonUI: Codable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(context, forKey: ._ui)
-        guard let value = body as? Encodable else { fatalError("encode") }
-        try encoder.encodeDynaSuper(value)
+        try encoder.encodeDynaSuper(body)
     }
     
-    // MARK - Register
+    // MARK: - Register
     public static let registered: Bool = registerDefault()
     
     public static func register<T>(_ type: T.Type) { DynaType.register(type) }
@@ -132,6 +133,8 @@ public struct JsonUI: Codable {
         register(GroupBox<AnyView, AnyView>.self)
         register(HStack<AnyView>.self)
         register(Image.self)
+        register(LazyHStack<AnyView>.self)
+        register(LazyVStack<AnyView>.self)
         register(List<AnyHashable, AnyView>.self)
         register(ModifiedContent<AnyView, Any>.self)
         register(NavigationLink<AnyView, AnyView>.self)

@@ -7,12 +7,9 @@
 
 import SwiftUI
 
-extension Divider: JsonView {
+extension Divider: JsonView, DynaCodable {
     public var anyView: AnyView { AnyView(self) }
-}
-
-extension Divider: DynaCodable {
-    // MARK - Codable
+    //: Codable
     public init(from decoder: Decoder, for dynaType: DynaType) throws {
         self.init()
     }

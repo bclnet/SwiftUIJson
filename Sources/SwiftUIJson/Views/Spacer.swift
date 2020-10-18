@@ -7,11 +7,9 @@
 
 import SwiftUI
 
-extension Spacer: JsonView {
+@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
+extension Spacer: JsonView, DynaCodable {
     public var anyView: AnyView { AnyView(self) }
-}
-
-extension Spacer: DynaCodable {
     // MARK - Codable
     enum CodingKeys: CodingKey {
         case minLength
@@ -25,15 +23,5 @@ extension Spacer: DynaCodable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         let minLength = Mirror(reflecting: self).descendant("minLength") as? CGFloat
         try container.encodeIfPresent(minLength, forKey: .minLength)
-    }
-}
-  
-extension _HSpacer: Encodable {
-    public func encode(to encoder: Encoder) throws {
-    }
-}
-  
-extension _VSpacer : Encodable {
-    public func encode(to encoder: Encoder) throws {
     }
 }

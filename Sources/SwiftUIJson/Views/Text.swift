@@ -1,5 +1,5 @@
 //
-//  Text.swift
+//  Text.swift (Incomplete)
 //
 //  Created by Sky Morey on 8/22/20.
 //  Copyright © 2020 Sky Morey. All rights reserved.
@@ -7,11 +7,9 @@
 
 import SwiftUI
 
-extension Text: JsonView {
+@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
+extension Text: JsonView, DynaCodable {
     public var anyView: AnyView { AnyView(self) }
-}
-
-extension Text: DynaCodable {
     @frozen internal enum Storage  {
         case verbatim(String)
         case anyTextStorage(AnyTextStorage)

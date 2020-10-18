@@ -7,11 +7,10 @@
 
 import SwiftUI
 
-extension EmptyView: JsonView {
+@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
+extension EmptyView: JsonView, DynaCodable {
     public var anyView: AnyView { AnyView(self) }
-}
-
-extension EmptyView: DynaCodable {
+    //: Codable
     public init(from decoder: Decoder, for dynaType: DynaType) throws {
         self.init()
     }

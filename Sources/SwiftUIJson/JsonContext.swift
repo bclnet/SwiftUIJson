@@ -11,7 +11,7 @@ import SwiftUI
 // https://swiftrocks.com/weak-dictionary-values-in-swift
 
 public class JsonContext: Codable {
-    // MARK - Static
+    // MARK: - Static
     static var cachedContexts = NSMapTable<NSString, JsonContext>.init(
         keyOptions: .copyIn,
         valueOptions: .weakMemory
@@ -65,7 +65,7 @@ public class JsonContext: Codable {
         slots = [String:JsonSlot]()
     }
     
-    // MARK - Codable
+    // MARK: - Codable
     enum CodingKeys: CodingKey {
         case _ui, slots
     }

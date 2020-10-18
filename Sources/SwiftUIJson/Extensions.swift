@@ -9,12 +9,16 @@
 import SwiftUI
 
 extension Mirror {
+    static func unwrap(value: Any) -> Any {
+        if case Optional<Any>.some(let wrapped) = value { return wrapped }
+        return value
+    }
+    static func isOptional(_ value: Any) -> Bool {
+        Mirror(reflecting: value).displayStyle == .optional
+    }
     static func values(reflecting: Any) -> [Any] {
         Mirror(reflecting: reflecting).children.map({ $0.value })
     }
-//    static func set(reflecting: Any) -> [(String, Any)] {
-//        Mirror(reflecting: reflecting).children.map({ ($0.label!, $0.value) })
-//    }
     static func children(reflecting: Any) -> [String:Any] {
         Mirror(reflecting: reflecting).children.reduce(into: [String:Any]()) { $0[$1.label!] = $1.value }
     }

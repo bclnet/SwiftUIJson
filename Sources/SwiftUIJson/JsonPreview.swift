@@ -94,11 +94,3 @@ public struct JsonPreview<Content>: View where Content: View {
         .padding()
     }
 }
-
-//struct JsonDebugView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        JsonPreview {
-//            SampleView()
-//        }
-//    }
-//}

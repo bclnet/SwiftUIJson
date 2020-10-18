@@ -7,11 +7,10 @@
 
 import SwiftUI
 
-extension ZStack: JsonView {
+@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
+extension ZStack: JsonView, DynaCodable where Content : View, Content : DynaCodable {
     public var anyView: AnyView { AnyView(self) }
-}
-
-extension ZStack: DynaCodable where Content : View, Content : DynaCodable {
+    //: Codable
     enum CodingKeys: CodingKey {
         case root, content
     }
@@ -22,14 +21,15 @@ extension ZStack: DynaCodable where Content : View, Content : DynaCodable {
         self.init(alignment: root.alignment) { content }
     }
     public func encode(to encoder: Encoder) throws {
-        let tree = Mirror(reflecting: self).descendant("_tree") as! _VariadicView.Tree<_ZStackLayout, Content>
+        let tree = Mirror(reflecting: self).descendant("_tree") as! _VariadicView.Tree<_ZStackLayout, Content>, root = tree.root
         var container = encoder.container(keyedBy: CodingKeys.self)
-        if tree.root.alignment != .center { try container.encode(tree.root, forKey: .root) }
+        if root.alignment != .center { try container.encode(root, forKey: .root) }
         try container.encode(tree.content, forKey: .content)
     }
 }
 
 extension Alignment: Codable {
+    //: Codable
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         switch try container.decode(String.self) {
@@ -43,8 +43,7 @@ extension Alignment: Codable {
         case "bottomLeading": self = .bottomLeading
         case "bottomTrailing": self = .bottomTrailing
         default:
-            let context = DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Invalid")
-            throw DecodingError.dataCorrupted(context)
+            throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Invalid"))
         }
     }
     public func encode(to encoder: Encoder) throws {
@@ -64,7 +63,9 @@ extension Alignment: Codable {
     }
 }
 
+@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension _ZStackLayout: Codable {
+    //: Codable
     enum CodingKeys: CodingKey {
         case spacing, alignment
     }
