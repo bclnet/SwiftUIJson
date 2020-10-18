@@ -133,10 +133,8 @@ public struct JsonUI: Codable {
         register(GroupBox<AnyView, AnyView>.self)
         register(HStack<AnyView>.self)
         register(Image.self)
-        register(LazyHStack<AnyView>.self)
-        register(LazyVStack<AnyView>.self)
         register(List<AnyHashable, AnyView>.self)
-        register(ModifiedContent<AnyView, Any>.self)
+        register(ModifiedContent<AnyView, AnyViewModifier>.self)
         register(NavigationLink<AnyView, AnyView>.self)
         register(NavigationView<AnyView>.self)
         register(Never.self)
@@ -162,6 +160,12 @@ public struct JsonUI: Codable {
         register(TupleView<(JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView)>.self)
         register(VStack<AnyView>.self)
         register(ZStack<AnyView>.self)
+        
+        if #available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *) {
+            register(_PaddingLayout.self)
+            register(LazyHStack<AnyView>.self)
+            register(LazyVStack<AnyView>.self)
+        }
     }
     
     @available(OSX 10.15, *)
