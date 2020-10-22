@@ -8,31 +8,74 @@
 
 import Foundation
 
-public enum DynaType: Codable {
+public enum DynaTypeError: Error {
+    case typeNotFound(named: String)
+    case typeParseError(named: String)
+    case typeNameError(actual: String, expected: String)
+    case typeNotCodable(named: String)
+}
+
+public struct DynaTypeWithNil: RawRepresentable, Codable {
+    public let dynaType: DynaType
+    public let hasNil: Bool
+    public init(_ dynaType: DynaType, hasNil: Bool) {
+        self.dynaType = dynaType
+        self.hasNil = hasNil
+    }
+    //: RawRepresentable
+    public init?(rawValue: String) {
+        guard rawValue.hasSuffix(":nil") else {
+            dynaType = DynaType(rawValue: rawValue)!
+            hasNil = false
+            return
+        }
+        let endIdx = rawValue.lastIndex(of: ":")!
+        dynaType = DynaType(rawValue: String(rawValue[..<endIdx]))!
+        hasNil = true
+    }
+    public var rawValue: String {
+        !hasNil ? dynaType.rawValue : "\(dynaType.rawValue):nil"
+    }
+    //: Codable
+    public init(from decoder: Decoder) throws {
+        self.init(rawValue: try decoder.singleValueContainer().decode(String.self))!
+    }
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(rawValue)
+    }
+}
+
+public enum DynaType: RawRepresentable, Codable {
     case type(_ type: Any.Type, _ name: String)
     case tuple(_ type: Any.Type, _ name: String, _ components: [Self])
     case generic(_ type: Any.Type, _ name: String, _ components: [Self])
-    //: Subscript
+    public var underlyingName: String {
+        switch self { case .type(_, let name), .tuple(_, let name, _), .generic(_, let name, _): return name }
+    }
+    public var underlyingType: Any.Type {
+        switch self { case .type(let type, _), .tuple(let type, _, _), .generic(let type, _, _): return type }
+    }
     public subscript(index: Int) -> Self {
         guard index > -1 else { return self }
         switch self {
         case .type: return self
         case .tuple(_, _, let componets), .generic(_, _, let componets): return componets[index] }
     }
-    public func name() -> String {
-        switch self { case .type(_, let name), .tuple(_, let name, _), .generic(_, let name, _): return name }
+    //: RawRepresentable
+    public init?(rawValue: String) {
+        self = try! Self.typeParse(for: rawValue)
     }
-    public func type() -> Any.Type {
-        switch self { case .type(let type, _), .tuple(let type, _, _), .generic(let type, _, _): return type }
+    public var rawValue: String {
+        Self.typeName(for: underlyingName)
     }
     //: Codable
     public init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        self = try Self.typeParse(for: try container.decode(String.self))
+        self.init(rawValue: try decoder.singleValueContainer().decode(String.self))!
     }
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
-        try container.encode(Self.typeName(for: name()))
+        try container.encode(rawValue)
     }
 
     // MARK: - Register
@@ -221,11 +264,4 @@ public enum DynaType: Codable {
         register(String.self)
         register(Int.self)
     }
-}
-
-enum DynaTypeError: Error {
-    case typeNotFound(named: String)
-    case typeParseError(named: String)
-    case typeNameError(actual: String, expected: String)
-    case typeNotCodable(named: String)
 }

@@ -32,8 +32,8 @@ extension ZStack: JsonView, DynaCodable where Content : View, Content : DynaCoda
 extension Alignment: Codable {
     //: Codable
     public init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        switch try container.decode(String.self) {
+        let container = try decoder.singleValueContainer(), value = try container.decode(String.self)
+        switch value {
         case "center": self = .center
         case "leading": self = .leading
         case "trailing": self = .trailing
@@ -44,7 +44,7 @@ extension Alignment: Codable {
         case "bottomLeading": self = .bottomLeading
         case "bottomTrailing": self = .bottomTrailing
         default:
-            throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Invalid"))
+            throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: decoder.codingPath, debugDescription: value))
         }
     }
     public func encode(to encoder: Encoder) throws {
@@ -59,7 +59,8 @@ extension Alignment: Codable {
         case .topTrailing: try container.encode("topTrailing")
         case .bottomLeading: try container.encode("bottomLeading")
         case .bottomTrailing: try container.encode("bottomTrailing")
-        default: fatalError()
+        default:
+            throw EncodingError.invalidValue(self, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: ""))
         }
     }
 }

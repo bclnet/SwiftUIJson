@@ -471,12 +471,12 @@ extension Font {
         }
         //: Codable
         public required init(from decoder: Decoder) throws {
-            var container = try decoder.unkeyedContainer()
+            let container = try decoder.singleValueContainer()
             weight = try container.decode(Weight.self)
             super.init(any: 0)
         }
         public override func encode(to encoder: Encoder) throws {
-            var container = encoder.unkeyedContainer()
+            var container = encoder.singleValueContainer()
             try container.encode(weight)
         }
     }
@@ -499,12 +499,12 @@ extension Font {
         }
         //: Codable
         public required init(from decoder: Decoder) throws {
-            var container = try decoder.unkeyedContainer()
+            let container = try decoder.singleValueContainer()
             leading = try container.decode(Leading.self)
             super.init(any: 0)
         }
         public override func encode(to encoder: Encoder) throws {
-            var container = encoder.unkeyedContainer()
+            var container = encoder.singleValueContainer()
             try container.encode(leading)
         }
     }

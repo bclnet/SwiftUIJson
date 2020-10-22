@@ -6,9 +6,13 @@
 //  Copyright © 2020 Sky Morey. All rights reserved.
 //
 
+import SwiftUI
+
+protocol DynaUnkeyed { }
+
 //: Codable
 fileprivate enum CodingKeys: CodingKey {
-    case type, `nil`
+    case type
 }
 
 fileprivate func printPath(_ value: String) {
@@ -18,12 +22,17 @@ fileprivate func printPath(_ value: String) {
 extension Encoder {
     public func encodeDynaSuper(_ value: Any) throws {
         let unwrap = Mirror.unwrap(value: value)
-        var container = self.container(keyedBy: CodingKeys.self)
-        try container.encode(try DynaType.type(for: type(of: value).self), forKey: .type)
-        if case Optional<Any>.none = value {
-            try container.encode("", forKey: .nil)
-            return
+//        let unwrap = AnyView.unwrap(value: Mirror.unwrap(value: value))
+        let hasNil: Bool; if case Optional<Any>.none = value { hasNil = true } else { hasNil =  false }
+        let dynaTypeWithNil = DynaTypeWithNil(try DynaType.type(for: type(of: value).self), hasNil: hasNil)
+        if value is DynaUnkeyed {
+            var container = self.unkeyedContainer()
+            try container.encode(dynaTypeWithNil)
+        } else {
+            var container = self.container(keyedBy: CodingKeys.self)
+            try container.encode(dynaTypeWithNil, forKey: .type)
         }
+        if hasNil { return }
         guard let encodeable = unwrap as? Encodable else { throw DynaTypeError.typeNotCodable(named: String(reflecting: value)) }
         try encodeable.encode(to: self)
     }
@@ -31,13 +40,20 @@ extension Encoder {
 
 extension Decoder {
     public func decodeDynaSuper(depth: Int) throws -> Any {
-        let container = try self.container(keyedBy: CodingKeys.self)
-        if container.contains(.nil) {
+        let dynaTypeWithNil: DynaTypeWithNil
+        do {
+            var container = try self.unkeyedContainer()
+            dynaTypeWithNil = try container.decode(DynaTypeWithNil.self)
+        } catch {
+            let container = try self.container(keyedBy: CodingKeys.self)
+            dynaTypeWithNil = try container.decode(DynaTypeWithNil.self, forKey: .type)
+        }
+        if dynaTypeWithNil.hasNil {
             printPath("\(String(repeating: "+", count: depth)) nil \(self.codingPath)")
             return Optional<Any>.none as Any
         }
-        let dynaType = try container.decode(DynaType.self, forKey: .type)
-        printPath("\(String(repeating: "+", count: depth)) \(dynaType.type()) \(self.codingPath)")
+        let dynaType = dynaTypeWithNil.dynaType
+        printPath("\(String(repeating: "+", count: depth)) \(dynaType.underlyingType) \(self.codingPath)")
         return try dynaSuperInit(for: dynaType, depth: depth)
     }
 
@@ -61,10 +77,11 @@ extension Decoder {
     }
 }
 
-// MARK: - DynaDecodable
+// MARK: - DynaCodable
 
 /// A type that can decode itself from an external representation.
 public protocol DynaDecodable {
+    
     /// Creates a new instance by decoding from the given decoder.
     ///
     /// This initializer throws an error if reading from the decoder fails, or
@@ -82,6 +99,7 @@ public protocol DynaDecodable {
 public typealias DynaCodable = Encodable & DynaDecodable
 
 extension KeyedDecodingContainerProtocol {
+    
     /// Decodes a value of the given type for the given key.
     ///
     /// - parameter type: The type of value to decode.
@@ -96,7 +114,7 @@ extension KeyedDecodingContainerProtocol {
     ///   the given key.
     public func decode<T: DynaDecodable>(_ type: T.Type, forKey key: Key, dynaType: DynaType, depth: Int) throws -> T {
         let decoder = try superDecoder(forKey: key)
-        printPath("\(String(repeating: "-", count: depth)) \(dynaType.type()) \(self.codingPath)")
+        printPath("\(String(repeating: "-", count: depth)) \(dynaType.underlyingType) \(self.codingPath)")
         return try type.init(from: decoder, for: dynaType, depth: depth)
     }
     
@@ -119,7 +137,7 @@ extension KeyedDecodingContainerProtocol {
             return nil
         }
         let decoder = try superDecoder(forKey: key)
-        printPath("\(String(repeating: "-", count: depth)) \(dynaType.type()) \(self.codingPath)")
+        printPath("\(String(repeating: "-", count: depth)) \(dynaType.underlyingType) \(self.codingPath)")
         return try type.init(from: decoder, for: dynaType, depth: depth)
     }
 }

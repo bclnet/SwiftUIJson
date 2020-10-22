@@ -9,14 +9,18 @@ import SwiftUI
 
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension AnyView: DynaCodable {
+    static func unwrap(value: Any) -> Any {
+        guard let anyView = value as? AnyView else { return value }
+        let storage = AnyViewStorageBase(any: Mirror(reflecting: anyView).descendant("storage")!)
+        return storage.view
+    }
     //: Codable
     public init(from decoder: Decoder, for dynaType: DynaType, depth: Int) throws {
         guard let value = try decoder.dynaSuperInit(for: dynaType[0], depth: depth) as? JsonView else { fatalError("AnyView") }
         self = value.anyView
     }
     public func encode(to encoder: Encoder) throws {
-        let single = Mirror(reflecting: self).descendant("storage")!
-        let storage = AnyViewStorageBase(any: single)
+        let storage = AnyViewStorageBase(any: Mirror(reflecting: self).descendant("storage")!)
         try encoder.encodeDynaSuper(storage.view)
     }
     

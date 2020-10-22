@@ -20,7 +20,7 @@ extension _ConditionalContent: JsonView, DynaCodable where TrueContent : View, T
         let falseContent = try container.decodeIfPresent(FalseContent.self, forKey: .false, dynaType: dynaType[0], depth: depth + 1)
         if trueContent != nil { self = ViewBuilder.buildEither(first: trueContent!) }
         else if falseContent != nil { self = ViewBuilder.buildEither(second: falseContent!) }
-        else { throw DynaTypeError.typeParseError(named: "") }
+        else { throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "_ConditionalContent not true or false")) }
     }
     public func encode(to encoder: Encoder) throws {
         let storage = Storage(any: Mirror(reflecting: self).descendant("storage")!)

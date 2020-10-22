@@ -29,7 +29,9 @@ public struct JsonPreview<Content>: View where Content: View {
             JsonContext.remove(view)
         }
         do {
-            data = try JsonUI.encode(view: view, context: context)
+            let encoder = JSONEncoder()
+            encoder.outputFormatting = .prettyPrinted
+            data = try encoder.encode(JsonUI(view: view, context: context))
         } catch DynaTypeError.typeNotCodable(let named) {
             data = "typeNotCodable named:\(named)".data(using: .utf8)!
             content2 = AnyView(Text("ERROR"))
@@ -42,7 +44,9 @@ public struct JsonPreview<Content>: View where Content: View {
         
         // content2
         do {
-            let jsonUI = try JsonUI(from: data)
+            let decoder = JSONDecoder()
+            decoder.userInfo[.json] = data
+            let jsonUI = try decoder.decode(JsonUI.self, from: data)
             content2 = jsonUI.anyView ?? AnyView(Text("ERROR:notAnyView"))
         } catch DynaTypeError.typeNotFound {
             content2 = AnyView(Text("ERROR:typeNotFound"))
@@ -77,12 +81,28 @@ public struct JsonPreview<Content>: View where Content: View {
                         )
                 }
                 Spacer()
-                ScrollView {
-                    HStack {
-                        Text(String(data: data, encoding: .utf8)!)
+                ZStack {
+                    ScrollView {
+                        HStack {
+                            Text(String(data: data, encoding: .utf8)!)
+                            Spacer()
+                        }
+                        .padding()
+                    }
+                    VStack {
+                        HStack(alignment: .top) {
+                            Spacer()
+                            Button(action: {
+                                UIPasteboard.general.string = String(data: data, encoding: .utf8)!
+                                print("copied to clipboard")
+                            }) {
+                                Image(systemName: "doc.text")
+                                    .font(Font.system(.title))
+                            }
+                            .padding()
+                        }
                         Spacer()
                     }
-                    .padding()
                 }
                 .frame(width: geometry.size.width, height: geometry.size.height * 0.3 - 10)
                 .overlay(

@@ -67,8 +67,7 @@ extension Text {
             case color, font, italic, weight, kerning, tracking, baseline, rounded, anyTextModifier
         }
         public init(from decoder: Decoder) throws {
-            let context = decoder.userInfo[.jsonContext] as! JsonContext
-            let container = try decoder.container(keyedBy: CodingKeys.self)
+            let context = decoder.userInfo[.jsonContext] as! JsonContext, container = try decoder.container(keyedBy: CodingKeys.self)
             if container.contains(.color) { self = .color(try container.decodeOptional(Color.self, forKey: .color, forContext: context)) }
             else if container.contains(.font) { self = .font(try container.decodeOptional(Font.self, forKey: .font, forContext: context)) }
             else if container.contains(.italic) { self = .italic }
@@ -267,7 +266,7 @@ extension Text.TruncationMode: Codable {
         }
     }
 }
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
+@available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *)
 extension Text.Case: Codable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()

@@ -13,44 +13,44 @@ public protocol JsonView {
     var anyView: AnyView { get }
 }
 
+//public enum JsonUIError: Error {
+//    case generic(message: String)
+//}
+
 public struct JsonUI: Codable {
     public var context = JsonContext()
     public let body: Any
     public var anyView: AnyView? { body as? AnyView }
     
-    public init(from json: Data) throws {
+    public init<Content>(view: Content, context: JsonContext) throws where Content : View {
         let _ = JsonUI.registered
-        let decoder = JSONDecoder()
-        self.context = try decoder.decode(JsonContext.self, from: json)
-        decoder.userInfo[.jsonContext] = context
-        self.body = try decoder.decode(JsonUI.self, from: json).body
-    }
-    private init(to value: Encodable, context: JsonContext) {
-        let _ = JsonUI.registered
+        guard let value = view.body as? Encodable else { throw DynaTypeError.typeNotCodable(named: String(reflecting: view)) }
         self.context = context
         body = value
     }
 
-    static func encode<Content>(view: Content, context: JsonContext) throws -> Data where Content : View {
-        guard let value = view.body as? Encodable else { throw DynaTypeError.typeNotCodable(named: String(reflecting: view)) }
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = .prettyPrinted
-        return try encoder.encode(JsonUI(to: value, context: context))
-    }
-    
     //: Codable
     enum CodingKeys: CodingKey {
         case _ui
     }
     public init(from decoder: Decoder) throws {
-        context = decoder.userInfo[.jsonContext] as! JsonContext
-        let value = try decoder.decodeDynaSuper(depth: 0)
-        guard let anyView = value as? AnyView else {
-            guard let view = value as? JsonView else { fatalError("init") }
-            body = view.anyView
+        guard let json = decoder.userInfo[.json] as? Data else { fatalError("json") }
+        guard (decoder.userInfo[.jsonContext] as? JsonContext) != nil else {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            let nextContext = try container.decode(JsonContext.self, forKey: ._ui)
+            let nextDecoder = JSONDecoder()
+            nextDecoder.userInfo[.json] = json
+            nextDecoder.userInfo[.jsonContext] = nextContext
+            body = try nextDecoder.decode(JsonUI.self, from: json).body
             return
         }
-        body = anyView
+        let value = try decoder.decodeDynaSuper(depth: 0)
+        if let anyView = value as? AnyView {
+            body = anyView
+        } else {
+            guard let view = value as? JsonView else { fatalError("init") }
+            body = view.anyView
+        }
     }
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)

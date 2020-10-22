@@ -11,6 +11,7 @@ import SwiftUI
 // https://swiftrocks.com/weak-dictionary-values-in-swift
 
 extension CodingUserInfoKey {
+    public static let json = CodingUserInfoKey(rawValue: "jsonData")!
     public static let jsonContext = CodingUserInfoKey(rawValue: "jsonContext")!
 }
 
@@ -70,12 +71,9 @@ public class JsonContext: Codable {
     }
     //: Codable
     enum CodingKeys: CodingKey {
-        case _ui, slots
+        case slots
     }
-    public required init(from superDecoder: Decoder) throws {
-        let superContainer = try superDecoder.container(keyedBy: CodingKeys.self)
-        let decoder = try superContainer.superDecoder(forKey: ._ui)
-        //
+    public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         slots = try container.decodeIfPresent([String:JsonSlot].self, forKey: .slots) ?? [String:JsonSlot]()
     }
