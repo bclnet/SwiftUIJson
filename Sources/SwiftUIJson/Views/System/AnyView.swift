@@ -26,14 +26,18 @@ extension AnyView: DynaCodable {
     
     internal class AnyViewStorageBase {
         let view: Any
-        init(any s: Any) { view = Mirror(reflecting: s).descendant("view")! }
+        init(any s: Any) {
+            view = Mirror(reflecting: s).descendant("view")!
+        }
     }
 }
 
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 public struct JsonAnyView: View {
     public let body: AnyView
-    public init(_ view: JsonView) { body = view.anyView }
+    public init(_ view: JsonView) {
+        body = view.anyView
+    }
     static func any<Element>(_ value: Element) -> JsonAnyView {
         JsonAnyView(value as? JsonView ?? EmptyView())
     }

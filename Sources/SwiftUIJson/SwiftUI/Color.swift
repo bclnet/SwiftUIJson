@@ -1,5 +1,5 @@
 //
-//  Color.swift (Incomplete)
+//  Color.swift
 //  Glyph
 //
 //  Created by Sky Morey on 8/22/20.
@@ -7,12 +7,11 @@
 //
 
 import SwiftUI
-struct UnexpectedlyFoundNilError: Error {}
 
 #if os(macOS)
-typealias UXColor = NSColor
+public typealias UXColor = NSColor
 #else
-typealias UXColor = UIColor
+public typealias UXColor = UIColor
 #endif
 
 // MARK: - Preamble
@@ -77,10 +76,10 @@ extension Color {
         let opacity: Float
         init(any s: Any, provider: String) {
             let m = Mirror.children(reflecting: s)
-            red = m["linearRed"] as! Float
-            green = m["linearGreen"] as! Float
-            blue = m["linearBlue"] as! Float
-            opacity = m["opacity"] as! Float
+            red = m["linearRed"]! as! Float
+            green = m["linearGreen"]! as! Float
+            blue = m["linearBlue"]! as! Float
+            opacity = m["opacity"]! as! Float
             super.init(provider: provider)
         }
         public override func apply() -> Color {
@@ -115,10 +114,10 @@ extension Color {
         let opacity: Float
         init(any s: Any, provider: String) {
             let m = Mirror.children(reflecting: s)
-            red = m["red"] as! CGFloat
-            green = m["green"] as! CGFloat
-            blue = m["blue"] as! CGFloat
-            opacity = m["opacity"] as! Float
+            red = m["red"]! as! CGFloat
+            green = m["green"]! as! CGFloat
+            blue = m["blue"]! as! CGFloat
+            opacity = m["opacity"]! as! Float
             super.init(provider: provider)
         }
         public override func apply() -> Color {
@@ -151,8 +150,8 @@ extension Color {
         let bundle: Bundle?
         init(any s: Any, provider: String) {
             let m = Mirror.children(reflecting: s)
-            name = m["name"] as! String
-            bundle = m["bundle"] as? Bundle
+            name = m["name"]! as! String
+            bundle = m["bundle"]! as? Bundle
             super.init(provider: provider)
         }
         public override func apply() -> Color {
@@ -205,8 +204,8 @@ extension Color {
         let opacity: Double
         init(any s: Any, provider: String) {
             let m = Mirror.children(reflecting: s)
-            base = m["base"] as! Color
-            opacity = m["opacity"] as! Double
+            base = m["base"]! as! Color
+            opacity = m["opacity"]! as! Double
             super.init(provider: provider)
         }
         public override func apply() -> Color {
@@ -311,32 +310,6 @@ extension Color: Codable {
     }
 }
 
-    
-// MARK: - First
-
-//@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
-//extension Color.RGBColorSpace: Codable {
-//    public init(from decoder: Decoder) throws {
-//        let container = try decoder.singleValueContainer()
-//        let value = try container.decode(String.self)
-//        switch value {
-//        case "sRGB": self = .sRGB
-//        case "sRGBLinear": self = .sRGBLinear
-//        case "displayP3": self = .displayP3
-//        default: fatalError(value)
-//        }
-//    }
-//    public func encode(to encoder: Encoder) throws {
-//        var container = encoder.singleValueContainer()
-//        switch self {
-//        case .sRGB: try container.encode("sRGB")
-//        case .sRGBLinear: try container.encode("sRGBLinear")
-//        case .displayP3: try container.encode("displayP3")
-//        default: fatalError()
-//        }
-//    }
-//}
-
 extension CGColor {
     public static func decode(from decoder: Decoder) throws -> CGColor {
         try UXColor.decode(from: decoder).cgColor
@@ -356,11 +329,11 @@ extension UXColor {
         let container = try decoder.singleValueContainer()
         let decodedData = try container.decode(Data.self)
         let nsCoder = try NSKeyedUnarchiver(forReadingFrom: decodedData)
-        guard let color = UXColor(coder: nsCoder) else { throw UnexpectedlyFoundNilError() }
+        guard let color = UXColor(coder: nsCoder) else { throw DecodingError.dataCorruptedError(in: container, debugDescription: "") }
         return color
     }
     func encode(to encoder: Encoder) throws {
-        let nsCoder = NSKeyedArchiver(requiringSecureCoding: true)
+        let nsCoder = NSKeyedArchiver(requiringSecureCoding: false)
         self.encode(with: nsCoder)
         var container = encoder.singleValueContainer()
         try container.encode(nsCoder.encodedData)

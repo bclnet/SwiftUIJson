@@ -17,13 +17,13 @@ internal protocol _Tree_ViewRoot {
 internal class Tree<Root, Content> where Root : _Tree_ViewRoot, Content : View {
     let root: Root
     let content: Content
-    init(any s: Any) {
-        let base = Mirror.children(reflecting: s)
-        self.root = Root(any: base["root"]!)
-        self.content = base["content"] as! Content
-    }
     init(root: Root, content: Content) {
         self.root = root
         self.content = content
+    }
+    init(any s: Any) {
+        let m = Mirror.children(reflecting: s)
+        root = Root(any: m["root"]!)
+        content = m["content"]! as! Content
     }
 }

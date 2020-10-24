@@ -8,7 +8,7 @@
 import SwiftUI
 
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
-extension TupleView: JsonView, DynaCodable, DynaUnkeyed {
+extension TupleView: JsonView, DynaCodable, DynaUnkeyedContainer {
     public var anyView: AnyView { AnyView(self) }
     //: Codable
 //    internal struct _TupleViewCodingKey: CodingKey {
@@ -34,6 +34,7 @@ extension TupleView: JsonView, DynaCodable, DynaUnkeyed {
         //        } else {
         // Default unkeyedContainer
         var container = try decoder.unkeyedContainer()
+        //let sk = try container.decode(String.self) // eat type
         var items = [JsonView?]()
         while !container.isAtEnd {
             let baseDecoder = try container.superDecoder()

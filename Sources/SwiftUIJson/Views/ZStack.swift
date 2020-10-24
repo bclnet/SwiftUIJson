@@ -21,7 +21,8 @@ extension ZStack: JsonView, DynaCodable where Content : View, Content : DynaCoda
         self.init(alignment: root.alignment) { content }
     }
     public func encode(to encoder: Encoder) throws {
-        let tree = Mirror(reflecting: self).descendant("_tree") as! _VariadicView.Tree<_ZStackLayout, Content>, root = tree.root
+        let tree = Mirror(reflecting: self).descendant("_tree") as! _VariadicView.Tree<_ZStackLayout, Content>
+        let root = tree.root
         var container = encoder.container(keyedBy: CodingKeys.self)
         if root.alignment != .center { try container.encode(root, forKey: .root) }
         try container.encode(tree.content, forKey: .content)
@@ -32,8 +33,8 @@ extension ZStack: JsonView, DynaCodable where Content : View, Content : DynaCoda
 extension Alignment: Codable {
     //: Codable
     public init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer(), value = try container.decode(String.self)
-        switch value {
+        let container = try decoder.singleValueContainer()
+        switch try container.decode(String.self) {
         case "center": self = .center
         case "leading": self = .leading
         case "trailing": self = .trailing
@@ -43,8 +44,7 @@ extension Alignment: Codable {
         case "topTrailing": self = .topTrailing
         case "bottomLeading": self = .bottomLeading
         case "bottomTrailing": self = .bottomTrailing
-        default:
-            throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: decoder.codingPath, debugDescription: value))
+        default: fatalError()
         }
     }
     public func encode(to encoder: Encoder) throws {
@@ -59,8 +59,7 @@ extension Alignment: Codable {
         case .topTrailing: try container.encode("topTrailing")
         case .bottomLeading: try container.encode("bottomLeading")
         case .bottomTrailing: try container.encode("bottomTrailing")
-        default:
-            throw EncodingError.invalidValue(self, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: ""))
+        default: fatalError()
         }
     }
 }

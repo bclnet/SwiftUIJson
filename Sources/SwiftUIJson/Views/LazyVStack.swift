@@ -21,7 +21,8 @@ extension LazyVStack: JsonView, DynaCodable where Content : View, Content : Dyna
         self.init(alignment: root.alignment, spacing: root.spacing, pinnedViews: root.pinnedViews) { content }
     }
     public func encode(to encoder: Encoder) throws {
-        let tree = Tree<LazyVStackLayout, Content>(any: Mirror(reflecting: self).descendant("tree")!), root = tree.root
+        let tree = Tree<LazyVStackLayout, Content>(any: Mirror(reflecting: self).descendant("tree")!)
+        let root = tree.root
         var container = encoder.container(keyedBy: CodingKeys.self)
         if root.alignment != .center || root.spacing != nil || root.pinnedViews.rawValue != 0 { try container.encode(root, forKey: .root) }
         try container.encode(tree.content, forKey: .content)
@@ -30,17 +31,17 @@ extension LazyVStack: JsonView, DynaCodable where Content : View, Content : Dyna
 
 @available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *)
 internal struct LazyVStackLayout: _Tree_ViewRoot {
-    private let base: _VStackLayout
+    let base: _VStackLayout
     var alignment: HorizontalAlignment { base.alignment }
     var spacing: CGFloat? { base.spacing }
     let pinnedViews: PinnedScrollableViews
     init(any s: Any) {
-        let base = Mirror.children(reflecting: s)
-        self.base = base["base"] as! _VStackLayout
-        self.pinnedViews = base["pinnedViews"] as! PinnedScrollableViews
+        let m = Mirror.children(reflecting: s)
+        base = m["base"]! as! _VStackLayout
+        pinnedViews = m["pinnedViews"]! as! PinnedScrollableViews
     }
     init(alignment: HorizontalAlignment, spacing: CGFloat? = nil, pinnedViews: PinnedScrollableViews) {
-        self.base = _VStackLayout(alignment: alignment, spacing: spacing)
+        base = _VStackLayout(alignment: alignment, spacing: spacing)
         self.pinnedViews = pinnedViews
     }
 }

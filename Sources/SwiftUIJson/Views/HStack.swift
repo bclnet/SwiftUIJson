@@ -32,15 +32,14 @@ extension HStack: JsonView, DynaCodable where Content : View, Content : DynaCoda
 extension VerticalAlignment: Codable {
     //: Codable
     public init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer(), value = try container.decode(String.self)
-        switch value {
+        let container = try decoder.singleValueContainer()
+        switch try container.decode(String.self) {
         case "top": self = .top
         case "center": self = .center
         case "bottom": self = .bottom
         case "firstTextBaseline": self = .firstTextBaseline
         case "lastTextBaseline": self = .lastTextBaseline
-        default:
-            throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: decoder.codingPath, debugDescription: value))
+        default: fatalError()
         }
     }
     public func encode(to encoder: Encoder) throws {
@@ -51,8 +50,7 @@ extension VerticalAlignment: Codable {
         case .bottom: try container.encode("bottom")
         case .firstTextBaseline: try container.encode("firstTextBaseline")
         case .lastTextBaseline: try container.encode("lastTextBaseline")
-        default:
-            throw EncodingError.invalidValue(self, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: ""))
+        default: fatalError()
         }
     }
 }

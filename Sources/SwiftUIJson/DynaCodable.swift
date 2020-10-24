@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-protocol DynaUnkeyed { }
+protocol DynaUnkeyedContainer { }
 
 //: Codable
 fileprivate enum CodingKeys: CodingKey {
@@ -25,7 +25,7 @@ extension Encoder {
 //        let unwrap = AnyView.unwrap(value: Mirror.unwrap(value: value))
         let hasNil: Bool; if case Optional<Any>.none = value { hasNil = true } else { hasNil =  false }
         let dynaTypeWithNil = DynaTypeWithNil(try DynaType.type(for: type(of: value).self), hasNil: hasNil)
-        if value is DynaUnkeyed {
+        if value is DynaUnkeyedContainer {
             var container = self.unkeyedContainer()
             try container.encode(dynaTypeWithNil)
         } else {
@@ -97,6 +97,13 @@ public protocol DynaDecodable {
 /// When you use `Codable` as a type or a generic constraint, it matches
 /// any type that conforms to both protocols.
 public typealias DynaCodable = Encodable & DynaDecodable
+
+/// A type that can convert itself into and out of an external representation.
+///
+/// `Codable` is a type alias for the `Encodable` and `Decodable` protocols.
+/// When you use `Codable` as a type or a generic constraint, it matches
+/// any type that conforms to both protocols.
+public typealias DynaFullCodable = Encodable & Decodable & DynaDecodable
 
 extension KeyedDecodingContainerProtocol {
     

@@ -12,13 +12,12 @@ import SwiftUI
 extension Edge: Codable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
-        let value = try container.decode(String.self)
-        switch value {
+        switch try container.decode(String.self) {
         case "top": self = .top
         case "leading": self = .leading
         case "bottom": self = .bottom
         case "trailing": self = .trailing
-        default: fatalError(value)
+        default: fatalError()
         }
     }
     public func encode(to encoder: Encoder) throws {
@@ -38,7 +37,7 @@ extension Edge.Set: Codable {
         let container = try decoder.singleValueContainer()
         self.init(rawValue: try container.decode(Int8.self))
     }
-    public  func encode(to encoder: Encoder) throws {
+    public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         try container.encode(self.rawValue)
     }
@@ -46,6 +45,9 @@ extension Edge.Set: Codable {
 
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension EdgeInsets: Codable {
+    public var isEmpty: Bool {
+        top == 0 && leading == 0 && bottom == 0 && trailing == 0
+    }
     //: Codable
     enum CodingKeys: CodingKey {
         case top, leading, bottom, trailing

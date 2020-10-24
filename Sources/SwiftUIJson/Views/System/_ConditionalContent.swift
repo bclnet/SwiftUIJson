@@ -33,9 +33,9 @@ extension _ConditionalContent: JsonView, DynaCodable where TrueContent : View, T
         let trueContent: TrueContent?
         let falseContent: FalseContent?
         init(any s: Any) {
-            let base = Mirror.single(reflecting: s)
-            trueContent = base.label == "trueContent" ? base.value as? TrueContent : nil
-            falseContent = base.label == "falseContent" ? base.value as? FalseContent : nil
+            let m = Mirror.single(reflecting: s)
+            trueContent = m.label == "trueContent" ? m.value as? TrueContent : nil
+            falseContent = m.label == "falseContent" ? m.value as? FalseContent : nil
         }
     }
 }

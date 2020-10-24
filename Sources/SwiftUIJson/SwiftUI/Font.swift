@@ -9,9 +9,9 @@
 import SwiftUI
 
 #if os(macOS)
-typealias UXFont = NSFont
+public typealias UXFont = NSFont
 #else
-typealias UXFont = UIFont
+public typealias UXFont = UIFont
 #endif
 
 // MARK: - Preamble
@@ -98,9 +98,9 @@ extension Font {
         let textStyle: TextStyle?
         init(any s: Any, provider: String) {
             let base = Mirror.children(reflecting: s)
-            name = base["name"] as! String
-            size = base["size"] as! CGFloat
-            textStyle = base["textStyle"] as? TextStyle
+            name = base["name"]! as! String
+            size = base["size"]! as! CGFloat
+            textStyle = base["textStyle"]! as? TextStyle
             super.init(provider: provider)
         }
         public override func apply() -> Font {
@@ -136,7 +136,7 @@ extension Font {
         let fontSize: CGFloat
         init(any s: Any, provider: String) {
             let base = Mirror.children(reflecting: s)
-            font = base["font"] as! UXFont //try: CTFont
+            font = base["font"]! as! UXFont //try: CTFont
             fontSize = font.pointSize
             super.init(provider: provider)
         }
@@ -176,9 +176,9 @@ extension Font {
         let design: Design
         init(any s: Any, provider: String) {
             let base = Mirror.children(reflecting: s)
-            size = base["size"] as! CGFloat
-            weight = base["weight"] as! Weight
-            design = base["design"] as! Design
+            size = base["size"]! as! CGFloat
+            weight = base["weight"]! as! Weight
+            design = base["design"]! as! Design
             super.init(provider: provider)
         }
         public override func apply() -> Font {
@@ -343,10 +343,10 @@ extension Font: Codable {
         let design: Design
         let weight: Weight?
         init(any s: Any, provider: String) {
-            let base = Mirror.children(reflecting: s)
-            style = base["style"] as! TextStyle
-            design = base["design"] as! Design
-            weight = base["weight"] as? Weight
+            let m = Mirror.children(reflecting: s)
+            style = m["style"]! as! TextStyle
+            design = m["design"]! as! Design
+            weight = m["weight"]! as? Weight
             super.init(provider: provider)
         }
         public override func apply() -> Font {
@@ -390,7 +390,7 @@ extension Font.TextStyle: Codable {
         case "footnote": self = .footnote
         case "caption": self = .caption
         default:
-            let defaultFunc = { fatalError(value) }
+            let defaultFunc = { fatalError() }
             if #available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *) {
                 switch value {
                 case "title2": self = .title2
@@ -511,8 +511,7 @@ extension Font {
 extension Font.Weight: Codable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
-        let value = try container.decode(String.self)
-        switch value {
+        switch try container.decode(String.self) {
         case "ultraLight": self = .ultraLight
         case "thin": self = .thin
         case "light": self = .light
@@ -522,7 +521,7 @@ extension Font.Weight: Codable {
         case "bold": self = .bold
         case "heavy": self = .heavy
         case "black": self = .black
-        default: fatalError(value)
+        default: fatalError()
         }
     }
     public func encode(to encoder: Encoder) throws {
@@ -545,12 +544,11 @@ extension Font.Weight: Codable {
 extension Font.Leading: Codable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
-        let value = try container.decode(String.self)
-        switch value {
+        switch try container.decode(String.self) {
         case "standard": self = .standard
         case "tight": self = .tight
         case "loose": self = .loose
-        default: fatalError(value)
+        default: fatalError()
         }
     }
     public func encode(to encoder: Encoder) throws {
