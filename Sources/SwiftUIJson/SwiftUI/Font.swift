@@ -249,9 +249,6 @@ extension Font.Design: Codable {
 //@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension Font: Codable {
     //: Codable
-    enum CodingKeys: CodingKey {
-        case type
-    }
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         let value: String
@@ -273,7 +270,7 @@ extension Font: Codable {
                 case "system": return try container.decode(SystemProvider.self).apply()
                 case "textStyle": return try container.decode(TextStyleProvider.self).apply()
                 case "named": return try container.decode(NamedProvider.self).apply()
-                case "platformFont": return try container.decode(PlatformFontProvider.self).apply()
+                case "platform": return try container.decode(PlatformFontProvider.self).apply()
                 case "modifier<italic>": return try container.decode(ModifierProvider<ItalicModifier>.self).apply()
                 case "modifier<lowercaseSmallCaps>": return try container.decode(ModifierProvider<LowercaseSmallCapsModifier>.self).apply()
                 case "modifier<uppercaseSmallCaps>": return try container.decode(ModifierProvider<UppercaseSmallCapsModifier>.self).apply()
@@ -311,12 +308,12 @@ extension Font: Codable {
         default:
             let defaultFunc = {
                 let provider = Mirror(reflecting: self).descendant("provider", "base")!
-                let providerName = "\(type(of: provider))" //; print("\(providerName)| \(provider)")
+                let providerName = "\(type(of: provider))"
                 switch providerName {
                 case "SystemProvider": try container.encode(SystemProvider(any: provider, provider: "system"))
                 case "TextStyleProvider": try container.encode(TextStyleProvider(any: provider, provider: "textStyle"))
                 case "NamedProvider": try container.encode(NamedProvider(any: provider, provider: "named"))
-                case "PlatformFontProvider": try container.encode(PlatformFontProvider(any: provider, provider: "platformFont"))
+                case "PlatformFontProvider": try container.encode(PlatformFontProvider(any: provider, provider: "platform"))
                 case "ModifierProvider<ItalicModifier>": try container.encode(ModifierProvider<ItalicModifier>(any: provider, provider: "modifier<italic>"))
                 case "ModifierProvider<LowercaseSmallCapsModifier>": try container.encode(ModifierProvider<LowercaseSmallCapsModifier>(any: provider, provider: "modifier<lowercaseSmallCaps>"))
                 case "ModifierProvider<UppercaseSmallCapsModifier>": try container.encode(ModifierProvider<UppercaseSmallCapsModifier>(any: provider, provider: "modifier<uppercaseSmallCaps>"))

@@ -93,14 +93,23 @@ public struct JsonPreview<Content>: View where Content: View {
                         HStack(alignment: .top) {
                             Spacer()
                             Button(action: {
+                                #if os(macOS)
+                                NSPasteboard.general.setString(String(data: data, encoding: .utf8)!, forType: .string)
+                                #else
                                 UIPasteboard.general.string = String(data: data, encoding: .utf8)!
+                                #endif
                                 print("copied to clipboard")
-                            }) {
-                                Image(systemName: "doc.text")
-                                    .font(Font.system(.title))
-                            }
-                            .padding()
+                            }, label: {
+                                if #available(macOS 11.0, *) {
+                                    Image(systemName: "doc.text")
+                                        .font(Font.system(.title))
+                                } else {
+                                    Image("")
+                                        .font(Font.system(.title))
+                                }
+                            })
                         }
+                        .padding()
                         Spacer()
                     }
                 }

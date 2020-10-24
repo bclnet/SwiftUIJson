@@ -114,14 +114,13 @@ extension Text {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             key = LocalizedStringKey(try container.decode(String.self, forKey: .text, forContext: context))
             table = try container.decodeIfPresent(String.self, forKey: .table, forContext: context)
-            bundle = container.contains(.bundle) ? Bundle() : nil
-            //bundle = container.contains(.bundle) ? Bundle.encode() : nil
+            bundle = try container.decodeIfPresent(CodableBundle.self, forKey: .bundle)?.bundle
         }
         public func encode(to encoder: Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
             try container.encode(key.encodeValue, forKey: .text)
             try container.encodeIfPresent(table, forKey: .table)
-            try container.encodeIfPresent(bundle, forKey: .bundle)
+            try container.encodeIfPresent(CodableBundle(bundle), forKey: .bundle)
             //throw EncodingError.invalidValue(self, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "Invalid employee!"))
         }
     }
