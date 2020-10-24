@@ -56,10 +56,10 @@ extension Image {
             super.init()
         }
         public override func apply() -> Image {
-            if location.system { return Image(systemName: name) }
-            if decorative { return Image(decorative: name, bundle: location.bundle) }
-            if label != nil { return Image(name, bundle: location.bundle, label: label!) }
-            return Image(name, bundle: location.bundle)
+            if #available(macOS 11.0, *), location.system { return Image(systemName: name) }
+            else if decorative { return Image(decorative: name, bundle: location.bundle) }
+            else if label != nil { return Image(name, bundle: location.bundle, label: label!) }
+            else { return Image(name, bundle: location.bundle) }
         }
         //: Codable
         enum CodingKeys: CodingKey {
@@ -224,7 +224,11 @@ extension Image {
             super.init()
         }
         public override func apply() -> Image {
-            Image(uiImage: image)
+            #if os(macOS)
+            return Image(nsImage: image)
+            #else
+            return Image(uiImage: image)
+            #endif
         }
         //: Codable
         public required init(from decoder: Decoder) throws {
@@ -430,11 +434,17 @@ extension Image.ResizingMode: Codable {
 
 extension CGImage {
     public static func decode(from decoder: Decoder) throws -> CGImage {
-        try UXImage.decode(from: decoder).cgImage!
+        #if os(macOS)
+        let image = try UXImage.decode(from: decoder)
+        var imageRect = CGRect(x: 0, y: 0, width: image.size.width, height: image.size.height)
+        return image.cgImage(forProposedRect: &imageRect, context: nil, hints: nil)!
+        #else
+        return try UXImage.decode(from: decoder).cgImage!
+        #endif
     }
     public func encode(to encoder: Encoder) throws {
         #if os(macOS)
-        let image = UXImage(cgImage: self)!
+        let image = UXImage.init(cgImage: self, size: NSSize(width: self.width, height: self.height))
         #else
         let image = UXImage(cgImage: self)
         #endif
