@@ -45,14 +45,16 @@ extension Image {
         let location: Location
         let name: String
         let decorative: Bool
-//        let backupLocation: Any
+        let backupLocation: Any?
         init(any s: Any) {
             let m = Mirror.children(reflecting: s)
             label = m["label"]! as? Text
-            location = Location(any: m["location"]!)
+            location = m["location"] != nil
+                ? Location(any: m["location"]!)
+                : Location(system: m["isSystem"]! as! Bool, bundle: m["bundle"]! as? Bundle)
             name = m["name"]! as! String
             decorative = m["decorative"]! as! Bool
-//            backupLocation = m["backupLocation"]!
+            backupLocation = m["backupLocation"]
             super.init()
         }
         public override func apply() -> Image {
@@ -73,6 +75,7 @@ extension Image {
                 bundle: try container.decodeIfPresent(CodableBundle.self, forKey: .bundle)?.bundle)
             name = try container.decode(String.self, forKey: .name)
             decorative = try container.decodeIfPresent(Bool.self, forKey: .decorative) ?? false
+            backupLocation = nil
             super.init()
         }
         public override func encode(to encoder: Encoder) throws {
@@ -455,28 +458,36 @@ extension CGImage {
 // https://github.com/hyperoslo/Cache
 extension UXImage {
     #if os(macOS)
-    var hasAlpha: Bool {
+    public var cgImage_: CGImage? {
         var imageRect: CGRect = CGRect(x: 0, y: 0, width: size.width, height: size.height)
-        guard let imageRef = cgImage(forProposedRect: &imageRect, context: nil, hints: nil) else { return false }
-        switch imageRef.alphaInfo {
+        guard let image = cgImage(forProposedRect: &imageRect, context: nil, hints: nil) else { return nil }
+        return image
+    }
+    public var hasAlpha: Bool {
+        var imageRect: CGRect = CGRect(x: 0, y: 0, width: size.width, height: size.height)
+        guard let image = cgImage(forProposedRect: &imageRect, context: nil, hints: nil) else { return false }
+        switch image.alphaInfo {
         case .none, .noneSkipFirst, .noneSkipLast: return false
         default: return true
         }
     }
-    func getData() -> Data? {
+    public func getData() -> Data? {
         guard let data = tiffRepresentation else { return nil }
         let imageFileType: NSBitmapImageRep.FileType = hasAlpha ? .png : .jpeg
         return NSBitmapImageRep(data: data)?.representation(using: imageFileType, properties: [:])
     }
     #else
-    var hasAlpha: Bool {
+    public var cgImage_: CGImage? {
+        cgImage
+    }
+    public var hasAlpha: Bool {
         guard let alpha = cgImage?.alphaInfo else { return false }
         switch alpha {
         case .none, .noneSkipFirst, .noneSkipLast: return false
         default: return true
         }
     }
-    func getData() -> Data? {
+    public func getData() -> Data? {
         hasAlpha
             ? pngData()
             : jpegData(compressionQuality: 1.0)
