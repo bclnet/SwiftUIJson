@@ -17,7 +17,7 @@ extension TupleView: JsonView, DynaCodable, DynaUnkeyedContainer {
 //        init?(stringValue: String) { self.stringValue = stringValue; self.intValue = Int(stringValue) }
 //        init?(intValue: Int) { self.stringValue = "\(intValue)"; self.intValue = intValue }
 //    }
-    public init(from decoder: Decoder, for dynaType: DynaType, depth: Int) throws {
+    public init(from decoder: Decoder, for dynaType: DynaType) throws {
 //        if false {
         //            // Keyed with Ints
         //            let container = try decoder.container(keyedBy: _TupleViewCodingKey.self)
@@ -38,7 +38,7 @@ extension TupleView: JsonView, DynaCodable, DynaUnkeyedContainer {
         var items = [JsonView?]()
         while !container.isAtEnd {
             let baseDecoder = try container.superDecoder()
-            let value = try baseDecoder.decodeDynaSuper(depth: depth + 1) as? JsonView
+            let value = try baseDecoder.decodeDynaSuper() as? JsonView
             items.append(value)
         }
         let value = DynaType.typeBuildTuple(dynaType[0], for: items) as! T

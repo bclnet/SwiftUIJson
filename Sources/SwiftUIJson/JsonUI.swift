@@ -24,7 +24,7 @@ public struct JsonUI: Codable {
     
     public init<Content>(view: Content, context: JsonContext) throws where Content : View {
         let _ = JsonUI.registered
-        guard let value = view.body as? Encodable else { throw DynaTypeError.typeNotCodable(named: String(reflecting: view)) }
+        guard let value = view.body as? Encodable else { throw DynaTypeError.typeNotCodable("JsonUI", named: String(reflecting: view)) }
         self.context = context
         body = value
     }
@@ -44,7 +44,7 @@ public struct JsonUI: Codable {
             body = try nextDecoder.decode(JsonUI.self, from: json).body
             return
         }
-        let value = try decoder.decodeDynaSuper(depth: 0)
+        let value = try decoder.decodeDynaSuper()
         if let anyView = value as? AnyView {
             body = anyView
         } else {
@@ -81,6 +81,8 @@ public struct JsonUI: Codable {
     }
     
     static func registerDefault_all() {
+        register(Circle.self)
+        //
         register(_ConditionalContent<AnyView, AnyView>.self)
         register(_PaddingLayout.self)
         register(AnyView.self)

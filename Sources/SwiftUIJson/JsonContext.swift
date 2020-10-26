@@ -53,7 +53,7 @@ public class JsonContext: Codable {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             type = try container.decode(DynaType.self, forKey: .type)
             let baseDecoder = try container.superDecoder(forKey: .default)
-            value = try baseDecoder.dynaSuperInit(for: type, depth:0)
+            value = try baseDecoder.dynaSuperInit(for: type)
         }
         public func encode(to encoder: Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)

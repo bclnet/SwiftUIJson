@@ -33,13 +33,13 @@ extension Encoder {
             try container.encode(dynaTypeWithNil, forKey: .type)
         }
         if hasNil { return }
-        guard let encodeable = unwrap as? Encodable else { throw DynaTypeError.typeNotCodable(named: String(reflecting: value)) }
+        guard let encodeable = unwrap as? Encodable else { throw DynaTypeError.typeNotCodable("encodeDynaSuper", named: String(reflecting: unwrap)) }
         try encodeable.encode(to: self)
     }
 }
 
 extension Decoder {
-    public func decodeDynaSuper(depth: Int) throws -> Any {
+    public func decodeDynaSuper() throws -> Any {
         let dynaTypeWithNil: DynaTypeWithNil
         do {
             var container = try self.unkeyedContainer()
@@ -49,30 +49,30 @@ extension Decoder {
             dynaTypeWithNil = try container.decode(DynaTypeWithNil.self, forKey: .type)
         }
         if dynaTypeWithNil.hasNil {
-            printPath("\(String(repeating: "+", count: depth)) nil \(self.codingPath)")
+            printPath("\(String(repeating: "+", count: codingPath.count)) nil \(codingPath)")
             return Optional<Any>.none as Any
         }
         let dynaType = dynaTypeWithNil.dynaType
-        printPath("\(String(repeating: "+", count: depth)) \(dynaType.underlyingType) \(self.codingPath)")
-        return try dynaSuperInit(for: dynaType, depth: depth)
+        printPath("\(String(repeating: "+", count: codingPath.count)) \(dynaType.underlyingType) \(codingPath)")
+        return try dynaSuperInit(for: dynaType)
     }
 
-    public func dynaSuperInit(for dynaType: DynaType, depth: Int) throws -> Any {
+    public func dynaSuperInit(for dynaType: DynaType) throws -> Any {
         switch dynaType {
         case .type(let type, let name):
             let unwrap = DynaType.unwrap(type: type)
             guard let decodable = unwrap as? DynaDecodable.Type else {
-                guard let decodable2 = unwrap as? Decodable.Type else { throw DynaTypeError.typeNotCodable(named: name) }
+                guard let decodable2 = unwrap as? Decodable.Type else { throw DynaTypeError.typeNotCodable("dynaSuperInit", named: name) }
                 return try decodable2.init(from: self)
             }
-            return try decodable.init(from: self, for: dynaType, depth: depth)
+            return try decodable.init(from: self, for: dynaType)
         case .tuple(let type, let name, _), .generic(let type, let name, _):
             let unwrap = DynaType.unwrap(type: type)
             guard let decodable = unwrap as? DynaDecodable.Type else {
-                guard let decodable2 = unwrap as? Decodable.Type else { throw DynaTypeError.typeNotCodable(named: name) }
+                guard let decodable2 = unwrap as? Decodable.Type else { throw DynaTypeError.typeNotCodable("dynaSuperInit", named: name) }
                 return try decodable2.init(from: self)
             }
-            return try decodable.init(from: self, for: dynaType, depth: depth)
+            return try decodable.init(from: self, for: dynaType)
         }
     }
 }
@@ -88,21 +88,22 @@ public protocol DynaDecodable {
     /// if the data read is corrupted or otherwise invalid.
     ///
     /// - Parameter decoder: The decoder to read data from.
-    init(from decoder: Decoder, for dynaType: DynaType, depth: Int) throws
+    /// - Parameter dynaType: The dyanType to build.
+    init(from decoder: Decoder, for dynaType: DynaType) throws
 }
 
 /// A type that can convert itself into and out of an external representation.
 ///
-/// `Codable` is a type alias for the `Encodable` and `Decodable` protocols.
-/// When you use `Codable` as a type or a generic constraint, it matches
+/// `Codable` is a type alias for the `Encodable` and `DynaDecodable` protocols.
+/// When you use `DynaCodable` as a type or a generic constraint, it matches
 /// any type that conforms to both protocols.
 public typealias DynaCodable = Encodable & DynaDecodable
 
 /// A type that can convert itself into and out of an external representation.
 ///
-/// `Codable` is a type alias for the `Encodable` and `Decodable` protocols.
-/// When you use `Codable` as a type or a generic constraint, it matches
-/// any type that conforms to both protocols.
+/// `DynaFullCodable` is a type alias for the `Encodable` and `Decodable` and `DynaDecodable` protocols.
+/// When you use `DynaFullCodable` as a type or a generic constraint, it matches
+/// any type that conforms to these protocols.
 public typealias DynaFullCodable = Encodable & Decodable & DynaDecodable
 
 extension KeyedDecodingContainerProtocol {
@@ -111,6 +112,7 @@ extension KeyedDecodingContainerProtocol {
     ///
     /// - parameter type: The type of value to decode.
     /// - parameter key: The key that the decoded value is associated with.
+    /// - Parameter dynaType: The dyanType to build.
     /// - returns: A value of the requested type, if present for the given key
     ///   and convertible to the requested type.
     /// - throws: `DecodingError.typeMismatch` if the encountered encoded value
@@ -119,10 +121,10 @@ extension KeyedDecodingContainerProtocol {
     ///   for the given key.
     /// - throws: `DecodingError.valueNotFound` if `self` has a null entry for
     ///   the given key.
-    public func decode<T: DynaDecodable>(_ type: T.Type, forKey key: Key, dynaType: DynaType, depth: Int) throws -> T {
+    public func decode<T: DynaDecodable>(_ type: T.Type, forKey key: Key, dynaType: DynaType) throws -> T {
         let decoder = try superDecoder(forKey: key)
-        printPath("\(String(repeating: "-", count: depth)) \(dynaType.underlyingType) \(self.codingPath)")
-        return try type.init(from: decoder, for: dynaType, depth: depth)
+        printPath("\(String(repeating: "-", count: codingPath.count)) \(dynaType.underlyingType) \(codingPath)")
+        return try type.init(from: decoder, for: dynaType)
     }
     
     /// Decodes a value of the given type for the given key, if present.
@@ -133,18 +135,19 @@ extension KeyedDecodingContainerProtocol {
     ///
     /// - parameter type: The type of value to decode.
     /// - parameter key: The key that the decoded value is associated with.
+    /// - Parameter dynaType: The dyanType to build.
     /// - returns: A decoded value of the requested type, or `nil` if the
     ///   `Decoder` does not have an entry associated with the given key, or if
     ///   the value is a null value.
     /// - throws: `DecodingError.typeMismatch` if the encountered encoded value
     ///   is not convertible to the requested type.
-    public func decodeIfPresent<T: DynaDecodable>(_ type: T.Type, forKey key: Key, dynaType: DynaType, depth: Int) throws -> T? {
+    public func decodeIfPresent<T: DynaDecodable>(_ type: T.Type, forKey key: Key, dynaType: DynaType) throws -> T? {
         if !contains(key) {
-            printPath("\(String(repeating: "-", count: depth)) nil \(self.codingPath)")
+            printPath("\(String(repeating: "-", count: codingPath.count)) nil \(codingPath)")
             return nil
         }
         let decoder = try superDecoder(forKey: key)
-        printPath("\(String(repeating: "-", count: depth)) \(dynaType.underlyingType) \(self.codingPath)")
-        return try type.init(from: decoder, for: dynaType, depth: depth)
+        printPath("\(String(repeating: "-", count: codingPath.count)) \(dynaType.underlyingType) \(codingPath)")
+        return try type.init(from: decoder, for: dynaType)
     }
 }

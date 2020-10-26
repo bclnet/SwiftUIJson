@@ -14,10 +14,10 @@ extension _ConditionalContent: JsonView, DynaCodable where TrueContent : View, T
     enum CodingKeys: CodingKey {
         case `true`, `false`
     }
-    public init(from decoder: Decoder, for dynaType: DynaType, depth: Int) throws {
+    public init(from decoder: Decoder, for dynaType: DynaType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let trueContent = try container.decodeIfPresent(TrueContent.self, forKey: .true, dynaType: dynaType, depth: depth + 1)
-        let falseContent = try container.decodeIfPresent(FalseContent.self, forKey: .false, dynaType: dynaType[0], depth: depth + 1)
+        let trueContent = try container.decodeIfPresent(TrueContent.self, forKey: .true, dynaType: dynaType)
+        let falseContent = try container.decodeIfPresent(FalseContent.self, forKey: .false, dynaType: dynaType[0])
         if trueContent != nil { self = ViewBuilder.buildEither(first: trueContent!) }
         else if falseContent != nil { self = ViewBuilder.buildEither(second: falseContent!) }
         else { throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "_ConditionalContent not true or false")) }

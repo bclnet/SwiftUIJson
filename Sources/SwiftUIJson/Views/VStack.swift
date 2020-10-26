@@ -14,10 +14,10 @@ extension VStack: JsonView, DynaCodable where Content : View, Content : DynaCoda
     enum CodingKeys: CodingKey {
         case root, content
     }
-    public init(from decoder: Decoder, for dynaType: DynaType, depth: Int) throws {
+    public init(from decoder: Decoder, for dynaType: DynaType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let root = try container.decodeIfPresent(_VStackLayout.self, forKey: .root) ?? _VStackLayout(alignment: .center, spacing: nil)
-        let content = try container.decode(Content.self, forKey: .content, dynaType: dynaType, depth: depth + 1)
+        let content = try container.decode(Content.self, forKey: .content, dynaType: dynaType)
         self.init(alignment: root.alignment, spacing: root.spacing) { content }
     }
     public func encode(to encoder: Encoder) throws {

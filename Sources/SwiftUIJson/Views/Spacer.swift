@@ -14,7 +14,7 @@ extension Spacer: JsonView, DynaCodable {
     enum CodingKeys: CodingKey {
         case minLength
     }
-    public init(from decoder: Decoder, for dynaType: DynaType, depth: Int) throws {
+    public init(from decoder: Decoder, for dynaType: DynaType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let minLength = try container.decodeIfPresent(CGFloat.self, forKey: .minLength)
         self.init(minLength: minLength)

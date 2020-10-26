@@ -12,36 +12,27 @@ public struct CodableBundle: Codable {
     public let bundle: Bundle
     //: Codable
     enum CodingKeys: CodingKey {
-        case bundlePath
+        case main, path
     }
     public init?(_ bundle: Bundle?) {
         guard let bundle = bundle else { return nil }
         self.bundle = bundle
     }
     public init(from decoder: Decoder) throws {
-        //        var container = encoder.container(keyedBy: CodingKeys.self)
-        //        try container.encode(self.bundlePath, forKey: .bundlePath)
-        bundle = Bundle.main
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        if try container.decodeIfPresent(Bool.self, forKey: .main) ?? false {
+            bundle = Bundle.main
+            return
+        }
+        let path = try container.decode(String.self, forKey: .path)
+        bundle = Bundle(path: path)!
     }
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(bundle.bundlePath, forKey: .bundlePath)
+        if bundle == Bundle.main {
+            try container.encode(true, forKey: .main)
+            return
+        }
+        try container.encode(bundle.bundlePath, forKey: .path)
     }
 }
-
-//extension Bundle {
-//    enum CodingKeys: CodingKey {
-//        case bundlePath
-//    }
-//    public static func decode(from decoder: Decoder) throws -> Bundle {
-////        var container = encoder.container(keyedBy: CodingKeys.self)
-////        try container.encode(self.bundlePath, forKey: .bundlePath)
-//        Bundle.main
-//    }
-//    public func encode(to encoder: Encoder) throws {
-//        var container = encoder.container(keyedBy: CodingKeys.self)
-//        try container.encode(self.bundlePath, forKey: .bundlePath)
-//    }
-//
-//    public static func decodeValue(_ value: String) -> Bundle? { Bundle.init(path: value) }
-//}

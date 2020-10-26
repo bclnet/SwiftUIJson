@@ -32,8 +32,8 @@ public struct JsonPreview<Content>: View where Content: View {
             let encoder = JSONEncoder()
             encoder.outputFormatting = .prettyPrinted
             data = try encoder.encode(JsonUI(view: view, context: context))
-        } catch DynaTypeError.typeNotCodable(let named) {
-            data = "typeNotCodable named:\(named)".data(using: .utf8)!
+        } catch DynaTypeError.typeNotCodable(let mode, let named) {
+            data = "typeNotCodable mode: \(mode) named: \(named)".data(using: .utf8)!
             content2 = AnyView(Text("ERROR"))
             return
         } catch {
@@ -53,9 +53,9 @@ public struct JsonPreview<Content>: View where Content: View {
         } catch DynaTypeError.typeParseError {
             content2 = AnyView(Text("ERROR:typeParseError"))
         } catch DynaTypeError.typeNameError(let actual, let expected) {
-            content2 = AnyView(Text("ERROR:typeNameError actual:\(actual) expected:\(expected)"))
-        } catch DynaTypeError.typeNotCodable(let named) {
-            content2 = AnyView(Text("ERROR:typeNotCodable named:\(named)"))
+            content2 = AnyView(Text("ERROR:typeNameError actual: \(actual) expected: \(expected)"))
+        } catch DynaTypeError.typeNotCodable(let mode, let named) {
+            content2 = AnyView(Text("ERROR:typeNotCodable mode: \(mode) named: \(named)"))
         } catch {
             content2 = AnyView(Text("ERROR:\(error)" as String))
             //data = "\(error)\n".data(using: .utf8)! + data

@@ -284,7 +284,7 @@ extension Image: JsonView, DynaFullCodable {
     enum CodingKeys: CodingKey {
         case named, mode, interpolation, antialiased, cgimage, platform, resizable
     }
-    public init(from decoder: Decoder, for dynaType: DynaType, depth: Int) throws { try self.init(from: decoder) }
+    public init(from decoder: Decoder, for dynaType: DynaType) throws { try self.init(from: decoder) }
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         var provider: AnyImageBox!

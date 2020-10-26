@@ -15,8 +15,8 @@ extension AnyView: DynaCodable {
         return storage.view
     }
     //: Codable
-    public init(from decoder: Decoder, for dynaType: DynaType, depth: Int) throws {
-        guard let value = try decoder.dynaSuperInit(for: dynaType[0], depth: depth) as? JsonView else { fatalError("AnyView") }
+    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+        guard let value = try decoder.dynaSuperInit(for: dynaType[0]) as? JsonView else { fatalError("AnyView") }
         self = value.anyView
     }
     public func encode(to encoder: Encoder) throws {

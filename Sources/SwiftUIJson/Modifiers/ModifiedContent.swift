@@ -15,9 +15,9 @@ extension ModifiedContent: JsonView, DynaCodable where Content : View, Content :
     enum CodingKeys: CodingKey {
         case content, modifier
     }
-    public init(from decoder: Decoder, for dynaType: DynaType, depth: Int) throws {
+    public init(from decoder: Decoder, for dynaType: DynaType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let content = try container.decode(Content.self, forKey: .content, dynaType: dynaType[0], depth: depth + 1)
+        let content = try container.decode(Content.self, forKey: .content, dynaType: dynaType[0])
         let modifier = try container.decode(Modifier.self, forKey: .modifier)
         self.init(content: content, modifier: modifier)
     }

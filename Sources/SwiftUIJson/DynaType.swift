@@ -12,7 +12,7 @@ public enum DynaTypeError: Error {
     case typeNotFound(named: String)
     case typeParseError(named: String)
     case typeNameError(actual: String, expected: String)
-    case typeNotCodable(named: String)
+    case typeNotCodable(_ mode: String, named: String)
 }
 
 public struct DynaTypeWithNil: RawRepresentable, Codable {

@@ -148,7 +148,7 @@ extension Text: JsonView, DynaFullCodable {
     enum CodingKeys: CodingKey {
         case verbatim, text, anyText, modifiers
     }
-    public init(from decoder: Decoder, for dynaType: DynaType, depth: Int) throws { try self.init(from: decoder) }
+    public init(from decoder: Decoder, for dynaType: DynaType) throws { try self.init(from: decoder) }
     public init(from decoder: Decoder) throws {
         let context = decoder.userInfo[.jsonContext] as! JsonContext
         let container = try decoder.container(keyedBy: CodingKeys.self)
