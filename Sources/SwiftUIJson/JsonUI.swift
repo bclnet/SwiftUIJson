@@ -61,10 +61,11 @@ public struct JsonUI: Codable {
     // MARK: - Register
     public static let registered: Bool = registerDefault()
     
-    public static func register<T>(_ type: T.Type) { DynaType.register(type) }
+    public static func register<T>(_ type: T.Type, namespace: String? = nil) { DynaType.register(type, namespace: namespace) }
     
     public static func registerDefault() -> Bool {
-        registerDefault_all()
+        registerDefault_styles()
+        registerDefault_views()
         #if os(macOS)
         registerDefault_OSX()
         registerDefault_OSX_iOS_tvOS()
@@ -80,9 +81,102 @@ public struct JsonUI: Codable {
         return true
     }
     
-    static func registerDefault_all() {
+    static func registerDefault_styles() {
+        // PrimitiveButtonStyle
+        register(BorderlessButtonStyle.self)
+        register(DefaultButtonStyle.self)
+        register(PlainButtonStyle.self)
+        #if os(macOS)
+        register(BorderedButtonStyle.self)
+        register(CardButtonStyle.self)
+        register(LinkButtonStyle.self)
+        #endif
+        
+        // DatePickerStyle
+        register(DatePickerStyleModifier<DefaultDatePickerStyle>.self, namespace: "SwiftUI")
+        register(CompactDatePickerStyle.self)
+        register(DefaultDatePickerStyle.self)
+        register(GraphicalDatePickerStyle.self)
+        register(WheelDatePickerStyle.self)
+        #if os(macOS)
+        register(FieldDatePickerStyle.self)
+        register(StepperFieldDatePickerStyle.self)
+        #endif
+        
+        // GroupBoxStyle
+        register(DefaultGroupBoxStyle.self)
+        
+        // LabelStyle
+        register(DefaultLabelStyle.self)
+        register(IconOnlyLabelStyle.self)
+        register(TitleOnlyLabelStyle.self)
+        
+        // ListStyle
+        register(DefaultListStyle.self)
+        register(GroupedListStyle.self)
+        register(InsetGroupedListStyle.self)
+        register(InsetListStyle.self)
+        register(PlainListStyle.self)
+        register(SidebarListStyle.self)
+        #if os(macOS)
+        register(CarouselListStyle.self)
+        register(EllipticalListStyle.self)
+        #endif
+
+        // MenuStyle
+        register(BorderlessButtonMenuStyle.self)
+        register(DefaultMenuStyle.self)
+        #if os(macOS)
+        register(BorderedButtonMenuStyle.self)
+        #endif
+        
+        // NavigationViewStyle
+        register(DefaultNavigationViewStyle.self)
+        register(DoubleColumnNavigationViewStyle.self)
+        register(StackNavigationViewStyle.self)
+        
+        // PickerStyle
+        register(DefaultPickerStyle.self)
+        register(InlinePickerStyle.self)
+        register(MenuPickerStyle.self)
+        register(SegmentedPickerStyle.self)
+        register(WheelPickerStyle.self)
+        #if os(macOS)
+        register(PopUpButtonPickerStyle.self)
+        register(RadioGroupPickerStyle.self)
+        #endif
+        
+        // ProgressViewStyle
+        register(CircularProgressViewStyle.self)
+        register(DefaultProgressViewStyle.self)
+        register(LinearProgressViewStyle.self)
+        
+        // TabViewStyle
+        register(DefaultTabViewStyle.self)
+        register(PageTabViewStyle.self)
+        #if os(macOS)
+        register(CarouselTabViewStyle.self)
+        #endif
+        
+        // TextFieldStyle
+        register(DefaultTextFieldStyle.self)
+        register(PlainTextFieldStyle.self)
+        register(RoundedBorderTextFieldStyle.self)
+        #if os(macOS)
+        register(SquareBorderTextFieldStyle.self)
+        #endif
+        
+        // ToggleStyle
+        register(DefaultToggleStyle.self)
+        register(SwitchToggleStyle.self)
+        #if os(macOS)
+        register(CheckboxToggleStyle.self)
+        #endif
+    }
+    static func registerDefault_views() {
+        // shapes
         register(Circle.self)
-        //
+        // views
         register(_ConditionalContent<AnyView, AnyView>.self)
         register(_PaddingLayout.self)
         register(AnyView.self)

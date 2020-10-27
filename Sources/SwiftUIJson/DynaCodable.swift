@@ -33,7 +33,10 @@ extension Encoder {
             try container.encode(dynaTypeWithNil, forKey: .type)
         }
         if hasNil { return }
-        guard let encodeable = unwrap as? Encodable else { throw DynaTypeError.typeNotCodable("encodeDynaSuper", named: String(reflecting: unwrap)) }
+        guard let encodeable = unwrap as? Encodable else {
+            print(unwrap)
+            throw DynaTypeError.typeNotCodable("encodeDynaSuper", named: String(reflecting: unwrap))
+        }
         try encodeable.encode(to: self)
     }
 }
@@ -62,14 +65,18 @@ extension Decoder {
         case .type(let type, let name):
             let unwrap = DynaType.unwrap(type: type)
             guard let decodable = unwrap as? DynaDecodable.Type else {
-                guard let decodable2 = unwrap as? Decodable.Type else { throw DynaTypeError.typeNotCodable("dynaSuperInit", named: name) }
+                guard let decodable2 = unwrap as? Decodable.Type else {
+                    throw DynaTypeError.typeNotCodable("dynaSuperInit", named: name)
+                }
                 return try decodable2.init(from: self)
             }
             return try decodable.init(from: self, for: dynaType)
         case .tuple(let type, let name, _), .generic(let type, let name, _):
             let unwrap = DynaType.unwrap(type: type)
             guard let decodable = unwrap as? DynaDecodable.Type else {
-                guard let decodable2 = unwrap as? Decodable.Type else { throw DynaTypeError.typeNotCodable("dynaSuperInit", named: name) }
+                guard let decodable2 = unwrap as? Decodable.Type else {
+                    throw DynaTypeError.typeNotCodable("dynaSuperInit", named: name)
+                }
                 return try decodable2.init(from: self)
             }
             return try decodable.init(from: self, for: dynaType)

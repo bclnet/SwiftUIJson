@@ -83,14 +83,21 @@ public enum DynaType: RawRepresentable, Codable {
     static var knownGenerics = [String:Any.Type]()
     static var unwrapTypes = [ObjectIdentifier:Any.Type]()
     
-    public static func register<T>(_ type: T.Type) {
+    public static func register<T>(_ type: T.Type, namespace: String? = nil) {
         let typeOptional = Optional<T>.self
-        let knownName = String(reflecting: type), knownNameOptional = String(reflecting: typeOptional)
+        var knownName = String(reflecting: type), knownNameOptional = String(reflecting: typeOptional)
+        let knownParts = knownName.components(separatedBy: "<")
+        if namespace != nil {
+            let baseName = knownParts[0]
+            let newName = "\(namespace!)\(baseName[baseName.lastIndex(of: ".")!...])"
+            knownName = knownName.replacingOccurrences(of: baseName, with: newName)
+            knownNameOptional = knownNameOptional.replacingOccurrences(of: baseName, with: newName)
+        }
         knownTypes[knownName] = .type(type, knownName)
         knownTypes[knownNameOptional] = .type(typeOptional, knownNameOptional)
         unwrapTypes[ObjectIdentifier(typeOptional)] = type
-        let parts = knownName.components(separatedBy: "<"); if parts.count == 1 { return }
-        let genericName = parts[0], genericKey = !knownName.starts(with: "SwiftUI.TupleView<(") ? genericName  : "\(genericName):\(knownName.components(separatedBy: ",").count)"
+        if knownParts.count == 1 { return }
+        let genericName = knownParts[0], genericKey = !knownName.starts(with: "SwiftUI.TupleView<(") ? genericName  : "\(genericName):\(knownName.components(separatedBy: ",").count)"
         guard knownGenerics[genericKey] == nil else { fatalError("\(genericKey) is already registered") }
         knownGenerics[genericKey] = type
     }
