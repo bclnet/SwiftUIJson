@@ -24,7 +24,7 @@ public struct JsonUI: Codable {
     
     public init<Content>(view: Content, context: JsonContext) throws where Content : View {
         let _ = JsonUI.registered
-        guard let value = view.body as? Encodable else { throw DynaTypeError.typeNotCodable("JsonUI", named: String(reflecting: view)) }
+        guard let value = view.body as? Encodable else { throw DynaTypeError.typeNotCodable("JsonUI", key: DynaType.typeKey(for: view)) }
         self.context = context
         body = value
     }
@@ -61,7 +61,7 @@ public struct JsonUI: Codable {
     // MARK: - Register
     public static let registered: Bool = registerDefault()
     
-    public static func register<T>(_ type: T.Type, namespace: String? = nil) { DynaType.register(type, namespace: namespace) }
+    public static func register<T>(_ type: T.Type, any: [Any.Type?]? = nil, namespace: String? = nil) { DynaType.register(type, any: any, namespace: namespace) }
     
     public static func registerDefault() -> Bool {
         registerDefault_styles()
@@ -93,7 +93,7 @@ public struct JsonUI: Codable {
         #endif
         
         // DatePickerStyle
-        register(DatePickerStyleModifier<DefaultDatePickerStyle>.self, namespace: "SwiftUI")
+        register(DatePickerStyleModifier<DefaultDatePickerStyle>.self, any: [DefaultDatePickerStyle.self], namespace: "SwiftUI")
         register(CompactDatePickerStyle.self)
         register(DefaultDatePickerStyle.self)
         register(GraphicalDatePickerStyle.self)
@@ -105,6 +105,9 @@ public struct JsonUI: Codable {
         
         // GroupBoxStyle
         register(DefaultGroupBoxStyle.self)
+        
+        // IndexViewStyle
+        register(PageIndexViewStyle.self)
         
         // LabelStyle
         register(DefaultLabelStyle.self)
@@ -157,7 +160,7 @@ public struct JsonUI: Codable {
         #if os(macOS)
         register(CarouselTabViewStyle.self)
         #endif
-        
+                
         // TextFieldStyle
         register(DefaultTextFieldStyle.self)
         register(PlainTextFieldStyle.self)
@@ -172,6 +175,20 @@ public struct JsonUI: Codable {
         #if os(macOS)
         register(CheckboxToggleStyle.self)
         #endif
+                
+        //
+        register(CallbacksGesture<Any>.self, any: [Any.self], namespace: "SwiftUI")
+        register(PressableGestureCallbacks<Any>.self, any: [Any.self], namespace: "SwiftUI")
+        register(LongPressGesture.self)
+        register(ModifierGesture<Any, Any>.self, any: [Any.self, Any.self], namespace: "SwiftUI")
+        register(AddGestureModifier<Any>.self, any: [Any.self], namespace: "SwiftUI")
+        //
+        register(_EnvironmentKeyWritingModifier<Any>.self, any: [Any.self], namespace: "SwiftUI")
+        //
+        register(IndexViewStyleModifier<PageIndexViewStyle>.self, any: [PageIndexViewStyle.self], namespace: "SwiftUI")
+        //
+        register(ItemProviderTraitKey.self, namespace: "SwiftUI")
+        register(_TraitWritingModifier<ItemProviderTraitKey>.self, namespace: "SwiftUI")
     }
     static func registerDefault_views() {
         // shapes

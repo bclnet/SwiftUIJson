@@ -10,6 +10,10 @@ import SwiftUI
 
 protocol DynaUnkeyedContainer { }
 
+//public protocol DynaEncodableByAny {
+//    func encode(any s: Any, to encode: Encodable)
+//}
+
 //: Codable
 fileprivate enum CodingKeys: CodingKey {
     case type
@@ -19,10 +23,32 @@ fileprivate func printPath(_ value: String) {
     //Swift.print(value)
 }
 
+extension DynaTypeWithNil: Codable {
+    //: Codable
+    public init(from decoder: Decoder) throws {
+        self.init(rawValue: try decoder.singleValueContainer().decode(String.self))!
+    }
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(rawValue)
+    }
+}
+
+extension DynaType: Codable {
+    //: Codable
+    public init(from decoder: Decoder) throws {
+        self.init(rawValue: try decoder.singleValueContainer().decode(String.self))!
+    }
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(rawValue)
+    }
+}
+
 extension Encoder {
     public func encodeDynaSuper(_ value: Any) throws {
-        let unwrap = Mirror.unwrap(value: value)
 //        let unwrap = AnyView.unwrap(value: Mirror.unwrap(value: value))
+        let unwrap = Mirror.unwrap(value: value)
         let hasNil: Bool; if case Optional<Any>.none = value { hasNil = true } else { hasNil =  false }
         let dynaTypeWithNil = DynaTypeWithNil(try DynaType.type(for: type(of: value).self), hasNil: hasNil)
         if value is DynaUnkeyedContainer {
@@ -34,8 +60,7 @@ extension Encoder {
         }
         if hasNil { return }
         guard let encodeable = unwrap as? Encodable else {
-            print(unwrap)
-            throw DynaTypeError.typeNotCodable("encodeDynaSuper", named: String(reflecting: unwrap))
+            throw DynaTypeError.typeNotCodable("encodeDynaSuper", key: DynaType.typeKey(for: unwrap))
         }
         try encodeable.encode(to: self)
     }
@@ -62,20 +87,20 @@ extension Decoder {
 
     public func dynaSuperInit(for dynaType: DynaType) throws -> Any {
         switch dynaType {
-        case .type(let type, let name):
+        case .type(let type, let key):
             let unwrap = DynaType.unwrap(type: type)
             guard let decodable = unwrap as? DynaDecodable.Type else {
                 guard let decodable2 = unwrap as? Decodable.Type else {
-                    throw DynaTypeError.typeNotCodable("dynaSuperInit", named: name)
+                    throw DynaTypeError.typeNotCodable("dynaSuperInit", key: key)
                 }
                 return try decodable2.init(from: self)
             }
             return try decodable.init(from: self, for: dynaType)
-        case .tuple(let type, let name, _), .generic(let type, let name, _):
+        case .tuple(let type, let key, _), .generic(let type, let key, _, _):
             let unwrap = DynaType.unwrap(type: type)
             guard let decodable = unwrap as? DynaDecodable.Type else {
                 guard let decodable2 = unwrap as? Decodable.Type else {
-                    throw DynaTypeError.typeNotCodable("dynaSuperInit", named: name)
+                    throw DynaTypeError.typeNotCodable("dynaSuperInit", key: key)
                 }
                 return try decodable2.init(from: self)
             }
@@ -113,7 +138,65 @@ public typealias DynaCodable = Encodable & DynaDecodable
 /// any type that conforms to these protocols.
 public typealias DynaFullCodable = Encodable & Decodable & DynaDecodable
 
+extension UnkeyedEncodingContainer {
+    public mutating func encodeAny<T>(_ value: T) throws {
+        let baseEncoder = superEncoder()
+        guard let encodable = value as? Encodable else {
+            let newValue = try DynaType.convert(value: value)
+            guard let encodable2 = newValue as? Encodable else {
+                throw DynaTypeError.typeNotCodable("encodeAny", key: DynaType.typeKey(for: value))
+            }
+            try encodable2.encode(to: baseEncoder)
+            return
+        }
+        try encodable.encode(to: baseEncoder)
+    }
+}
+
+extension KeyedEncodingContainerProtocol {
+    public mutating func encodeAny<T>(_ value: T, forKey key: Key) throws {
+        let baseEncoder = superEncoder(forKey: key)
+        guard let encodable = value as? Encodable else {
+            let newValue = try DynaType.convert(value: value)
+            guard let encodable2 = newValue as? Encodable else {
+                throw DynaTypeError.typeNotCodable("encodeAny", key: DynaType.typeKey(for: value))
+            }
+            try encodable2.encode(to: baseEncoder)
+            return
+        }
+        try encodable.encode(to: baseEncoder)
+    }
+}
+
+
+extension UnkeyedDecodingContainer {
+    public mutating func decodeAny<T>(_ type: T.Type) throws -> T {
+        let baseDecoder = try superDecoder()
+        guard let decodable = type as? Decodable.Type else {
+//            let newValue = try DynaType.convert(value: value)
+//            guard let encodable2 = newValue as? Encodable else {
+                throw DynaTypeError.typeNotCodable("decodeAny", key: DynaType.typeKey(for: type))
+//            }
+//            try encodable2.encode(to: baseDecoder)
+//            return
+        }
+        return try decodable.init(from: baseDecoder) as! T
+    }
+}
+
 extension KeyedDecodingContainerProtocol {
+    public func decodeAny<T>(_ type: T.Type, forKey key: Key) throws -> T {
+        let baseDecoder = try superDecoder(forKey: key)
+        guard let decodable = type as? Decodable.Type else {
+//            let newValue = try DynaType.convert(value: value)
+//            guard let encodable2 = newValue as? Encodable else {
+                throw DynaTypeError.typeNotCodable("decodeAny", key: DynaType.typeKey(for: type))
+//            }
+//            try encodable2.encode(to: baseDecoder)
+//            return
+        }
+        return try decodable.init(from: baseDecoder) as! T
+    }
     
     /// Decodes a value of the given type for the given key.
     ///

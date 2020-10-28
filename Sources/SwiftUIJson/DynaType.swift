@@ -10,12 +10,16 @@ import Foundation
 
 public enum DynaTypeError: Error {
     case typeNotFound(named: String)
-    case typeParseError(named: String)
+    case typeParseError(key: String)
     case typeNameError(actual: String, expected: String)
-    case typeNotCodable(_ mode: String, named: String)
+    case typeNotCodable(_ mode: String, key: String)
 }
 
-public struct DynaTypeWithNil: RawRepresentable, Codable {
+public protocol DynaConvert {
+    init(any s: Any)
+}
+
+public struct DynaTypeWithNil: RawRepresentable {
     public let dynaType: DynaType
     public let hasNil: Bool
     public init(_ dynaType: DynaType, hasNil: Bool) {
@@ -36,76 +40,68 @@ public struct DynaTypeWithNil: RawRepresentable, Codable {
     public var rawValue: String {
         !hasNil ? dynaType.rawValue : "\(dynaType.rawValue):nil"
     }
-    //: Codable
-    public init(from decoder: Decoder) throws {
-        self.init(rawValue: try decoder.singleValueContainer().decode(String.self))!
-    }
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        try container.encode(rawValue)
-    }
 }
 
-public enum DynaType: RawRepresentable, Codable {
-    case type(_ type: Any.Type, _ name: String)
-    case tuple(_ type: Any.Type, _ name: String, _ components: [Self])
-    case generic(_ type: Any.Type, _ name: String, _ components: [Self])
-    public var underlyingName: String {
-        switch self { case .type(_, let name), .tuple(_, let name, _), .generic(_, let name, _): return name }
+public enum DynaType: RawRepresentable {
+    case type(_ type: Any.Type, _ key: String)
+    case tuple(_ type: Any.Type, _ key: String, _ components: [Self])
+    case generic(_ type: Any.Type, _ key: String, _ any: String, _ components: [Self])
+    public var underlyingKey: String {
+        switch self { case .type(_, let key), .tuple(_, let key, _), .generic(_, let key, _, _): return key }
+    }
+    public var underlyingAny: String {
+        switch self { case .generic(_, _, let any, _): return any default: fatalError() }
     }
     public var underlyingType: Any.Type {
-        switch self { case .type(let type, _), .tuple(let type, _, _), .generic(let type, _, _): return type }
+        switch self { case .type(let type, _), .tuple(let type, _, _), .generic(let type, _, _, _): return type }
     }
     public subscript(index: Int) -> Self {
         guard index > -1 else { return self }
         switch self {
         case .type: return self
-        case .tuple(_, _, let componets), .generic(_, _, let componets): return componets[index] }
+        case .tuple(_, _, let componets), .generic(_, _, _, let componets): return componets[index] }
     }
     //: RawRepresentable
     public init?(rawValue: String) {
-        self = try! Self.typeParse(for: rawValue)
+        self = try! Self.typeParse(key: rawValue)
     }
     public var rawValue: String {
-        Self.typeName(for: underlyingName)
-    }
-    //: Codable
-    public init(from decoder: Decoder) throws {
-        self.init(rawValue: try decoder.singleValueContainer().decode(String.self))!
-    }
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        try container.encode(rawValue)
+        underlyingKey
     }
 
     // MARK: - Register
     static var knownTypes = [String:Self]()
-    static var knownGenerics = [String:Any.Type]()
+    static var knownGenerics = [String:(type: Any.Type, anys: [Any.Type?]?)]()
     static var unwrapTypes = [ObjectIdentifier:Any.Type]()
-    
-    public static func register<T>(_ type: T.Type, namespace: String? = nil) {
+    static var convertTypes = [String:DynaConvert.Type]()
+
+    public static func register<T>(_ type: T.Type, any: [Any.Type?]? = nil, namespace: String? = nil) {
         let typeOptional = Optional<T>.self
-        var knownName = String(reflecting: type), knownNameOptional = String(reflecting: typeOptional)
-        let knownParts = knownName.components(separatedBy: "<")
+        var key = typeKey(for: type), keyOptional = typeKey(for: typeOptional)
+        let genericIdx = key.firstIndex(of: "<")
+        var baseKey = genericIdx == nil ? key : String(key[..<genericIdx!])
         if namespace != nil {
-            let baseName = knownParts[0]
-            let newName = "\(namespace!)\(baseName[baseName.lastIndex(of: ".")!...])"
-            knownName = knownName.replacingOccurrences(of: baseName, with: newName)
-            knownNameOptional = knownNameOptional.replacingOccurrences(of: baseName, with: newName)
+            let newBaseKey = typeKey(for: "\(namespace!)\(baseKey[baseKey.lastIndex(of: ".")!...])")
+            key = key.replacingOccurrences(of: baseKey, with: newBaseKey)
+            keyOptional = keyOptional.replacingOccurrences(of: baseKey, with: newBaseKey)
+            baseKey = newBaseKey
         }
-        knownTypes[knownName] = .type(type, knownName)
-        knownTypes[knownNameOptional] = .type(typeOptional, knownNameOptional)
+        if let convert = type as? DynaConvert.Type {
+            convertTypes[key] = convert
+        }
+        knownTypes[key] = .type(type, key)
+        knownTypes[keyOptional] = .type(typeOptional, keyOptional)
         unwrapTypes[ObjectIdentifier(typeOptional)] = type
-        if knownParts.count == 1 { return }
-        let genericName = knownParts[0], genericKey = !knownName.starts(with: "SwiftUI.TupleView<(") ? genericName  : "\(genericName):\(knownName.components(separatedBy: ",").count)"
+        if genericIdx == nil { return }
+        let genericKey = baseKey != ":TupleView" ? baseKey : "\(baseKey):\(key.components(separatedBy: ",").count)"
         guard knownGenerics[genericKey] == nil else { fatalError("\(genericKey) is already registered") }
-        knownGenerics[genericKey] = type
+        knownGenerics[genericKey] = (type, any)
     }
     
     // MARK: - Lookup
     public static func type(for type: Any.Type) throws -> Self {
         let _ = registered
-        return try typeParse(for: typeName(for: String(reflecting: type)))
+        return try typeParse(key: typeKey(for: type))
     }
     
     public static func unwrap(type: Any.Type) -> Any.Type {
@@ -113,61 +109,35 @@ public enum DynaType: RawRepresentable, Codable {
         return unwrapTypes[ObjectIdentifier(type)] ?? type
     }
     
+    public static func convert(value: Any) throws -> Any {
+        let _ = registered
+        let key = typeKey(for: Swift.type(of: value))
+        guard let convert = convertTypes[key] else {
+            let any = try typeParse(key: key).underlyingAny
+            guard let convert2 = convertTypes[any] else {
+                fatalError()
+            }
+            convertTypes[key] = convert2
+            return convert2.init(any: value)
+        }
+        return convert.init(any: value)
+    }
+    
     // MARK: - Parse/Build
-    private static func typeName(for typeName: String) -> String! {
-        typeName.replacingOccurrences(of: " ", with: "")
+    public static func typeKey(for value: Any) -> String {
+        String(reflecting: value).replacingOccurrences(of: " ", with: "")
             .replacingOccurrences(of: "Swift.", with: "#")
             .replacingOccurrences(of: "SwiftUI.", with: ":")
     }
-
-    private static func typeParse(for name: String) throws -> Self {
-        let _ = registered
-        let forName = name
-            .replacingOccurrences(of: "#", with: "Swift.")
+    public static func typeKey(for value: String) -> String {
+        value.replacingOccurrences(of: " ", with: "")
+            .replacingOccurrences(of: "Swift.", with: "#")
+            .replacingOccurrences(of: "SwiftUI.", with: ":")
+    }
+    
+    public static func typeName(for value: String) -> String {
+        value.replacingOccurrences(of: "#", with: "Swift.")
             .replacingOccurrences(of: ":", with: "SwiftUI.")
-            
-        if let knownType = knownTypes[forName] { return knownType }
-        let tokens = typeParse(tokens: forName)
-        var knownType: Self = .type(Never.self, "Never")
-        var knownName: String = ""
-        var nameArray = [String]()
-        var typeArray = [Self]()
-        var stack = [(op: String, value: Any, knownName: String)]()
-        for token in tokens {
-            if token.op == ")" || token.op == ">" {
-                var last: (op: String, value: Any, knownName: String)
-                let lastOp = token.op == ")" ? "(" : token.op == ">" ? "<" : ""
-                nameArray.removeAll(); nameArray.append(token.op); typeArray.removeAll()
-                repeat {
-                    last = stack.removeLast()
-                    switch last.op {
-                    case ",": nameArray.insert(knownName, at: 0); nameArray.insert(last.op, at: 0); typeArray.insert(knownType, at: 0)
-                    case "n": knownName = last.value as! String; knownType = try typeParse(knownName: knownName)
-                    case "t": knownName = last.knownName; knownType = last.value as! Self
-                    case "(":
-                        nameArray.insert(knownName, at: 0); nameArray.insert(last.op, at: 0); typeArray.insert(knownType, at: 0)
-                        knownName = nameArray.joined()
-                        stack.append(("t", try typeParse(knownName: knownName, tuple: typeArray), knownName))
-                    case "<":
-                        let generic = stack.removeLast(), genericName = generic.value as! String
-                        nameArray.insert(knownName, at: 0); nameArray.insert(last.op, at: 0); nameArray.insert(genericName, at: 0); typeArray.insert(knownType, at: 0)
-                        knownName = nameArray.joined()
-                        stack.append(("t", try typeParse(knownName: knownName, genericName: genericName, generic: typeArray), knownName))
-                    default: fatalError()
-                    }
-                } while last.op != lastOp
-            }
-            else { stack.append((token.op, token.value, "")) }
-        }
-        guard stack.count == 1, let first = stack.first, first.op == "t" else {
-            throw DynaTypeError.typeParseError(named: forName)
-        }
-        guard forName == knownName else {
-            throw DynaTypeError.typeNameError(actual: forName, expected: knownName)
-        }
-        knownType = first.value as! Self
-        knownTypes[name] = knownType
-        return knownType
     }
     
     private static func typeParse(tokens raw: String) -> [(op: String, value: String)] {
@@ -187,14 +157,72 @@ public enum DynaType: RawRepresentable, Codable {
         }
         return tokens
     }
-    
-    private static func typeParse(knownName: String) throws -> Self {
-        if let knownType = knownTypes[knownName] { return knownType }
-        throw DynaTypeError.typeNotFound(named: knownName)
+
+    private static func typeParse(key forKey: String) throws -> Self {
+        let _ = registered
+        if let type = knownTypes[forKey] { return type }
+        let tokens = typeParse(tokens: forKey)
+        var type: Self = .type(Never.self, "Never")
+        var key: String = "", any: String = ""
+        var keyArray = [String](), anyArray = [String](), typeArray = [Self]()
+        var stack = [(op: String, value: Any, key: String, any: String)]()
+        for token in tokens {
+            if token.op == ")" || token.op == ">" {
+                var last: (op: String, value: Any, key: String, any: String)
+                let lastOp = token.op == ")" ? "(" : token.op == ">" ? "<" : ""
+                keyArray.removeAll(); anyArray.removeAll(); typeArray.removeAll()
+                keyArray.append(token.op); anyArray.append(token.op);
+                repeat {
+                    last = stack.removeLast()
+                    switch last.op {
+                    case ",":
+                        typeArray.insert(type, at: 0)
+                        keyArray.insert(key, at: 0); keyArray.insert(last.op, at: 0)
+                        anyArray.insert(any, at: 0); anyArray.insert(last.op, at: 0)
+                    case "t": key = last.key; any = last.any; type = last.value as! Self
+                    case "n": key = last.value as! String; any = key; type = try findType(key: key)
+                    case "(":
+                        typeArray.insert(type, at: 0)
+                        keyArray.insert(key, at: 0); keyArray.insert(last.op, at: 0); key = keyArray.joined()
+                        anyArray.insert(any, at: 0); anyArray.insert(last.op, at: 0); any = anyArray.joined()
+                        stack.append(("t", try findType(key: key, tuple: typeArray), key, any))
+                    case "<":
+                        let generic = stack.removeLast(), genericName = generic.value as! String
+                        typeArray.insert(type, at: 0)
+                        keyArray.insert(key, at: 0); keyArray.insert(last.op, at: 0); keyArray.insert(genericName, at: 0); key = keyArray.joined()
+                        anyArray.insert(any, at: 0); anyArray.insert(last.op, at: 0); anyArray.insert(genericName, at: 0)
+                        if let generic = knownGenerics[genericName], let anys = generic.anys {
+                            for i in 0..<anys.count {
+                                guard let type = anys[i] else { continue }
+                                anyArray[2+(i*2)] = typeKey(for: type)
+                            }
+                        }
+                        any = anyArray.joined()
+                        stack.append(("t", try findType(key: key, any: any, genericName: genericName, generic: typeArray), key, any))
+                    default: fatalError()
+                    }
+                } while last.op != lastOp
+            }
+            else { stack.append((token.op, token.value, "", "")) }
+        }
+        guard stack.count == 1, let first = stack.first, first.op == "t" else {
+            throw DynaTypeError.typeParseError(key: key)
+        }
+        guard forKey == key else {
+            throw DynaTypeError.typeNameError(actual: key, expected: key)
+        }
+        type = first.value as! Self
+        knownTypes[forKey] = type
+        return type
     }
     
-    private static func typeParse(knownName: String, tuple: [Self]) throws -> Self {
-        if let knownType = knownTypes[knownName] { return knownType }
+    private static func findType(key: String) throws -> Self {
+        if let knownType = knownTypes[key] { return knownType }
+        throw DynaTypeError.typeNotFound(named: key)
+    }
+    
+    private static func findType(key: String, tuple: [Self]) throws -> Self {
+        if let knownType = knownTypes[key] { return knownType }
         var type: Any.Type
         switch tuple.count {
         case 01: type = (JsonView).Type.self
@@ -209,11 +237,11 @@ public enum DynaType: RawRepresentable, Codable {
         case 10: type = (JsonView, JsonView, JsonView, JsonView, JsonView, JsonView, JsonView, JsonView, JsonView, JsonView).Type.self
         default: fatalError()
         }
-        knownTypes[knownName] = .tuple(type, knownName, tuple)
-        return knownTypes[knownName]!
+        knownTypes[key] = .tuple(type, key, tuple)
+        return knownTypes[key]!
     }
     
-    internal static func typeBuildTuple<Element>(_ dataType: Self, for s: [Element]) -> Any {
+    internal static func buildType<Element>(tuple dataType: Self, for s: [Element]) -> Any {
         switch s.count {
         case 01: return (JsonAnyView.any(s[0]))
         case 02: return (JsonAnyView.any(s[0]), JsonAnyView.any(s[1]))
@@ -234,29 +262,19 @@ public enum DynaType: RawRepresentable, Codable {
         }
     }
     
-    private static func typeParse(knownName: String, genericName: String, generic: [Self]) throws -> Self {
-        if let knownType = knownTypes[knownName] { return knownType }
+    private static func findType(key: String, any: String, genericName: String, generic: [Self]) throws -> Self {
+        if let knownType = knownTypes[key] { return knownType }
         let genericKey: String
         switch generic[0] {
-        case .tuple(_, _, let componets) where genericName == "SwiftUI.TupleView": genericKey = "\(genericName):\(componets.count)"
+        case .tuple(_, _, let componets) where genericName == ":TupleView": genericKey = "\(genericName):\(componets.count)"
         default: genericKey = genericName
         }
-        guard let type = knownGenerics[genericKey] else { throw DynaTypeError.typeNotFound(named: knownName) }
-        knownTypes[knownName] = .generic(type, knownName, generic)
-        return knownTypes[knownName]!
+        guard let v = knownGenerics[genericKey] else {
+            throw DynaTypeError.typeNotFound(named: key)
+        }
+        knownTypes[key] = .generic(v.type, key, any, generic)
+        return knownTypes[key]!
     }
-    
-    //    public func typeBind<T, Element>(to type: T.Type, for source: [Element]) -> T {
-    //        let abc = T.self
-    //        switch self {
-    //        case .type:
-    //            return source.withUnsafeBytes { $0.bindMemory(to: T.self)[0] }
-    //        case .tuple(let type, _, let componets):
-    //            return source.withUnsafeBytes { $0.bindMemory(to: T.self)[0] }
-    //        case .generic(let type, _, let componets):
-    //            return source.withUnsafeBytes { $0.bindMemory(to: T.self)[0] }
-    //        }
-    //    }
     
     // MARK: - Register
     public static let registered: Bool = registerDefault()
@@ -267,8 +285,9 @@ public enum DynaType: RawRepresentable, Codable {
     }
     
     private static func registerDefault_all() {
-        register(Date.self)
+//        register(Date.self)
         register(String.self)
         register(Int.self)
+        register(Bool.self)
     }
 }

@@ -9,7 +9,7 @@ import SwiftUI
 
 // MARK: - First
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
-extension ModifiedContent: JsonView, DynaCodable where Content : View, Content : DynaCodable, Modifier : ViewModifier, Modifier : Codable {
+extension ModifiedContent: JsonView, DynaCodable where Content : View, Content : DynaCodable, Modifier : ViewModifier {
     public var anyView: AnyView { AnyView(self) }
     //: Codable
     enum CodingKeys: CodingKey {
@@ -18,13 +18,13 @@ extension ModifiedContent: JsonView, DynaCodable where Content : View, Content :
     public init(from decoder: Decoder, for dynaType: DynaType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let content = try container.decode(Content.self, forKey: .content, dynaType: dynaType[0])
-        let modifier = try container.decode(Modifier.self, forKey: .modifier)
+        let modifier = try container.decodeAny(Modifier.self, forKey: .modifier)
         self.init(content: content, modifier: modifier)
     }
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(self.content, forKey: .content)
-        try container.encode(self.modifier, forKey: .modifier)
+        try container.encodeAny(self.modifier, forKey: .modifier)
     }
 }
 
