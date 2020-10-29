@@ -28,6 +28,10 @@ extension _ConditionalContent: JsonView, DynaCodable where TrueContent : View, T
         try container.encodeIfPresent(storage.trueContent, forKey: .true)
         try container.encodeIfPresent(storage.falseContent, forKey: .false)
     }
+    //: Register
+    static func register() {
+        DynaType.register(_ConditionalContent<AnyView, AnyView>.self)
+    }
     
     internal class Storage {
         let trueContent: TrueContent?

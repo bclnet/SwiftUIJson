@@ -183,6 +183,10 @@ extension Text: JsonView, DynaFullCodable {
             try container.encode(modifiers, forKey: .modifiers)
         }
     }
+    //: Register
+    static func register() {
+        DynaType.register(Text.self)
+    }
 }
 
 // MARK: - Second

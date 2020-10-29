@@ -13,4 +13,8 @@ extension Divider: JsonView, DynaCodable {
     //: Codable
     public init(from decoder: Decoder, for dynaType: DynaType) throws { self.init() }
     public func encode(to encoder: Encoder) throws {}
+    //: Register
+    static func register() {
+        DynaType.register(Divider.self)
+    }
 }

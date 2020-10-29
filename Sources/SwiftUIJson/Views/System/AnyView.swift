@@ -23,6 +23,10 @@ extension AnyView: DynaCodable {
         let storage = AnyViewStorageBase(any: Mirror(reflecting: self).descendant("storage")!)
         try encoder.encodeDynaSuper(storage.view)
     }
+    //: Register
+    static func register() {
+        DynaType.register(AnyView.self)
+    }
     
     internal class AnyViewStorageBase {
         let view: Any

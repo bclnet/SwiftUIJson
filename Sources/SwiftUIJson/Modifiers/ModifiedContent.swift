@@ -26,6 +26,9 @@ extension ModifiedContent: JsonView, DynaCodable where Content : View, Content :
         try container.encode(self.content, forKey: .content)
         try container.encodeAny(self.modifier, forKey: .modifier)
     }
+    //: Register
+    static func register() {
+    }
 }
 
 // MARK: - Accessibility

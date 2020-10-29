@@ -26,6 +26,10 @@ extension VStack: JsonView, DynaCodable where Content : View, Content : DynaCoda
         if root.alignment != .center || root.spacing != nil { try container.encode(root, forKey: .root) }
         try container.encode(tree.content, forKey: .content)
     }
+    //: Register
+    static func register() {
+        DynaType.register(VStack<AnyView>.self)
+    }
 }
 
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)

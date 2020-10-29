@@ -24,4 +24,8 @@ extension Spacer: JsonView, DynaCodable {
         let minLength = Mirror(reflecting: self).descendant("minLength") as? CGFloat
         try container.encodeIfPresent(minLength, forKey: .minLength)
     }
+    //: Register
+    static func register() {
+        DynaType.register(Spacer.self)
+    }
 }

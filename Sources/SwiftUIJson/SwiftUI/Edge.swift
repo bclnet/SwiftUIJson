@@ -10,6 +10,7 @@ import SwiftUI
 
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension Edge: Codable {
+    //: Codable
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         switch try container.decode(String.self) {
@@ -28,6 +29,9 @@ extension Edge: Codable {
         case .bottom: try container.encode("bottom")
         case .trailing: try container.encode("trailing")
         }
+    }
+    //: Register
+    static func register() {
     }
 }
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)

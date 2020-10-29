@@ -23,4 +23,8 @@ extension _PaddingLayout: Codable {
         try container.encode(edges, forKey: .edges)
         try container.encodeIfPresent(insets, forKey: .insets)
     }
+    //: Register
+    static func register() {
+        DynaType.register(_PaddingLayout.self)
+    }
 }

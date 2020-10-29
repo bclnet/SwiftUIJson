@@ -308,6 +308,10 @@ extension Color: Codable {
             try defaultFunc()
         }
     }
+    //: Register
+    static func register() {
+        DynaType.register(Color.self)
+    }
 }
 
 extension CGColor {

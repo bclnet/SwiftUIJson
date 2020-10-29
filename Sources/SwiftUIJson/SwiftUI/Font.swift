@@ -207,6 +207,7 @@ extension Font {
 }
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension Font.Design: Codable {
+    //: Codable
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         let value = try container.decode(String.self)
@@ -337,6 +338,9 @@ extension Font: Codable {
             } else { try defaultFunc() }
         }
     }
+    //: Register
+    static func register() {
+    }
     
     internal class TextStyleProvider: AnyFontBox {
         let style: TextStyle
@@ -377,6 +381,7 @@ extension Font: Codable {
 }
 //@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension Font.TextStyle: Codable {
+    //: Codable
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         let value = try container.decode(String.self)

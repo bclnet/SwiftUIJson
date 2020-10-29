@@ -27,6 +27,10 @@ extension LazyVStack: JsonView, DynaCodable where Content : View, Content : Dyna
         if root.alignment != .center || root.spacing != nil || root.pinnedViews.rawValue != 0 { try container.encode(root, forKey: .root) }
         try container.encode(tree.content, forKey: .content)
     }
+    //: Register
+    static func register() {
+        DynaType.register(LazyVStack<AnyView>.self)
+    }
 }
 
 @available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *)

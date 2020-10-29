@@ -13,10 +13,6 @@ public protocol JsonView {
     var anyView: AnyView { get }
 }
 
-//public enum JsonUIError: Error {
-//    case generic(message: String)
-//}
-
 public struct JsonUI: Codable {
     public var context = JsonContext()
     public let body: Any
@@ -61,226 +57,69 @@ public struct JsonUI: Codable {
     // MARK: - Register
     public static let registered: Bool = registerDefault()
     
-    public static func register<T>(_ type: T.Type, any: [Any.Type?]? = nil, namespace: String? = nil) { DynaType.register(type, any: any, namespace: namespace) }
-    
     public static func registerDefault() -> Bool {
-        registerDefault_styles()
-        registerDefault_views()
-        #if os(macOS)
-        registerDefault_OSX()
-        registerDefault_OSX_iOS_tvOS()
-        #elseif os(iOS)
-        registerDefault_iOS()
-        registerDefault_OSX_iOS_tvOS()
-        #elseif os(tvOS)
-        registerDefault_tvOS()
-        registerDefault_OSX_iOS_tvOS()
-        #elseif os(watchOS)
-        registerDefault_watchOS()
-        #endif
-        return true
-    }
-    
-    static func registerDefault_styles() {
-        // PrimitiveButtonStyle
-        register(BorderlessButtonStyle.self)
-        register(DefaultButtonStyle.self)
-        register(PlainButtonStyle.self)
-        #if os(macOS)
-        register(BorderedButtonStyle.self)
-        register(CardButtonStyle.self)
-        register(LinkButtonStyle.self)
-        #endif
-        
-        // DatePickerStyle
-        register(DatePickerStyleModifier<DefaultDatePickerStyle>.self, any: [DefaultDatePickerStyle.self], namespace: "SwiftUI")
-        register(CompactDatePickerStyle.self)
-        register(DefaultDatePickerStyle.self)
-        register(GraphicalDatePickerStyle.self)
-        register(WheelDatePickerStyle.self)
-        #if os(macOS)
-        register(FieldDatePickerStyle.self)
-        register(StepperFieldDatePickerStyle.self)
-        #endif
-        
-        // GroupBoxStyle
-        register(DefaultGroupBoxStyle.self)
-        
-        // IndexViewStyle
-        register(PageIndexViewStyle.self)
-        
-        // LabelStyle
-        register(DefaultLabelStyle.self)
-        register(IconOnlyLabelStyle.self)
-        register(TitleOnlyLabelStyle.self)
-        
-        // ListStyle
-        register(DefaultListStyle.self)
-        register(GroupedListStyle.self)
-        register(InsetGroupedListStyle.self)
-        register(InsetListStyle.self)
-        register(PlainListStyle.self)
-        register(SidebarListStyle.self)
-        #if os(macOS)
-        register(CarouselListStyle.self)
-        register(EllipticalListStyle.self)
-        #endif
-
-        // MenuStyle
-        register(BorderlessButtonMenuStyle.self)
-        register(DefaultMenuStyle.self)
-        #if os(macOS)
-        register(BorderedButtonMenuStyle.self)
-        #endif
-        
-        // NavigationViewStyle
-        register(DefaultNavigationViewStyle.self)
-        register(DoubleColumnNavigationViewStyle.self)
-        register(StackNavigationViewStyle.self)
-        
-        // PickerStyle
-        register(DefaultPickerStyle.self)
-        register(InlinePickerStyle.self)
-        register(MenuPickerStyle.self)
-        register(SegmentedPickerStyle.self)
-        register(WheelPickerStyle.self)
-        #if os(macOS)
-        register(PopUpButtonPickerStyle.self)
-        register(RadioGroupPickerStyle.self)
-        #endif
-        
-        // ProgressViewStyle
-        register(CircularProgressViewStyle.self)
-        register(DefaultProgressViewStyle.self)
-        register(LinearProgressViewStyle.self)
-        
-        // TabViewStyle
-        register(DefaultTabViewStyle.self)
-        register(PageTabViewStyle.self)
-        #if os(macOS)
-        register(CarouselTabViewStyle.self)
-        #endif
-                
-        // TextFieldStyle
-        register(DefaultTextFieldStyle.self)
-        register(PlainTextFieldStyle.self)
-        register(RoundedBorderTextFieldStyle.self)
-        #if os(macOS)
-        register(SquareBorderTextFieldStyle.self)
-        #endif
-        
-        // ToggleStyle
-        register(DefaultToggleStyle.self)
-        register(SwitchToggleStyle.self)
-        #if os(macOS)
-        register(CheckboxToggleStyle.self)
-        #endif
-                
-        //
-        register(CallbacksGesture<Any>.self, any: [Any.self], namespace: "SwiftUI")
-        register(PressableGestureCallbacks<Any>.self, any: [Any.self], namespace: "SwiftUI")
-        register(LongPressGesture.self)
-        register(ModifierGesture<Any, Any>.self, any: [Any.self, Any.self], namespace: "SwiftUI")
-        register(AddGestureModifier<Any>.self, any: [Any.self], namespace: "SwiftUI")
-        //
-        register(_EnvironmentKeyWritingModifier<Any>.self, any: [Any.self], namespace: "SwiftUI")
-        //
-        register(IndexViewStyleModifier<PageIndexViewStyle>.self, any: [PageIndexViewStyle.self], namespace: "SwiftUI")
-        //
-        register(ItemProviderTraitKey.self, namespace: "SwiftUI")
-        register(_TraitWritingModifier<ItemProviderTraitKey>.self, namespace: "SwiftUI")
-    }
-    static func registerDefault_views() {
+        // styles
+        DatePickerStyleModifier<NeverCodable>.register()
+        OtherStyleModifier<NeverCodable>.register()
+        ModifierGesture<Any, Any>.register()
+        _EnvironmentKeyWritingModifier<Any?>.register()
+        IndexViewStyleModifier<PageIndexViewStyle>.register()
+        _TraitWritingModifier<ItemProviderTraitKey>.register()
         // shapes
-        register(Circle.self)
+        Circle.register()
         // views
-        register(_ConditionalContent<AnyView, AnyView>.self)
-        register(_PaddingLayout.self)
-        register(AnyView.self)
-        register(Button<AnyView>.self)
-        register(Color.self)
-        register(ContextMenu<AnyView>.self)
-        register(DatePicker<AnyView>.self)
-        register(Divider.self)
-        register(EmptyView.self)
-//        register(EquatableView<Any>.self)
-//        register(ForEach<AnyRandomAccessCollection, AnyHashable, AnyView>.self)
-        register(Form<AnyView>.self)
-        register(GeometryReader<AnyView>.self)
-        register(Group<AnyView>.self)
-        register(GroupBox<AnyView, AnyView>.self)
-        register(HStack<AnyView>.self)
-        register(Image.self)
-        register(List<AnyHashable, AnyView>.self)
-        register(ModifiedContent<AnyView, _PaddingLayout>.self)
-        register(NavigationLink<AnyView, AnyView>.self)
-        register(NavigationView<AnyView>.self)
-        register(Never.self)
-        register(Picker<AnyView, AnyHashable, AnyView>.self)
-        register(ScrollView<AnyView>.self)
-        register(Section<AnyView, AnyView, AnyView>.self)
-        register(SecureField<AnyView>.self)
-        register(Slider<AnyView, AnyView>.self)
-        register(Spacer.self)
+        _ConditionalContent<AnyView, AnyView>.register()
+        _PaddingLayout.register()
+        AnyView.register()
+        DynaType.register(Button<AnyView>.self)
+        Color.register()
+        DynaType.register(ContextMenu<AnyView>.self)
+        DynaType.register(DatePicker<AnyView>.self)
+        Divider.register()
+        EmptyView.register()
+//        DynaType.register(EquatableView<Any>.self)
+//        DynaType.register(ForEach<AnyRandomAccessCollection, AnyHashable, AnyView>.self)
+        DynaType.register(Form<AnyView>.self)
+        DynaType.register(GeometryReader<AnyView>.self)
+        DynaType.register(Group<AnyView>.self)
+        DynaType.register(GroupBox<AnyView, AnyView>.self)
+        HStack<AnyView>.register()
+        Image.register()
+        DynaType.register(List<AnyHashable, AnyView>.self)
+        DynaType.register(ModifiedContent<AnyView, Any>.self)
+        DynaType.register(NavigationLink<AnyView, AnyView>.self)
+        DynaType.register(NavigationView<AnyView>.self)
+        DynaType.register(Never.self)
+        DynaType.register(Picker<AnyView, AnyHashable, AnyView>.self)
+        DynaType.register(ScrollView<AnyView>.self)
+        DynaType.register(Section<AnyView, AnyView, AnyView>.self)
+        DynaType.register(SecureField<AnyView>.self)
+        DynaType.register(Slider<AnyView, AnyView>.self)
+        Spacer.register()
 //        register(SubscriptionView<AnyPublisherType, AnyView>.self)
-        register(Text.self)
-        register(TextField<AnyView>.self)
-        register(Toggle<AnyView>.self)
-        register(TupleView<(JsonAnyView)>.self)
-        register(TupleView<(JsonAnyView, JsonAnyView)>.self)
-        register(TupleView<(JsonAnyView, JsonAnyView, JsonAnyView)>.self)
-        register(TupleView<(JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView)>.self)
-        register(TupleView<(JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView)>.self)
-        register(TupleView<(JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView)>.self)
-        register(TupleView<(JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView)>.self)
-        register(TupleView<(JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView)>.self)
-        register(TupleView<(JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView)>.self)
-        register(TupleView<(JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView)>.self)
-        register(VStack<AnyView>.self)
-        register(ZStack<AnyView>.self)
+        Text.register()
+        DynaType.register(TextField<AnyView>.self)
+        DynaType.register(Toggle<AnyView>.self)
+        TupleView<(JsonAnyView)>.register()
+        VStack<AnyView>.register()
+        ZStack<AnyView>.register()
         if #available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *) {
-            register(LazyHStack<AnyView>.self)
-            register(LazyVStack<AnyView>.self)
+            LazyHStack<AnyView>.register()
+            LazyVStack<AnyView>.register()
         }
-    }
-    
-    @available(OSX 10.15, *)
-    @available(iOS, unavailable)
-    @available(tvOS, unavailable)
-    @available(watchOS, unavailable)
-    static func registerDefault_OSX() {
-        register(HSplitView<AnyView>.self)
-        register(MenuButton<AnyView, AnyView>.self)
-        register(PasteButton.self)
-        register(TouchBar<AnyView>.self)
-        register(VSplitView<AnyView>.self)
-    }
-    
-    @available(iOS 13.0, *)
-    @available(OSX, unavailable)
-    @available(tvOS, unavailable)
-    @available(watchOS, unavailable)
-    static func registerDefault_iOS() {
-        register(EditButton.self)
-    }
-    
-    @available(tvOS 13.0, *)
-    @available(OSX, unavailable)
-    @available(iOS, unavailable)
-    @available(watchOS, unavailable)
-    static func registerDefault_tvOS() {
-    }
-    
-    @available(watchOS 6.0, *)
-    @available(OSX, unavailable)
-    @available(iOS, unavailable)
-    @available(tvOS, unavailable)
-    static func registerDefault_watchOS() {
-    }
-    
-    @available(iOS 13.0, OSX 10.15, tvOS 13.0, *)
-    @available(watchOS, unavailable)
-    static func registerDefault_OSX_iOS_tvOS() {
-        register(TabView<AnyHashable, AnyView>.self)
+        if #available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 999, *) {
+            DynaType.register(TabView<AnyHashable, AnyView>.self)
+        }
+        #if os(macOS)
+        DynaType.register(HSplitView<AnyView>.self)
+        DynaType.register(MenuButton<AnyView, AnyView>.self)
+        DynaType.register(PasteButton.self)
+        DynaType.register(TouchBar<AnyView>.self)
+        DynaType.register(VSplitView<AnyView>.self)
+        #elseif os(iOS)
+        DynaType.register(EditButton.self)
+        #endif
+        
+        return true
     }
 }

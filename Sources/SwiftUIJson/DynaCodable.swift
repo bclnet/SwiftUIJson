@@ -23,6 +23,11 @@ fileprivate func printPath(_ value: String) {
     //Swift.print(value)
 }
 
+public struct NeverCodable: Codable {
+    public init(from decoder: Decoder) throws {}
+    public func encode(to encoder: Encoder) throws {}
+}
+
 extension DynaTypeWithNil: Codable {
     //: Codable
     public init(from decoder: Decoder) throws {
@@ -138,6 +143,10 @@ public typealias DynaCodable = Encodable & DynaDecodable
 /// any type that conforms to these protocols.
 public typealias DynaFullCodable = Encodable & Decodable & DynaDecodable
 
+public typealias DynaConvertedCodable = DynaConvertable & Encodable & Decodable
+
+public typealias DynaConvertedDynaCodable = DynaConvertable & Encodable & DynaDecodable
+
 extension UnkeyedEncodingContainer {
     public mutating func encodeAny<T>(_ value: T) throws {
         let baseEncoder = superEncoder()
@@ -188,6 +197,7 @@ extension KeyedDecodingContainerProtocol {
     public func decodeAny<T>(_ type: T.Type, forKey key: Key) throws -> T {
         let baseDecoder = try superDecoder(forKey: key)
         guard let decodable = type as? Decodable.Type else {
+            print("HERE")
 //            let newValue = try DynaType.convert(value: value)
 //            guard let encodable2 = newValue as? Encodable else {
                 throw DynaTypeError.typeNotCodable("decodeAny", key: DynaType.typeKey(for: type))
@@ -195,6 +205,7 @@ extension KeyedDecodingContainerProtocol {
 //            try encodable2.encode(to: baseDecoder)
 //            return
         }
+        print("\(T.self)")
         return try decodable.init(from: baseDecoder) as! T
     }
     

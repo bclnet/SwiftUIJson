@@ -316,6 +316,10 @@ extension Image: JsonView, DynaFullCodable {
         default: fatalError(providerName)
         }
     }
+    //: Register
+    static func register() {
+        DynaType.register(Image.self)
+    }
 }
 
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)

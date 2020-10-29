@@ -30,6 +30,19 @@ extension TupleView: JsonView, DynaCodable, DynaUnkeyedContainer {
             try baseEncoder.encodeDynaSuper(value)
         }
     }
+    //: Register
+    static func register() {
+        DynaType.register(TupleView<(JsonAnyView)>.self)
+        DynaType.register(TupleView<(JsonAnyView, JsonAnyView)>.self)
+        DynaType.register(TupleView<(JsonAnyView, JsonAnyView, JsonAnyView)>.self)
+        DynaType.register(TupleView<(JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView)>.self)
+        DynaType.register(TupleView<(JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView)>.self)
+        DynaType.register(TupleView<(JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView)>.self)
+        DynaType.register(TupleView<(JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView)>.self)
+        DynaType.register(TupleView<(JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView)>.self)
+        DynaType.register(TupleView<(JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView)>.self)
+        DynaType.register(TupleView<(JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView)>.self)
+    }
 }
 
 //    internal struct _TupleViewCodingKey: CodingKey {

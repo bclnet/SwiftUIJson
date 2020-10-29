@@ -23,4 +23,8 @@ extension Circle: Codable {
     public func encode(to encoder: Encoder) throws {
 //        var container = encoder.singleValueContainer()
     }
+    //: Register
+    static func register() {
+        DynaType.register(Circle.self)
+    }
 }

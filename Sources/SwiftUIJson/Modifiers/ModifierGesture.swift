@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct AddGestureModifier<Gesture>: DynaConvert, Codable {
+struct AddGestureModifier<Gesture>: DynaConvertedCodable {
     let gestureMask: GestureMask
     let gesture: Gesture
     public init(any: Any) {
@@ -31,7 +31,7 @@ struct AddGestureModifier<Gesture>: DynaConvert, Codable {
     }
 }
 
-struct ModifierGesture<Modifier, Content>: DynaConvert, Codable {
+struct ModifierGesture<Modifier, Content>: DynaConvertedCodable {
     let modifier: Modifier
     let content: Content
     public init(any: Any) {
@@ -53,9 +53,22 @@ struct ModifierGesture<Modifier, Content>: DynaConvert, Codable {
         try container.encodeAny(modifier, forKey: .modifier)
         try container.encodeAny(content, forKey: .content)
     }
+    //: Register
+    static func register() {
+        // MARK: - Gesture:17256
+        DynaType.register(CallbacksGesture<Any>.self, any: [Any.self], namespace: "SwiftUI")
+        DynaType.register(PressableGestureCallbacks<Any>.self, any: [Any.self], namespace: "SwiftUI")
+        DynaType.register(LongPressGesture.self)
+        DynaType.register(ModifierGesture<Any, Any>.self, any: [Any.self, Any.self], namespace: "SwiftUI")
+//        DynaType.registerFactory(any: [Any.self, Any.self], namespace: "SwiftUI") { (a: Any, b: Any) in
+//            func factory<A, B>(_ a: A, _ b: B) -> Any.Type { ModifierGesture<A.Type, B.Type>.self }
+//            return factory(a, b)
+//        }
+        DynaType.register(AddGestureModifier<Any>.self, any: [Any.self], namespace: "SwiftUI")
+    }
 }
 
-struct CallbacksGesture<Callbacks>: DynaConvert, Codable {
+struct CallbacksGesture<Callbacks>: DynaConvertedCodable {
     let callbacks: Callbacks
     public init(any: Any) {
         callbacks = Mirror(reflecting: any).descendant("callbacks")! as! Callbacks
@@ -71,7 +84,7 @@ struct CallbacksGesture<Callbacks>: DynaConvert, Codable {
     }
 }
 
-struct PressableGestureCallbacks<Gesture>: DynaConvert, Codable {
+struct PressableGestureCallbacks<Gesture>: DynaConvertedCodable {
     let pressing: ((Bool) -> ())?
     let pressed: ((Bool) -> ())?
     public init(any: Any) {

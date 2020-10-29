@@ -8,5 +8,8 @@
 import SwiftUI
 
 struct IndexViewStyleModifier<T> {
-    
+    //: Register
+    static func register() {
+        DynaType.register(IndexViewStyleModifier<PageIndexViewStyle>.self, any: [PageIndexViewStyle.self], namespace: "SwiftUI")
+    }
 }

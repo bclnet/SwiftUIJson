@@ -15,7 +15,7 @@ public enum DynaTypeError: Error {
     case typeNotCodable(_ mode: String, key: String)
 }
 
-public protocol DynaConvert {
+public protocol DynaConvertable {
     init(any s: Any)
 }
 
@@ -50,7 +50,7 @@ public enum DynaType: RawRepresentable {
         switch self { case .type(_, let key), .tuple(_, let key, _), .generic(_, let key, _, _): return key }
     }
     public var underlyingAny: String {
-        switch self { case .generic(_, _, let any, _): return any default: fatalError() }
+        switch self { case .type(_, let key), .tuple(_, let key, _): return key; case .generic(_, _, let any, _): return any }
     }
     public var underlyingType: Any.Type {
         switch self { case .type(let type, _), .tuple(let type, _, _), .generic(let type, _, _, _): return type }
@@ -63,7 +63,7 @@ public enum DynaType: RawRepresentable {
     }
     //: RawRepresentable
     public init?(rawValue: String) {
-        self = try! Self.typeParse(key: rawValue)
+        self = try! Self.typeParse(forKey: rawValue)
     }
     public var rawValue: String {
         underlyingKey
@@ -73,8 +73,8 @@ public enum DynaType: RawRepresentable {
     static var knownTypes = [String:Self]()
     static var knownGenerics = [String:(type: Any.Type, anys: [Any.Type?]?)]()
     static var unwrapTypes = [ObjectIdentifier:Any.Type]()
-    static var convertTypes = [String:DynaConvert.Type]()
-
+    static var convertTypes = [String:DynaConvertable.Type]()
+    
     public static func register<T>(_ type: T.Type, any: [Any.Type?]? = nil, namespace: String? = nil) {
         let typeOptional = Optional<T>.self
         var key = typeKey(for: type), keyOptional = typeKey(for: typeOptional)
@@ -86,7 +86,7 @@ public enum DynaType: RawRepresentable {
             keyOptional = keyOptional.replacingOccurrences(of: baseKey, with: newBaseKey)
             baseKey = newBaseKey
         }
-        if let convert = type as? DynaConvert.Type {
+        if let convert = type as? DynaConvertable.Type {
             convertTypes[key] = convert
         }
         knownTypes[key] = .type(type, key)
@@ -97,11 +97,15 @@ public enum DynaType: RawRepresentable {
         guard knownGenerics[genericKey] == nil else { fatalError("\(genericKey) is already registered") }
         knownGenerics[genericKey] = (type, any)
     }
+//    public static func registerFactory<T>(any: [Any.Type], namespace: String? = nil, factory: (T) -> Any.Type) {
+//        let new = factory(any[0] as! T.Type)
+//        print("here")
+//    }
     
     // MARK: - Lookup
     public static func type(for type: Any.Type) throws -> Self {
         let _ = registered
-        return try typeParse(key: typeKey(for: type))
+        return try typeParse(forKey: typeKey(for: type))
     }
     
     public static func unwrap(type: Any.Type) -> Any.Type {
@@ -113,7 +117,7 @@ public enum DynaType: RawRepresentable {
         let _ = registered
         let key = typeKey(for: Swift.type(of: value))
         guard let convert = convertTypes[key] else {
-            let any = try typeParse(key: key).underlyingAny
+            let any = try typeParse(forKey: key).underlyingAny
             guard let convert2 = convertTypes[any] else {
                 fatalError()
             }
@@ -158,7 +162,7 @@ public enum DynaType: RawRepresentable {
         return tokens
     }
 
-    private static func typeParse(key forKey: String) throws -> Self {
+    public static func typeParse(forKey: String) throws -> Self {
         let _ = registered
         if let type = knownTypes[forKey] { return type }
         let tokens = typeParse(tokens: forKey)
@@ -285,6 +289,7 @@ public enum DynaType: RawRepresentable {
     }
     
     private static func registerDefault_all() {
+        register(Any.self)
 //        register(Date.self)
         register(String.self)
         register(Int.self)

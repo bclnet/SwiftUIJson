@@ -18,6 +18,17 @@ import SwiftUI
 //    }
 //}
 
+public protocol OptionalType: ExpressibleByNilLiteral {
+    associatedtype WrappedType
+    var asOptional: WrappedType? { get }
+}
+
+extension Optional: OptionalType {
+    public var asOptional: Wrapped? {
+        return self
+    }
+}
+
 extension Mirror {
     static func unwrap(value: Any) -> Any {
         if case Optional<Any>.some(let wrapped) = value { return wrapped }
