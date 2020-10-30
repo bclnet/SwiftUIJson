@@ -18,18 +18,24 @@ extension ModifiedContent: JsonView, DynaCodable where Content : View, Content :
     public init(from decoder: Decoder, for dynaType: DynaType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let content = try container.decode(Content.self, forKey: .content, dynaType: dynaType[0])
-        let modifier = try container.decodeAny(Modifier.self, forKey: .modifier)
+        let modifier = try container.decode(AnyViewModifier.self, forKey: .modifier, dynaType: dynaType[1]) as! Modifier
         self.init(content: content, modifier: modifier)
     }
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(self.content, forKey: .content)
-        try container.encodeAny(self.modifier, forKey: .modifier)
+        try container.encodeAny(AnyViewModifier(self.modifier), forKey: .modifier)
     }
     //: Register
     static func register() {
+        DynaType.register(ModifiedContent<AnyView, AnyViewModifier>.self)
     }
 }
+
+//extension _ViewModifier_Content {
+//}
+
+
 
 // MARK: - Accessibility
 /// accessibilityAction(), accessibilityAction(named)

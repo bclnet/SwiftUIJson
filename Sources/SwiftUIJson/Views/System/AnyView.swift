@@ -7,6 +7,10 @@
 
 import SwiftUI
 
+public protocol JsonView {
+    var anyView: AnyView { get }
+}
+
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension AnyView: DynaCodable {
     static func unwrap(value: Any) -> Any {
@@ -16,8 +20,8 @@ extension AnyView: DynaCodable {
     }
     //: Codable
     public init(from decoder: Decoder, for dynaType: DynaType) throws {
-        guard let value = try decoder.dynaSuperInit(for: dynaType[0]) as? JsonView else { fatalError("AnyView") }
-        self = value.anyView
+        let view = try decoder.dynaSuperInit(for: dynaType[0]) as! JsonView
+        self = view.anyView
     }
     public func encode(to encoder: Encoder) throws {
         let storage = AnyViewStorageBase(any: Mirror(reflecting: self).descendant("storage")!)

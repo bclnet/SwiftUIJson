@@ -128,10 +128,11 @@ public enum DynaType: RawRepresentable {
     }
     
     // MARK: - Parse/Build
+    public static func typeKey(type value: Any) -> String {
+        typeKey(for: String(reflecting: Swift.type(of: value)))
+    }
     public static func typeKey(for value: Any) -> String {
-        String(reflecting: value).replacingOccurrences(of: " ", with: "")
-            .replacingOccurrences(of: "Swift.", with: "#")
-            .replacingOccurrences(of: "SwiftUI.", with: ":")
+        typeKey(for: String(reflecting: value))
     }
     public static func typeKey(for value: String) -> String {
         value.replacingOccurrences(of: " ", with: "")

@@ -6,12 +6,7 @@
 //  Copyright © 2020 Sky Morey. All rights reserved.
 //
 
-// https://github.com/Cosmo/OpenSwiftUI
 import SwiftUI
-
-public protocol JsonView {
-    var anyView: AnyView { get }
-}
 
 public struct JsonUI: Codable {
     public var context = JsonContext()
@@ -71,6 +66,7 @@ public struct JsonUI: Codable {
         _ConditionalContent<AnyView, AnyView>.register()
         _PaddingLayout.register()
         AnyView.register()
+//        AnyViewModifier.register()
         DynaType.register(Button<AnyView>.self)
         Color.register()
         DynaType.register(ContextMenu<AnyView>.self)
@@ -86,7 +82,7 @@ public struct JsonUI: Codable {
         HStack<AnyView>.register()
         Image.register()
         DynaType.register(List<AnyHashable, AnyView>.self)
-        DynaType.register(ModifiedContent<AnyView, Any>.self)
+        ModifiedContent<AnyView, AnyViewModifier>.register()
         DynaType.register(NavigationLink<AnyView, AnyView>.self)
         DynaType.register(NavigationView<AnyView>.self)
         DynaType.register(Never.self)

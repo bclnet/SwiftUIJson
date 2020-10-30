@@ -7,26 +7,27 @@
 
 import SwiftUI
 
-
-
-struct DatePickerStyleModifier<Style>: DynaConvertedDynaCodable, ViewModifier where Style: Codable {
+struct DatePickerStyleModifier<Style>: JsonViewModifier, DynaConvertedCodable where Style: Codable {
     let style: Any
     public init(any: Any) {
         style = Mirror(reflecting: any).descendant("style")!
     }
-    public func body(content: Content) -> some View {
-//        content.datePickerStyle(style)
-        EmptyView()
+    public func body(content: AnyView) -> AnyView {
+        return AnyView(content.datePickerStyle(CompactDatePickerStyle()))
     }
     //: Codable
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
-//        var container = try decoder.unkeyedContainer()
-//        style = try DynaType.typeParse(forKey: try container.decode(String.self))
-        fatalError()
+    enum CodingKeys: CodingKey {
+        case style
+    }
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let styleKey = try container.decode(String.self, forKey: .style)
+        style = try DynaType.typeParse(forKey: styleKey)
     }
     public func encode(to encoder: Encoder) throws {
-        var container = encoder.unkeyedContainer()
-        try container.encode(DynaType.typeKey(for: style))
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        let styleKey = DynaType.typeKey(type: style)
+        try container.encode(styleKey, forKey: .style)
     }
     //: Register
     static func register() {
@@ -47,11 +48,29 @@ struct DatePickerStyleModifier<Style>: DynaConvertedDynaCodable, ViewModifier wh
     }
 }
 
-extension DefaultDatePickerStyle: Codable {
-    public init(from decoder: Decoder) throws { fatalError() }
-    public func encode(to encoder: Encoder) throws {}
-}
 extension CompactDatePickerStyle: Codable {
-    public init(from decoder: Decoder) throws { fatalError() }
+    public init(from decoder: Decoder) throws { self.init() }
     public func encode(to encoder: Encoder) throws {}
 }
+extension DefaultDatePickerStyle: Codable {
+    public init(from decoder: Decoder) throws { self.init() }
+    public func encode(to encoder: Encoder) throws {}
+}
+extension GraphicalDatePickerStyle: Codable {
+    public init(from decoder: Decoder) throws { self.init() }
+    public func encode(to encoder: Encoder) throws {}
+}
+extension WheelDatePickerStyle: Codable {
+    public init(from decoder: Decoder) throws { self.init() }
+    public func encode(to encoder: Encoder) throws {}
+}
+#if os(macOS)
+extension FieldDatePickerStyle: Codable {
+    public init(from decoder: Decoder) throws { self.init() }
+    public func encode(to encoder: Encoder) throws {}
+}
+extension StepperFieldDatePickerStyle: Codable {
+    public init(from decoder: Decoder) throws { self.init() }
+    public func encode(to encoder: Encoder) throws {}
+}
+#endif

@@ -64,10 +64,15 @@ extension Encoder {
             try container.encode(dynaTypeWithNil, forKey: .type)
         }
         if hasNil { return }
-        guard let encodeable = unwrap as? Encodable else {
-            throw DynaTypeError.typeNotCodable("encodeDynaSuper", key: DynaType.typeKey(for: unwrap))
+        guard let encodable = unwrap as? Encodable else {
+            let newValue = try DynaType.convert(value: unwrap)
+            guard let encodable2 = newValue as? Encodable else {
+                throw DynaTypeError.typeNotCodable("encodeDynaSuper", key: DynaType.typeKey(for: unwrap))
+            }
+            try encodable2.encode(to: self)
+            return
         }
-        try encodeable.encode(to: self)
+        try encodable.encode(to: self)
     }
 }
 
@@ -181,15 +186,14 @@ extension KeyedEncodingContainerProtocol {
 extension UnkeyedDecodingContainer {
     public mutating func decodeAny<T>(_ type: T.Type) throws -> T {
         let baseDecoder = try superDecoder()
-        guard let decodable = type as? Decodable.Type else {
-//            let newValue = try DynaType.convert(value: value)
-//            guard let encodable2 = newValue as? Encodable else {
+//        guard let decodable = type as? DynaDecodable.Type else {
+            guard let decodable2 = type as? Decodable.Type else {
                 throw DynaTypeError.typeNotCodable("decodeAny", key: DynaType.typeKey(for: type))
-//            }
-//            try encodable2.encode(to: baseDecoder)
-//            return
-        }
-        return try decodable.init(from: baseDecoder) as! T
+            }
+            return try decodable2.init(from: baseDecoder) as! T
+//        }
+//        fatalError()
+//        return try decodable.init(from: baseDecoder) as! T
     }
 }
 

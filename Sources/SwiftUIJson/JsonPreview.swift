@@ -54,8 +54,8 @@ public struct JsonPreview<Content>: View where Content: View {
             content2 = AnyView(Text("ERROR:typeParseError"))
         } catch DynaTypeError.typeNameError(let actual, let expected) {
             content2 = AnyView(Text("ERROR:typeNameError actual: \(actual) expected: \(expected)"))
-        } catch DynaTypeError.typeNotCodable(let mode, let named) {
-            content2 = AnyView(Text("ERROR:typeNotCodable mode: \(mode) named: \(named)"))
+        } catch DynaTypeError.typeNotCodable(let mode, let key) {
+            content2 = AnyView(Text("ERROR:typeNotCodable mode: \(mode) named: \(key)"))
         } catch {
             content2 = AnyView(Text("ERROR:\(error)" as String))
             //data = "\(error)\n".data(using: .utf8)! + data
