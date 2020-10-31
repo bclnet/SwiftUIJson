@@ -41,8 +41,7 @@ struct OtherStyleModifier<Style>: DynaConvertedDynaCodable, ViewModifier where S
         // GroupBoxStyle
         DynaType.register(DefaultGroupBoxStyle.self)
         
-        // IndexViewStyle
-        DynaType.register(PageIndexViewStyle.self)
+
         
         // LabelStyle
         DynaType.register(DefaultLabelStyle.self)

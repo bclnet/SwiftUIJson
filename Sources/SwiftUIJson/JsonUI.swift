@@ -53,20 +53,23 @@ public struct JsonUI: Codable {
     public static let registered: Bool = registerDefault()
     
     public static func registerDefault() -> Bool {
+        // modifiers
+        EnvironmentValues.register()
+        //AnyViewModifier.register()
+        
         // styles
         DatePickerStyleModifier<NeverCodable>.register()
         OtherStyleModifier<NeverCodable>.register()
         ModifierGesture<Any, Any>.register()
-        _EnvironmentKeyWritingModifier<Any?>.register()
-        IndexViewStyleModifier<PageIndexViewStyle>.register()
-        _TraitWritingModifier<ItemProviderTraitKey>.register()
+        _EnvironmentKeyWritingModifier<NeverCodable?>.register()
+        IndexViewStyleModifier<NeverCodable>.register()
+        _TraitWritingModifier<NeverCodable>.register()
         // shapes
         Circle.register()
         // views
         _ConditionalContent<AnyView, AnyView>.register()
         _PaddingLayout.register()
         AnyView.register()
-//        AnyViewModifier.register()
         DynaType.register(Button<AnyView>.self)
         Color.register()
         DynaType.register(ContextMenu<AnyView>.self)

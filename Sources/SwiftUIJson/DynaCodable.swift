@@ -10,10 +10,6 @@ import SwiftUI
 
 protocol DynaUnkeyedContainer { }
 
-//public protocol DynaEncodableByAny {
-//    func encode(any s: Any, to encode: Encodable)
-//}
-
 //: Codable
 fileprivate enum CodingKeys: CodingKey {
     case type
@@ -24,8 +20,8 @@ fileprivate func printPath(_ value: String) {
 }
 
 public struct NeverCodable: Codable {
-    public init(from decoder: Decoder) throws {}
-    public func encode(to encoder: Encoder) throws {}
+    public init(from decoder: Decoder) throws { fatalError("Never") }
+    public func encode(to encoder: Encoder) throws { fatalError("Never") }
 }
 
 extension DynaTypeWithNil: Codable {

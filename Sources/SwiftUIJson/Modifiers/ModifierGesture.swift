@@ -60,10 +60,6 @@ struct ModifierGesture<Modifier, Content>: DynaConvertedCodable {
         DynaType.register(PressableGestureCallbacks<Any>.self, any: [Any.self], namespace: "SwiftUI")
         DynaType.register(LongPressGesture.self)
         DynaType.register(ModifierGesture<Any, Any>.self, any: [Any.self, Any.self], namespace: "SwiftUI")
-//        DynaType.registerFactory(any: [Any.self, Any.self], namespace: "SwiftUI") { (a: Any, b: Any) in
-//            func factory<A, B>(_ a: A, _ b: B) -> Any.Type { ModifierGesture<A.Type, B.Type>.self }
-//            return factory(a, b)
-//        }
         DynaType.register(AddGestureModifier<Any>.self, any: [Any.self], namespace: "SwiftUI")
     }
 }

@@ -63,12 +63,12 @@ public enum DynaType: RawRepresentable {
     }
     //: RawRepresentable
     public init?(rawValue: String) {
-        self = try! Self.findType(forKey: rawValue)
+        self = try! Self.find(forKey: rawValue)
     }
     public var rawValue: String {
         underlyingKey
     }
-
+    
     // MARK: - Register
     static var knownTypes = [String:Self]()
     static var knownGenerics = [String:(type: Any.Type, anys: [Any.Type?]?)]()
@@ -77,39 +77,50 @@ public enum DynaType: RawRepresentable {
     static var actionTypes = [String:[String:Any]]()
     
     public static func register<T>(_ type: T.Type, any: [Any.Type?]? = nil, namespace: String? = nil, actions: [String:Any]? = nil) {
-        let typeOptional = Optional<T>.self
-        var key = typeKey(for: type), keyOptional = typeKey(for: typeOptional)
-        let genericIdx = key.firstIndex(of: "<")
-        var baseKey = genericIdx == nil ? key : String(key[..<genericIdx!])
-        if namespace != nil {
-            let newBaseKey = typeKey(for: "\(namespace!)\(baseKey[baseKey.lastIndex(of: ".")!...])")
-            key = key.replacingOccurrences(of: baseKey, with: newBaseKey)
-            keyOptional = keyOptional.replacingOccurrences(of: baseKey, with: newBaseKey)
-            baseKey = newBaseKey
+        var key = typeKey(for: type)
+        if knownTypes[key] == nil {
+            // register
+            let typeOptional = Optional<T>.self
+            var keyOptional = typeKey(for: typeOptional)
+            let genericIdx = key.firstIndex(of: "<")
+            var baseKey = genericIdx == nil ? key : String(key[..<genericIdx!])
+            if namespace != nil {
+                let newBaseKey = typeKey(for: "\(namespace!)\(baseKey[baseKey.lastIndex(of: ".")!...])")
+                key = key.replacingOccurrences(of: baseKey, with: newBaseKey)
+                keyOptional = keyOptional.replacingOccurrences(of: baseKey, with: newBaseKey)
+                baseKey = newBaseKey
+            }
+            knownTypes[key] = .type(type, key)
+            knownTypes[keyOptional] = .type(typeOptional, keyOptional)
+            unwrapTypes[ObjectIdentifier(typeOptional)] = type
+            // generic
+            if genericIdx != nil {
+                let genericKey = baseKey != ":TupleView" ? baseKey : "\(baseKey):\(key.components(separatedBy: ",").count)"
+                if knownGenerics[genericKey] == nil {
+                    knownGenerics[genericKey] = (type, any)
+                }
+            }
+            // convert
+            if let convert = type as? DynaConvertable.Type {
+                convertTypes[key] = convert
+            }
         }
-        knownTypes[key] = .type(type, key)
-        knownTypes[keyOptional] = .type(typeOptional, keyOptional)
-        unwrapTypes[ObjectIdentifier(typeOptional)] = type
-        if let convert = type as? DynaConvertable.Type {
-            convertTypes[key] = convert
-        }
-        if let actions = actions {
+        
+        // actions
+        guard let actions = actions else { return }
+        guard var set = actionTypes[key] else {
             actionTypes[key] = actions
+            return
         }
-        if genericIdx == nil { return }
-        let genericKey = baseKey != ":TupleView" ? baseKey : "\(baseKey):\(key.components(separatedBy: ",").count)"
-        guard knownGenerics[genericKey] == nil else { fatalError("\(genericKey) is already registered") }
-        knownGenerics[genericKey] = (type, any)
+        for (k, v) in actions {
+            set.updateValue(v, forKey: k)
+        }
     }
-//    public static func registerFactory<T>(any: [Any.Type], namespace: String? = nil, factory: (T) -> Any.Type) {
-//        let new = factory(any[0] as! T.Type)
-//        print("here")
-//    }
     
     // MARK: - Lookup
     public static func type(for type: Any.Type) throws -> Self {
         let _ = registered
-        return try findType(forKey: typeKey(for: type))
+        return try find(forKey: typeKey(for: type))
     }
     
     public static func unwrap(type: Any.Type) -> Any.Type {
@@ -121,7 +132,7 @@ public enum DynaType: RawRepresentable {
         let _ = registered
         let key = typeKey(for: Swift.type(of: value))
         guard let convert = convertTypes[key] else {
-            let any = try findType(forKey: key).underlyingAny
+            let any = try find(forKey: key).underlyingAny
             guard let convert2 = convertTypes[any] else {
                 fatalError()
             }
@@ -167,13 +178,15 @@ public enum DynaType: RawRepresentable {
         return tokens
     }
     
-    public static func findType(forKey key: String, withAction action: String) throws -> (Self, Any?) {
-        let type = try findType(forKey: key)
-        let action = actionTypes[key]![action]
-        return (type, action)
+    public static func find(actionAndType action: String, forKey key: String) throws -> (Any?, Self) {
+        (find(action: action, forKey: key), try find(forKey: key))
+    }
+    
+    public static func find(action: String, forKey key: String) -> Any? {
+        actionTypes[key]![action]
     }
 
-    public static func findType(forKey: String) throws -> Self {
+    public static func find(forKey: String) throws -> Self {
         let _ = registered
         if let type = knownTypes[forKey] { return type }
         let tokens = typeParse(tokens: forKey)
@@ -264,13 +277,13 @@ public enum DynaType: RawRepresentable {
         case 04: return (JsonAnyView.any(s[0]), JsonAnyView.any(s[1]), JsonAnyView.any(s[2]), JsonAnyView.any(s[3]))
         case 05: return (JsonAnyView.any(s[0]), JsonAnyView.any(s[1]), JsonAnyView.any(s[2]), JsonAnyView.any(s[3]), JsonAnyView.any(s[4]))
         case 06: return (JsonAnyView.any(s[0]), JsonAnyView.any(s[1]), JsonAnyView.any(s[2]), JsonAnyView.any(s[3]), JsonAnyView.any(s[4]),
-                        JsonAnyView.any(s[5]))
+                         JsonAnyView.any(s[5]))
         case 07: return (JsonAnyView.any(s[0]), JsonAnyView.any(s[1]), JsonAnyView.any(s[2]), JsonAnyView.any(s[3]), JsonAnyView.any(s[4]),
-                        JsonAnyView.any(s[5]), JsonAnyView.any(s[6]))
+                         JsonAnyView.any(s[5]), JsonAnyView.any(s[6]))
         case 08: return (JsonAnyView.any(s[0]), JsonAnyView.any(s[1]), JsonAnyView.any(s[2]), JsonAnyView.any(s[3]), JsonAnyView.any(s[4]),
-                        JsonAnyView.any(s[5]), JsonAnyView.any(s[6]), JsonAnyView.any(s[7]))
+                         JsonAnyView.any(s[5]), JsonAnyView.any(s[6]), JsonAnyView.any(s[7]))
         case 09: return (JsonAnyView.any(s[0]), JsonAnyView.any(s[1]), JsonAnyView.any(s[2]), JsonAnyView.any(s[3]), JsonAnyView.any(s[4]),
-                        JsonAnyView.any(s[5]), JsonAnyView.any(s[6]), JsonAnyView.any(s[7]), JsonAnyView.any(s[8]))
+                         JsonAnyView.any(s[5]), JsonAnyView.any(s[6]), JsonAnyView.any(s[7]), JsonAnyView.any(s[8]))
         case 10: return (JsonAnyView.any(s[0]), JsonAnyView.any(s[1]), JsonAnyView.any(s[2]), JsonAnyView.any(s[3]), JsonAnyView.any(s[4]),
                          JsonAnyView.any(s[5]), JsonAnyView.any(s[6]), JsonAnyView.any(s[7]), JsonAnyView.any(s[8]), JsonAnyView.any(s[9]))
         default: fatalError()
@@ -295,15 +308,11 @@ public enum DynaType: RawRepresentable {
     public static let registered: Bool = registerDefault()
     
     public static func registerDefault() -> Bool {
-        registerDefault_all()
-        return true
-    }
-    
-    private static func registerDefault_all() {
         register(Any.self)
-//        register(Date.self)
+        //        register(Date.self)
         register(String.self)
         register(Int.self)
         register(Bool.self)
+        return true
     }
 }
