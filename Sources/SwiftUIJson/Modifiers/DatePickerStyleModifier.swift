@@ -9,11 +9,13 @@ import SwiftUI
 
 struct DatePickerStyleModifier<Style>: JsonViewModifier, DynaConvertedCodable where Style: Codable {
     let style: Any
+    let datePickerStyle: Any?
     public init(any: Any) {
         style = Mirror(reflecting: any).descendant("style")!
+        datePickerStyle = nil
     }
     public func body(content: AnyView) -> AnyView {
-        return AnyView(content.datePickerStyle(CompactDatePickerStyle()))
+        (datePickerStyle as! ((AnyView) -> AnyView))(AnyView(content))
     }
     //: Codable
     enum CodingKeys: CodingKey {
@@ -22,7 +24,7 @@ struct DatePickerStyleModifier<Style>: JsonViewModifier, DynaConvertedCodable wh
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let styleKey = try container.decode(String.self, forKey: .style)
-        style = try DynaType.typeParse(forKey: styleKey)
+        (style, datePickerStyle) = try DynaType.findType(forKey: styleKey, withAction: "datePickerStyle")
     }
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
@@ -37,18 +39,23 @@ struct DatePickerStyleModifier<Style>: JsonViewModifier, DynaConvertedCodable wh
 //            return factory(a)
 //        }
         DynaType.register(DatePickerStyleModifier<NeverCodable>.self, any: [NeverCodable.self], namespace: "SwiftUI")
-        DynaType.register(CompactDatePickerStyle.self)
-        DynaType.register(DefaultDatePickerStyle.self)
-        DynaType.register(GraphicalDatePickerStyle.self)
-        DynaType.register(WheelDatePickerStyle.self)
+        DynaType.register(CompactDatePickerStyle.self, actions: ["datePickerStyle" : { (content: AnyView) in AnyView(content.datePickerStyle(CompactDatePickerStyle())) }])
+        DynaType.register(DefaultDatePickerStyle.self, actions: ["datePickerStyle" : { (content: AnyView) in AnyView(content.datePickerStyle(DefaultDatePickerStyle())) }])
+        DynaType.register(GraphicalDatePickerStyle.self, actions: ["datePickerStyle" : { (content: AnyView) in AnyView(content.datePickerStyle(GraphicalDatePickerStyle())) }])
+        DynaType.register(WheelDatePickerStyle.self, actions: ["datePickerStyle" : { (content: AnyView) in AnyView(content.datePickerStyle(WheelDatePickerStyle())) }])
         #if os(macOS)
-        DynaType.register(FieldDatePickerStyle.self)
-        DynaType.register(StepperFieldDatePickerStyle.self)
+        DynaType.register(FieldDatePickerStyle.self, actions: ["datePickerStyle" : { (content: AnyView) in AnyView(content.datePickerStyle(FieldDatePickerStyle())) }])
+        DynaType.register(StepperFieldDatePickerStyle.self, actions: ["datePickerStyle" : { (content: AnyView) in AnyView(content.datePickerStyle(StepperFieldDatePickerStyle())) }])
         #endif
     }
 }
 
-extension CompactDatePickerStyle: Codable {
+
+public protocol JsonDatePickerStyle: DatePickerStyle {
+}
+    
+
+extension CompactDatePickerStyle: JsonDatePickerStyle, Codable {
     public init(from decoder: Decoder) throws { self.init() }
     public func encode(to encoder: Encoder) throws {}
 }

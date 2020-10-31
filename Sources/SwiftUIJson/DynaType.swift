@@ -63,7 +63,7 @@ public enum DynaType: RawRepresentable {
     }
     //: RawRepresentable
     public init?(rawValue: String) {
-        self = try! Self.typeParse(forKey: rawValue)
+        self = try! Self.findType(forKey: rawValue)
     }
     public var rawValue: String {
         underlyingKey
@@ -74,8 +74,9 @@ public enum DynaType: RawRepresentable {
     static var knownGenerics = [String:(type: Any.Type, anys: [Any.Type?]?)]()
     static var unwrapTypes = [ObjectIdentifier:Any.Type]()
     static var convertTypes = [String:DynaConvertable.Type]()
+    static var actionTypes = [String:[String:Any]]()
     
-    public static func register<T>(_ type: T.Type, any: [Any.Type?]? = nil, namespace: String? = nil) {
+    public static func register<T>(_ type: T.Type, any: [Any.Type?]? = nil, namespace: String? = nil, actions: [String:Any]? = nil) {
         let typeOptional = Optional<T>.self
         var key = typeKey(for: type), keyOptional = typeKey(for: typeOptional)
         let genericIdx = key.firstIndex(of: "<")
@@ -86,12 +87,15 @@ public enum DynaType: RawRepresentable {
             keyOptional = keyOptional.replacingOccurrences(of: baseKey, with: newBaseKey)
             baseKey = newBaseKey
         }
-        if let convert = type as? DynaConvertable.Type {
-            convertTypes[key] = convert
-        }
         knownTypes[key] = .type(type, key)
         knownTypes[keyOptional] = .type(typeOptional, keyOptional)
         unwrapTypes[ObjectIdentifier(typeOptional)] = type
+        if let convert = type as? DynaConvertable.Type {
+            convertTypes[key] = convert
+        }
+        if let actions = actions {
+            actionTypes[key] = actions
+        }
         if genericIdx == nil { return }
         let genericKey = baseKey != ":TupleView" ? baseKey : "\(baseKey):\(key.components(separatedBy: ",").count)"
         guard knownGenerics[genericKey] == nil else { fatalError("\(genericKey) is already registered") }
@@ -105,7 +109,7 @@ public enum DynaType: RawRepresentable {
     // MARK: - Lookup
     public static func type(for type: Any.Type) throws -> Self {
         let _ = registered
-        return try typeParse(forKey: typeKey(for: type))
+        return try findType(forKey: typeKey(for: type))
     }
     
     public static func unwrap(type: Any.Type) -> Any.Type {
@@ -117,7 +121,7 @@ public enum DynaType: RawRepresentable {
         let _ = registered
         let key = typeKey(for: Swift.type(of: value))
         guard let convert = convertTypes[key] else {
-            let any = try typeParse(forKey: key).underlyingAny
+            let any = try findType(forKey: key).underlyingAny
             guard let convert2 = convertTypes[any] else {
                 fatalError()
             }
@@ -162,8 +166,14 @@ public enum DynaType: RawRepresentable {
         }
         return tokens
     }
+    
+    public static func findType(forKey key: String, withAction action: String) throws -> (Self, Any?) {
+        let type = try findType(forKey: key)
+        let action = actionTypes[key]![action]
+        return (type, action)
+    }
 
-    public static func typeParse(forKey: String) throws -> Self {
+    public static func findType(forKey: String) throws -> Self {
         let _ = registered
         if let type = knownTypes[forKey] { return type }
         let tokens = typeParse(tokens: forKey)
