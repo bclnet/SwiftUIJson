@@ -180,33 +180,30 @@ extension KeyedEncodingContainerProtocol {
 
 
 extension UnkeyedDecodingContainer {
-    public mutating func decodeAny<T>(_ type: T.Type) throws -> T {
-        let baseDecoder = try superDecoder()
-//        guard let decodable = type as? DynaDecodable.Type else {
-            guard let decodable2 = type as? Decodable.Type else {
-                throw DynaTypeError.typeNotCodable("decodeAny", key: DynaType.typeKey(for: type))
+    public mutating func decodeAny<T>(_ type: T.Type, dynaType: DynaType) throws -> T {
+        let decoder = try superDecoder()
+        let newType = dynaType.underlyingType
+        guard let decodable = newType as? DynaDecodable.Type else {
+            guard let decodable2 = newType as? Decodable.Type else {
+                throw DynaTypeError.typeNotCodable("decodeAny", key: DynaType.typeKey(for: newType))
             }
-            return try decodable2.init(from: baseDecoder) as! T
-//        }
-//        fatalError()
-//        return try decodable.init(from: baseDecoder) as! T
+            return try decodable2.init(from: decoder) as! T
+        }
+        return try decodable.init(from: decoder, for: dynaType) as! T
     }
 }
 
 extension KeyedDecodingContainerProtocol {
-    public func decodeAny<T>(_ type: T.Type, forKey key: Key) throws -> T {
-        let baseDecoder = try superDecoder(forKey: key)
-        guard let decodable = type as? Decodable.Type else {
-            print("HERE")
-//            let newValue = try DynaType.convert(value: value)
-//            guard let encodable2 = newValue as? Encodable else {
-                throw DynaTypeError.typeNotCodable("decodeAny", key: DynaType.typeKey(for: type))
-//            }
-//            try encodable2.encode(to: baseDecoder)
-//            return
+    public func decodeAny<T>(_ type: T.Type, forKey key: Key, dynaType: DynaType) throws -> T {
+        let decoder = try superDecoder(forKey: key)
+        let newType = dynaType.underlyingType
+        guard let decodable = newType as? DynaDecodable.Type else {
+            guard let decodable2 = newType as? Decodable.Type else {
+                throw DynaTypeError.typeNotCodable("decodeAny", key: DynaType.typeKey(for: newType))
+            }
+            return try decodable2.init(from: decoder) as! T
         }
-        print("\(T.self)")
-        return try decodable.init(from: baseDecoder) as! T
+        return try decodable.init(from: decoder, for: dynaType) as! T
     }
     
     /// Decodes a value of the given type for the given key.
@@ -222,9 +219,9 @@ extension KeyedDecodingContainerProtocol {
     ///   for the given key.
     /// - throws: `DecodingError.valueNotFound` if `self` has a null entry for
     ///   the given key.
-    public func decode<T: DynaDecodable>(_ type: T.Type, forKey key: Key, dynaType: DynaType) throws -> T {
-        let decoder = try superDecoder(forKey: key)
+    public func decode<T>(_ type: T.Type, forKey key: Key, dynaType: DynaType) throws -> T where T : DynaDecodable {
         printPath("\(String(repeating: "-", count: codingPath.count)) \(dynaType.underlyingType) \(codingPath)")
+        let decoder = try superDecoder(forKey: key)
         return try type.init(from: decoder, for: dynaType)
     }
     
@@ -242,13 +239,13 @@ extension KeyedDecodingContainerProtocol {
     ///   the value is a null value.
     /// - throws: `DecodingError.typeMismatch` if the encountered encoded value
     ///   is not convertible to the requested type.
-    public func decodeIfPresent<T: DynaDecodable>(_ type: T.Type, forKey key: Key, dynaType: DynaType) throws -> T? {
+    public func decodeIfPresent<T>(_ type: T.Type, forKey key: Key, dynaType: DynaType) throws -> T? where T : DynaDecodable {
         if !contains(key) {
             printPath("\(String(repeating: "-", count: codingPath.count)) nil \(codingPath)")
             return nil
         }
-        let decoder = try superDecoder(forKey: key)
         printPath("\(String(repeating: "-", count: codingPath.count)) \(dynaType.underlyingType) \(codingPath)")
+        let decoder = try superDecoder(forKey: key)
         return try type.init(from: decoder, for: dynaType)
     }
 }

@@ -36,7 +36,6 @@ extension ModifiedContent: JsonView, DynaCodable where Content : View, Content :
 //}
 
 
-
 // MARK: - Accessibility
 /// accessibilityAction(), accessibilityAction(named)
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)

@@ -1,10 +1,9 @@
 import XCTest
 @testable import SwiftUIJson
 
-final class SwiftUIJsonTests: XCTestCase {
+final class BundleTests: XCTestCase {
     
     func testExample() {
-//        XCTAssertEqual(SwiftUIJson().text, "Hello, World!")
     }
 
     static var allTests = [

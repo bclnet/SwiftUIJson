@@ -1,5 +1,5 @@
 //
-//  IndexViewStyleModifier.swift
+//  GroupBoxStyleModifier.swift
 //
 //  Created by Sky Morey on 8/22/20.
 //  Copyright © 2020 Sky Morey. All rights reserved.
@@ -7,16 +7,16 @@
 
 import SwiftUI
 
-struct IndexViewStyleModifier<Style>: JsonViewModifier, DynaConvertedCodable where Style: Codable {
+struct GroupBoxStyleModifier<Style>: JsonViewModifier, DynaConvertedCodable where Style: Codable {
     let style: Any
-    let indexViewStyle: Any?
+    let action: ((AnyView) -> AnyView)!
     public init(any: Any) {
         style = Mirror(reflecting: any).descendant("style")!
-        indexViewStyle = nil
+        action = nil
     }
     //: JsonViewModifier
     public func body(content: AnyView) -> AnyView {
-        (indexViewStyle as! ((AnyView) -> AnyView))(AnyView(content))
+        action(AnyView(content))
     }
     //: Codable
     enum CodingKeys: CodingKey {
@@ -25,7 +25,7 @@ struct IndexViewStyleModifier<Style>: JsonViewModifier, DynaConvertedCodable whe
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let styleKey = try container.decode(String.self, forKey: .style)
-        (indexViewStyle, style) = try DynaType.find(actionAndType: "indexViewStyle", forKey: styleKey)
+        (action, style) = try DynaType.find(actionAndType: "style", forKey: styleKey)
     }
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
@@ -34,7 +34,7 @@ struct IndexViewStyleModifier<Style>: JsonViewModifier, DynaConvertedCodable whe
     }
     //: Register
     static func register() {
-        DynaType.register(IndexViewStyleModifier<NeverCodable>.self, any: [NeverCodable.self], namespace: "SwiftUI")
-        DynaType.register(PageIndexViewStyle.self, actions: ["indexViewStyle": { (content: AnyView) in AnyView(content.indexViewStyle(PageIndexViewStyle())) }])
+        DynaType.register(GroupBoxStyleModifier<NeverCodable>.self, any: [NeverCodable.self], namespace: "SwiftUI")
+        DynaType.register(DefaultGroupBoxStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.groupBoxStyle(DefaultGroupBoxStyle())) }])
     }
 }

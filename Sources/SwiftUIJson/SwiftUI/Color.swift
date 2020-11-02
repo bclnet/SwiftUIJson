@@ -164,13 +164,13 @@ extension Color {
         public required init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             name = try container.decode(String.self, forKey: .name)
-            bundle = try container.decodeIfPresent(CodableBundle.self, forKey: .bundle)?.bundle
+            bundle = try container.decodeIfPresent(CodableWrap<Bundle>.self, forKey: .bundle)?.wrapValue
             try super.init(from: decoder)
         }
         public override func encode(to encoder: Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
             try container.encode(name, forKey: .name)
-            try container.encodeIfPresent(CodableBundle(bundle), forKey: .bundle)
+            try container.encodeIfPresent(CodableWrap(bundle), forKey: .bundle)
             try super.encode(to: encoder)
         }
     }
@@ -315,6 +315,7 @@ extension Color: Codable {
 }
 
 extension CGColor {
+    //: Codable
     public static func decode(from decoder: Decoder) throws -> CGColor {
         try UXColor.decode(from: decoder).cgColor
     }
@@ -329,17 +330,18 @@ extension CGColor {
 }
 
 extension UXColor {
-    static func decode(from decoder: Decoder) throws -> UXColor {
+    //: Codable
+    public static func decode(from decoder: Decoder) throws -> UXColor {
         let container = try decoder.singleValueContainer()
         let decodedData = try container.decode(Data.self)
-        let nsCoder = try NSKeyedUnarchiver(forReadingFrom: decodedData)
-        guard let color = UXColor(coder: nsCoder) else { throw DecodingError.dataCorruptedError(in: container, debugDescription: "") }
+        let coder = try NSKeyedUnarchiver(forReadingFrom: decodedData)
+        guard let color = UXColor(coder: coder) else { throw DecodingError.dataCorruptedError(in: container, debugDescription: "") }
         return color
     }
-    func encode(to encoder: Encoder) throws {
-        let nsCoder = NSKeyedArchiver(requiringSecureCoding: false)
-        self.encode(with: nsCoder)
+    public func encode(to encoder: Encoder) throws {
+        let coder = NSKeyedArchiver(requiringSecureCoding: false)
+        self.encode(with: coder)
         var container = encoder.singleValueContainer()
-        try container.encode(nsCoder.encodedData)
+        try container.encode(coder.encodedData)
     }
 }

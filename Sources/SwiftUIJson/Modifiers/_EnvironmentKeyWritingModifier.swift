@@ -19,7 +19,7 @@ struct _EnvironmentKeyWritingModifier<Value>: JsonViewModifier, DynaConvertedCod
     }
     //: JsonViewModifier
     func body(content: AnyView) -> AnyView {
-        return AnyView(content.environment(keyPath, value))
+        AnyView(content.environment(keyPath, value))
     }
     //: Codable
     enum CodingKeys: CodingKey {
@@ -29,7 +29,8 @@ struct _EnvironmentKeyWritingModifier<Value>: JsonViewModifier, DynaConvertedCod
         let container = try decoder.container(keyedBy: CodingKeys.self)
         action = try container.decode(String.self, forKey: .action)
         value = try container.decode(Value.self, forKey: .value)
-        keyPath = (DynaType.find(action: action, forKey: try container.decode(String.self, forKey: .keyPath)) as! (() -> WritableKeyPath<EnvironmentValues, Value>))()
+        let getKeyPath: (() -> WritableKeyPath<EnvironmentValues, Value>) = DynaType.find(action: action, forKey: try container.decode(String.self, forKey: .keyPath))!
+        keyPath = getKeyPath()
     }
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)

@@ -72,7 +72,7 @@ extension Image {
             label = try container.decodeIfPresent(Text.self, forKey: .label)
             location = Location(
                 system: try container.decodeIfPresent(Bool.self, forKey: .system) ?? false,
-                bundle: try container.decodeIfPresent(CodableBundle.self, forKey: .bundle)?.bundle)
+                bundle: try container.decodeIfPresent(CodableWrap<Bundle>.self, forKey: .bundle)?.wrapValue)
             name = try container.decode(String.self, forKey: .name)
             decorative = try container.decodeIfPresent(Bool.self, forKey: .decorative) ?? false
             backupLocation = nil
@@ -82,7 +82,7 @@ extension Image {
             var container = encoder.container(keyedBy: CodingKeys.self)
             try container.encode(label, forKey: .label)
             if location.system { try container.encode(location.system, forKey: .system) }
-            try container.encodeIfPresent(CodableBundle(location.bundle), forKey: .bundle)
+            try container.encodeIfPresent(CodableWrap(location.bundle), forKey: .bundle)
             try container.encode(name, forKey: .name)
             if decorative { try container.encode(decorative, forKey: .decorative) }
         }

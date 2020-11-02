@@ -151,13 +151,16 @@ public enum DynaType: RawRepresentable {
     }
     public static func typeKey(for value: String) -> String {
         value.replacingOccurrences(of: " ", with: "")
+            .replacingOccurrences(of: "Swift.Optional", with: "!")
             .replacingOccurrences(of: "Swift.", with: "#")
             .replacingOccurrences(of: "SwiftUI.", with: ":")
     }
     
     public static func typeName(for value: String) -> String {
-        value.replacingOccurrences(of: "#", with: "Swift.")
+        value.replacingOccurrences(of: "!", with: "SwiftUI.Optional")
+            .replacingOccurrences(of: "#", with: "Swift.")
             .replacingOccurrences(of: ":", with: "SwiftUI.")
+            
     }
     
     private static func typeParse(tokens raw: String) -> [(op: String, value: String)] {
@@ -178,12 +181,12 @@ public enum DynaType: RawRepresentable {
         return tokens
     }
     
-    public static func find(actionAndType action: String, forKey key: String) throws -> (Any?, Self) {
+    public static func find<Action>(actionAndType action: String, forKey key: String) throws -> (Action?, Self) {
         (find(action: action, forKey: key), try find(forKey: key))
     }
     
-    public static func find(action: String, forKey key: String) -> Any? {
-        actionTypes[key]![action]
+    public static func find<Action>(action: String, forKey key: String) -> Action? {
+        actionTypes[key]![action] as? Action
     }
 
     public static func find(forKey: String) throws -> Self {

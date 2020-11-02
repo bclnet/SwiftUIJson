@@ -53,25 +53,48 @@ public struct JsonUI: Codable {
     public static let registered: Bool = registerDefault()
     
     public static func registerDefault() -> Bool {
-        // modifiers
-        EnvironmentValues.register()
-        //AnyViewModifier.register()
-        
-        // styles
+        // modifiers:styles
+        _TabViewStyleWriter<NeverCodable>.register()
+        ButtonStyleModifier<NeverCodable>.register()
         DatePickerStyleModifier<NeverCodable>.register()
-        OtherStyleModifier<NeverCodable>.register()
-        ModifierGesture<Any, Any>.register()
-        _EnvironmentKeyWritingModifier<NeverCodable?>.register()
+        GroupBoxStyleModifier<NeverCodable>.register()
         IndexViewStyleModifier<NeverCodable>.register()
-        _TraitWritingModifier<NeverCodable>.register()
-        // shapes
-        Circle.register()
-        // views
-        _ConditionalContent<AnyView, AnyView>.register()
+        LabelStyleStyleModifier<NeverCodable>.register()
+        ListStyleModifier<NeverCodable>.register()
+        MenuStyleModifier<NeverCodable>.register()
+        NavigationViewStyleModifier<NeverCodable>.register()
+        PickerStyleModifier<NeverCodable>.register()
+        ProgressViewStyleModifier<NeverCodable>.register()
+        TextFieldStyleStyleModifier<NeverCodable>.register()
+        ToggleStyleModifier<NeverCodable>.register()
+        
+        // modifiers:system
+        AnyViewModifier.register()
+        EnvironmentValues.register()
+        
+        // modifiers
+        _DraggingModifier.register()
+        _EnvironmentKeyWritingModifier<NeverCodable?>.register()
         _PaddingLayout.register()
-        AnyView.register()
-        DynaType.register(Button<AnyView>.self)
+        _TraitWritingModifier<NeverCodable>.register()
+        AccessibilityAttachmentModifier.register()
+        ModifiedContent<AnyView, AnyViewModifier>.register()
+        ModifierGesture<Any, Any>.register()
+        
+        // swiftui:shapes
+        Circle.register()
+        
+        // swiftui
         Color.register()
+        
+        // views:system
+        _ConditionalContent<AnyView, AnyView>.register()
+        AnyView.register()
+        //:tree
+        TupleView<(JsonAnyView)>.register()
+        
+        // views
+        DynaType.register(Button<AnyView>.self)
         DynaType.register(ContextMenu<AnyView>.self)
         DynaType.register(DatePicker<AnyView>.self)
         Divider.register()
@@ -85,7 +108,6 @@ public struct JsonUI: Codable {
         HStack<AnyView>.register()
         Image.register()
         DynaType.register(List<AnyHashable, AnyView>.self)
-        ModifiedContent<AnyView, AnyViewModifier>.register()
         DynaType.register(NavigationLink<AnyView, AnyView>.self)
         DynaType.register(NavigationView<AnyView>.self)
         DynaType.register(Never.self)
@@ -99,7 +121,7 @@ public struct JsonUI: Codable {
         Text.register()
         DynaType.register(TextField<AnyView>.self)
         DynaType.register(Toggle<AnyView>.self)
-        TupleView<(JsonAnyView)>.register()
+        
         VStack<AnyView>.register()
         ZStack<AnyView>.register()
         if #available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *) {
