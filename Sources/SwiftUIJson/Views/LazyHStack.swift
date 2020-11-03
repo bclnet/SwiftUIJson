@@ -21,6 +21,7 @@ extension LazyHStack: JsonView, DynaCodable where Content : View, Content : Dyna
         self.init(alignment: root.alignment, spacing: root.spacing, pinnedViews: root.pinnedViews) { content }
     }
     public func encode(to encoder: Encoder) throws {
+        Mirror.assert(self, name: "LazyHStack", keys: ["tree"])
         let tree = Tree<LazyHStackLayout, Content>(any: Mirror(reflecting: self).descendant("tree")!)
         let root = tree.root
         var container = encoder.container(keyedBy: CodingKeys.self)
@@ -39,8 +40,9 @@ internal struct LazyHStackLayout: _Tree_ViewRoot {
     var alignment: VerticalAlignment { base.alignment }
     var spacing: CGFloat? { base.spacing }
     let pinnedViews: PinnedScrollableViews
-    init(any s: Any) {
-        let m = Mirror.children(reflecting: s)
+    init(any: Any) {
+        Mirror.assert(any, name: "LazyHStackLayout", keys: ["base", "pinnedViews"])
+        let m = Mirror.children(reflecting: any)
         base = m["base"]! as! _HStackLayout
         pinnedViews = m["pinnedViews"]! as! PinnedScrollableViews
     }
@@ -60,13 +62,13 @@ extension LazyHStackLayout: Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let spacing = try container.decodeIfPresent(CGFloat.self, forKey: .spacing)
         let alignment = try container.decode(VerticalAlignment.self, forKey: .alignment)
-        let pinnedViews = PinnedScrollableViews(rawValue: try container.decode(UInt32.self, forKey: .pinnedViews))
+        let pinnedViews = try container.decode(PinnedScrollableViews.self, forKey: .pinnedViews)
         self.init(alignment: alignment, spacing: spacing, pinnedViews: pinnedViews)
     }
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encodeIfPresent(self.spacing, forKey: .spacing)
         try container.encode(self.alignment, forKey: .alignment)
-        try container.encode(self.pinnedViews.rawValue, forKey: .pinnedViews)
+        try container.encode(self.pinnedViews, forKey: .pinnedViews)
     }
 }

@@ -13,16 +13,14 @@ extension EmptyAnimatableData: Codable {
         let container = try decoder.singleValueContainer()
         switch try container.decode(String.self) {
         case "zero": self = .zero
-        default:
-            let context = DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Invalid")
-            throw DecodingError.dataCorrupted(context)
+        case let unrecognized: fatalError(unrecognized)
         }
     }
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         switch self {
         case .zero: try container.encode("zero")
-        default: fatalError()
+        case let unrecognized: fatalError("\(unrecognized)")
         }
     }
 }

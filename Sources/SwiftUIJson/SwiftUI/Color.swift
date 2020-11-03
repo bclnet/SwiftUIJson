@@ -255,8 +255,7 @@ extension Color: Codable {
         case "secondary": self = .secondary
         default:
             let defaultFunc: () throws -> Color = {
-                let provider = try container.decode(AnyColorBox.self).provider
-                switch provider {
+                switch try container.decode(AnyColorBox.self).provider {
                 case "system":
                     if #available(iOS 14.0, macOS 11, tvOS 14.0, watchOS 7.0, *) {
                         return try container.decode(__NSCFType.self).apply()
@@ -266,7 +265,7 @@ extension Color: Codable {
                 case "named": return try container.decode(NamedColor.self).apply()
                 case "platform": return try container.decode(PlatformColor.self).apply()
                 case "opacity": return try container.decode(OpacityColor.self).apply()
-                default: fatalError(value)
+                case let unrecognized: fatalError(unrecognized)
                 }
             }
             self = try defaultFunc()
@@ -291,8 +290,7 @@ extension Color: Codable {
         default:
             let defaultFunc = {
                 let provider = Mirror(reflecting: self).descendant("provider", "base")!
-                let providerName = "\(type(of: provider))"
-                switch providerName {
+                switch "\(type(of: provider))" {
                 case "__NSCFType":
                     if #available(iOS 14.0, macOS 11, tvOS 14.0, watchOS 7.0, *) {
                         try container.encode(__NSCFType(any: provider, provider: "system"))
@@ -302,7 +300,7 @@ extension Color: Codable {
                 case "NamedColor": try container.encode(NamedColor(any: provider, provider: "named"))
                 case "UICachedDeviceRGBColor", "UICachedDeviceWhiteColor": try container.encode(PlatformColor(any: provider, provider: "platform"))
                 case "OpacityColor": try container.encode(OpacityColor(any: provider, provider: "opacity"))
-                default: fatalError(providerName)
+                case let unrecognized: fatalError(unrecognized)
                 }
             }
             try defaultFunc()

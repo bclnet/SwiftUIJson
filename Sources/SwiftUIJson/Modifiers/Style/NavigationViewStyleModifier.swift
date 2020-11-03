@@ -11,6 +11,7 @@ struct NavigationViewStyleModifier<Style>: JsonViewModifier, DynaConvertedCodabl
     let style: Any
     let action: ((AnyView) -> AnyView)!
     public init(any: Any) {
+        Mirror.assert(any, name: "NavigationViewStyleModifier", keys: ["style"])
         style = Mirror(reflecting: any).descendant("style")!
         action = nil
     }

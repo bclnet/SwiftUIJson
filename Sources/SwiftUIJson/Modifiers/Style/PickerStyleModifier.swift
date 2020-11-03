@@ -11,6 +11,7 @@ struct PickerStyleModifier<Style>: JsonViewModifier, DynaConvertedCodable where 
     let style: Any
     let action: ((AnyView) -> AnyView)!
     public init(any: Any) {
+        Mirror.assert(any, name: "PickerStyleModifier", keys: ["style"])
         style = Mirror(reflecting: any).descendant("style")!
         action = nil
     }

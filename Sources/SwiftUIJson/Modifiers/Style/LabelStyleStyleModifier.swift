@@ -1,5 +1,5 @@
 //
-//  MenuStyleModifier.swift
+//  LabelStyleStyleModifier.swift
 //
 //  Created by Sky Morey on 8/22/20.
 //  Copyright © 2020 Sky Morey. All rights reserved.
@@ -7,10 +7,11 @@
 
 import SwiftUI
 
-struct MenuStyleModifier<Style>: JsonViewModifier, DynaConvertedCodable where Style: Codable {
+struct LabelStyleStyleModifier<Style>: JsonViewModifier, DynaConvertedCodable where Style: Codable {
     let style: Any
     let action: ((AnyView) -> AnyView)!
     public init(any: Any) {
+        Mirror.assert(any, name: "LabelStyleStyleModifier", keys: ["style"])
         style = Mirror(reflecting: any).descendant("style")!
         action = nil
     }
@@ -34,11 +35,9 @@ struct MenuStyleModifier<Style>: JsonViewModifier, DynaConvertedCodable where St
     }
     //: Register
     static func register() {
-        DynaType.register(MenuStyleModifier<NeverCodable>.self, any: [NeverCodable.self], namespace: "SwiftUI")
-        DynaType.register(BorderlessButtonMenuStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.menuStyle(BorderlessButtonMenuStyle())) }])
-        DynaType.register(DefaultMenuStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.menuStyle(DefaultMenuStyle())) }])
-        #if os(macOS)
-        DynaType.register(BorderedButtonMenuStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.menuStyle(BorderedButtonMenuStyle())) }])
-        #endif
+        DynaType.register(LabelStyleStyleModifier<NeverCodable>.self, any: [NeverCodable.self], namespace: "SwiftUI")
+        DynaType.register(DefaultLabelStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.labelStyle(DefaultLabelStyle())) }])
+        DynaType.register(IconOnlyLabelStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.labelStyle(IconOnlyLabelStyle())) }])
+        DynaType.register(TitleOnlyLabelStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.labelStyle(TitleOnlyLabelStyle())) }])
     }
 }

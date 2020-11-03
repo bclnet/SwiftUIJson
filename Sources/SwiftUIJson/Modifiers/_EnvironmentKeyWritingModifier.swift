@@ -12,6 +12,7 @@ struct _EnvironmentKeyWritingModifier<Value>: JsonViewModifier, DynaConvertedCod
     let value: Value
     let keyPath: WritableKeyPath<EnvironmentValues, Value>
     public init(any: Any) {
+        Mirror.assert(any, name: "_EnvironmentKeyWritingModifier", keys: ["value", "keyPath"])
         let m = Mirror.children(reflecting: any)
         value = m["value"]! as! Value
         keyPath = m["keyPath"]! as! WritableKeyPath<EnvironmentValues, Value>

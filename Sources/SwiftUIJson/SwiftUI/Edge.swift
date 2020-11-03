@@ -18,7 +18,7 @@ extension Edge: Codable {
         case "leading": self = .leading
         case "bottom": self = .bottom
         case "trailing": self = .trailing
-        default: fatalError()
+        case let unrecognized: fatalError(unrecognized)
         }
     }
     public func encode(to encoder: Encoder) throws {
@@ -35,22 +35,52 @@ extension Edge: Codable {
     }
 }
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
-extension Edge.Set: Codable {
+extension Edge.Set: CaseIterable, Codable {
+    public static let allCases: [Self] = [.all, .top, .leading, .bottom, .trailing, .horizontal, .vertical]
     //: Codable
     public init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        self.init(rawValue: try container.decode(Int8.self))
+        var container = try decoder.unkeyedContainer()
+        var elements: Self = []
+        while !container.isAtEnd {
+            switch try container.decode(String.self) {
+            case "all": self = .all; return
+            case "top": elements.insert(.top)
+            case "leading": elements.insert(.leading)
+            case "bottom": elements.insert(.bottom)
+            case "trailing": elements.insert(.trailing)
+            case "horizontal": elements.insert(.horizontal)
+            case "vertical": elements.insert(.vertical)
+            case let unrecognized: self.init(rawValue: RawValue(unrecognized)!); return
+            }
+        }
+        self = elements
     }
     public func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        try container.encode(self.rawValue)
+        var container = encoder.unkeyedContainer()
+        for (_, element) in Self.allCases.enumerated() {
+            if self.contains(element) {
+                switch self {
+                case .all: try container.encode("all"); return
+                case .top: try container.encode("top")
+                case .leading: try container.encode("leading")
+                case .bottom: try container.encode("bottom")
+                case .trailing: try container.encode("trailing")
+                case .horizontal: try container.encode("horizontal")
+                case .vertical: try container.encode("vertical")
+                default: try container.encode(String(rawValue)); return
+                }
+            }
+        }
     }
 }
 
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension EdgeInsets: Codable {
-    public var isEmpty: Bool {
+    var isEmpty: Bool {
         top == 0 && leading == 0 && bottom == 0 && trailing == 0
+    }
+    var isEqual: Bool {
+        top == leading && leading == bottom && bottom == trailing
     }
     //: Codable
     enum CodingKeys: CodingKey {
@@ -67,9 +97,9 @@ extension EdgeInsets: Codable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         if top != 0 { try container.encode(top, forKey: .top) }
-        if leading != 0 { try container.encode(leading, forKey: .top) }
-        if bottom != 0 { try container.encode(bottom, forKey: .top) }
-        if trailing != 0 { try container.encode(trailing, forKey: .top) }
+        if leading != 0 { try container.encode(leading, forKey: .leading) }
+        if bottom != 0 { try container.encode(bottom, forKey: .bottom) }
+        if trailing != 0 { try container.encode(trailing, forKey: .trailing) }
     }
 }
 

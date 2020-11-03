@@ -230,7 +230,7 @@ public enum DynaType: RawRepresentable {
                         }
                         any = anyArray.joined()
                         stack.append(("t", try findType(key: key, any: any, genericName: genericName, generic: typeArray), key, any))
-                    default: fatalError()
+                    case let unrecognized: fatalError(unrecognized)
                     }
                 } while last.op != lastOp
             }
@@ -266,7 +266,7 @@ public enum DynaType: RawRepresentable {
         case 08: type = (JsonView, JsonView, JsonView, JsonView, JsonView, JsonView, JsonView, JsonView).Type.self
         case 09: type = (JsonView, JsonView, JsonView, JsonView, JsonView, JsonView, JsonView, JsonView, JsonView).Type.self
         case 10: type = (JsonView, JsonView, JsonView, JsonView, JsonView, JsonView, JsonView, JsonView, JsonView, JsonView).Type.self
-        default: fatalError()
+        case let unrecognized: fatalError("\(unrecognized)")
         }
         knownTypes[key] = .tuple(type, key, tuple)
         return knownTypes[key]!
@@ -289,7 +289,7 @@ public enum DynaType: RawRepresentable {
                          JsonAnyView.any(s[5]), JsonAnyView.any(s[6]), JsonAnyView.any(s[7]), JsonAnyView.any(s[8]))
         case 10: return (JsonAnyView.any(s[0]), JsonAnyView.any(s[1]), JsonAnyView.any(s[2]), JsonAnyView.any(s[3]), JsonAnyView.any(s[4]),
                          JsonAnyView.any(s[5]), JsonAnyView.any(s[6]), JsonAnyView.any(s[7]), JsonAnyView.any(s[8]), JsonAnyView.any(s[9]))
-        default: fatalError()
+        case let unrecognized: fatalError("\(unrecognized)")
         }
     }
     

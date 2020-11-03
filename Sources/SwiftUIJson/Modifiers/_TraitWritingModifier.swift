@@ -13,6 +13,7 @@ struct _TraitWritingModifier<TraitKey>: JsonViewModifier, DynaConvertedCodable w
     let valueKey: String
     let value: Any
     public init(any: Any) {
+        Mirror.assert(any, name: "_TraitWritingModifier", keys: ["value"])
         valueKey = DynaType.typeKey(type: any)
         value = Mirror(reflecting: any).descendant("value")!
     }
@@ -43,7 +44,7 @@ struct _TraitWritingModifier<TraitKey>: JsonViewModifier, DynaConvertedCodable w
         case ":_TraitWritingModifier<:IsDeleteDisabledTraitKey>": try container.encode(IsDeleteDisabledTraitKey(any: value), forKey: .isDeleteDisabled)
         case ":_TraitWritingModifier<:IsMoveDisabledTraitKey>": try container.encode(IsMoveDisabledTraitKey(any: value), forKey: .isMoveDisabled)
         case ":_TraitWritingModifier<:ItemProviderTraitKey>": try container.encode(ItemProviderTraitKey(any: value), forKey: .itemProvider)
-        default: fatalError(valueKey)
+        case let unrecognized: fatalError(unrecognized)
         }
     }
     //: Register

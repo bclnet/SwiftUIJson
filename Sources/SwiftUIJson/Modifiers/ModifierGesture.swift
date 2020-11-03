@@ -12,6 +12,7 @@ struct AddGestureModifier<Gesture>: JsonViewModifier, DynaConvertedDynaCodable {
     let gesture: Gesture
     let action: ((AnyView, GestureMask, Any) -> AnyView)!
     public init(any: Any) {
+        Mirror.assert(any, name: "AddGestureModifier", keys: ["gestureMask", "gesture"])
         let m = Mirror.children(reflecting: any)
         gestureMask = m["gestureMask"]! as! GestureMask
         gesture = m["gesture"]! as! Gesture
@@ -42,6 +43,7 @@ struct ModifierGesture<Modifier, Content>: DynaConvertedDynaCodable {
     let modifier: Modifier
     let content: Content
     public init(any: Any) {
+        Mirror.assert(any, name: "ModifierGesture", keys: ["modifier", "content"])
         let m = Mirror.children(reflecting: any)
         modifier = m["modifier"]! as! Modifier
         content = m["content"]! as! Content
@@ -83,6 +85,7 @@ struct ModifierGesture<Modifier, Content>: DynaConvertedDynaCodable {
 struct CallbacksGesture<Callbacks>: DynaConvertedDynaCodable {
     let callbacks: Callbacks
     public init(any: Any) {
+        Mirror.assert(any, name: "CallbacksGesture", keys: ["callbacks"])
         callbacks = Mirror(reflecting: any).descendant("callbacks")! as! Callbacks
     }
     //: Codable
@@ -100,6 +103,7 @@ struct PressableGestureCallbacks<Gesture>: DynaConvertedCodable {
     let pressing: ((Bool) -> ())?
     let pressed: () -> ()
     public init(any: Any) {
+        Mirror.assert(any, name: "PressableGestureCallbacks", keys: ["pressing", "pressed"])
         let m = Mirror.children(reflecting: any)
         pressing = m["pressing"]! as? ((Bool) -> ())
         pressed = m["pressed"]! as! (() -> ())
@@ -120,14 +124,35 @@ struct PressableGestureCallbacks<Gesture>: DynaConvertedCodable {
 
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension GestureMask: Codable {
+    public static let allCases: [Self] = [.all, .none, .gesture, .subviews]
     //: Codable
     public init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        self.init(rawValue: try container.decode(UInt32.self))
+        var container = try decoder.unkeyedContainer()
+        var elements: Self = []
+        while !container.isAtEnd {
+            switch try container.decode(String.self) {
+            case "all": self = .all; return
+            case "none": self = .none; return
+            case "gesture": elements.insert(.gesture)
+            case "subviews": elements.insert(.subviews)
+            case let unrecognized: self.init(rawValue: RawValue(unrecognized)!); return
+            }
+        }
+        self = elements
     }
     public func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        try container.encode(rawValue)
+        var container = encoder.unkeyedContainer()
+        for (_, element) in Self.allCases.enumerated() {
+            if self.contains(element) {
+                switch self {
+                case .all: try container.encode("all"); return
+                case .none: try container.encode("none"); return
+                case .gesture: try container.encode("gesture")
+                case .subviews: try container.encode("subviews")
+                default: try container.encode(String(rawValue)); return
+                }
+            }
+        }
     }
 }
 

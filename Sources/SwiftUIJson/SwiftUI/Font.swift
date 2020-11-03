@@ -266,8 +266,7 @@ extension Font: Codable {
         case "caption": self = .caption
         default:
             let defaultFunc: () throws -> Font = {
-                let provider = try container.decode(AnyFontBox.self).provider
-                switch provider {
+                switch try container.decode(AnyFontBox.self).provider {
                 case "system": return try container.decode(SystemProvider.self).apply()
                 case "textStyle": return try container.decode(TextStyleProvider.self).apply()
                 case "named": return try container.decode(NamedProvider.self).apply()
@@ -282,7 +281,7 @@ extension Font: Codable {
                     if #available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *) {
                         return try container.decode(ModifierProvider<LeadingModifier>.self).apply()
                     } else { fatalError() }
-                default: fatalError(value)
+                case let unrecognized: fatalError(unrecognized)
                 }
             }
             if #available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *) {
@@ -309,8 +308,7 @@ extension Font: Codable {
         default:
             let defaultFunc = {
                 let provider = Mirror(reflecting: self).descendant("provider", "base")!
-                let providerName = "\(type(of: provider))"
-                switch providerName {
+                switch "\(type(of: provider))" {
                 case "SystemProvider": try container.encode(SystemProvider(any: provider, provider: "system"))
                 case "TextStyleProvider": try container.encode(TextStyleProvider(any: provider, provider: "textStyle"))
                 case "NamedProvider": try container.encode(NamedProvider(any: provider, provider: "named"))
@@ -325,7 +323,7 @@ extension Font: Codable {
                     if #available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *) {
                         try container.encode(ModifierProvider<LeadingModifier>(any: provider, provider: "modifier<leading>"))
                     } else { fatalError() }
-                default: fatalError(providerName)
+                case let unrecognized: fatalError(unrecognized)
                 }
             }
             if #available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *) {
@@ -526,7 +524,7 @@ extension Font.Weight: Codable {
         case "bold": self = .bold
         case "heavy": self = .heavy
         case "black": self = .black
-        default: fatalError()
+        case let unrecognized: fatalError(unrecognized)
         }
     }
     public func encode(to encoder: Encoder) throws {
@@ -541,7 +539,7 @@ extension Font.Weight: Codable {
         case .bold: try container.encode("bold")
         case .heavy: try container.encode("heavy")
         case .black: try container.encode("black")
-        default: fatalError()
+        case let unrecognized: fatalError("\(unrecognized)")
         }
     }
 }
@@ -553,7 +551,7 @@ extension Font.Leading: Codable {
         case "standard": self = .standard
         case "tight": self = .tight
         case "loose": self = .loose
-        default: fatalError()
+        case let unrecognized: fatalError(unrecognized)
         }
     }
     public func encode(to encoder: Encoder) throws {
@@ -562,7 +560,7 @@ extension Font.Leading: Codable {
         case .standard: try container.encode("standard")
         case .tight: try container.encode("tight")
         case .loose: try container.encode("loose")
-        default: fatalError()
+        case let unrecognized: fatalError("\(unrecognized)")
         }
     }
 }

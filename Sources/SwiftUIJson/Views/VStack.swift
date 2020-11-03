@@ -21,6 +21,7 @@ extension VStack: JsonView, DynaCodable where Content : View, Content : DynaCoda
         self.init(alignment: root.alignment, spacing: root.spacing) { content }
     }
     public func encode(to encoder: Encoder) throws {
+        Mirror.assert(self, name: "VStack", keys: ["_tree"])
         let tree = Mirror(reflecting: self).descendant("_tree") as! _VariadicView.Tree<_VStackLayout, Content>, root = tree.root
         var container = encoder.container(keyedBy: CodingKeys.self)
         if root.alignment != .center || root.spacing != nil { try container.encode(root, forKey: .root) }
@@ -41,7 +42,7 @@ extension HorizontalAlignment: Codable {
         case "leading": self = .leading
         case "center": self = .center
         case "trailing": self = .trailing
-        default: fatalError()
+        case let unrecognized: fatalError(unrecognized)
         }
     }
     public func encode(to encoder: Encoder) throws {
@@ -50,7 +51,7 @@ extension HorizontalAlignment: Codable {
         case .leading: try container.encode("leading")
         case .center: try container.encode("center")
         case .trailing: try container.encode("trailing")
-        default: fatalError()
+        case let unrecognized: fatalError("\(unrecognized)")
         }
     }
 }

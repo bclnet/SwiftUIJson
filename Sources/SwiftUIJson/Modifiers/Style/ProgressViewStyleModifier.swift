@@ -1,5 +1,5 @@
 //
-//  LabelStyleStyleModifier.swift
+//  ProgressViewStyleModifier.swift
 //
 //  Created by Sky Morey on 8/22/20.
 //  Copyright © 2020 Sky Morey. All rights reserved.
@@ -7,10 +7,11 @@
 
 import SwiftUI
 
-struct LabelStyleStyleModifier<Style>: JsonViewModifier, DynaConvertedCodable where Style: Codable {
+struct ProgressViewStyleModifier<Style>: JsonViewModifier, DynaConvertedCodable where Style: Codable {
     let style: Any
     let action: ((AnyView) -> AnyView)!
     public init(any: Any) {
+        Mirror.assert(any, name: "ProgressViewStyleModifier", keys: ["style"])
         style = Mirror(reflecting: any).descendant("style")!
         action = nil
     }
@@ -34,9 +35,9 @@ struct LabelStyleStyleModifier<Style>: JsonViewModifier, DynaConvertedCodable wh
     }
     //: Register
     static func register() {
-        DynaType.register(LabelStyleStyleModifier<NeverCodable>.self, any: [NeverCodable.self], namespace: "SwiftUI")
-        DynaType.register(DefaultLabelStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.labelStyle(DefaultLabelStyle())) }])
-        DynaType.register(IconOnlyLabelStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.labelStyle(IconOnlyLabelStyle())) }])
-        DynaType.register(TitleOnlyLabelStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.labelStyle(TitleOnlyLabelStyle())) }])
+        DynaType.register(ProgressViewStyleModifier<NeverCodable>.self, any: [NeverCodable.self], namespace: "SwiftUI")
+        DynaType.register(CircularProgressViewStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.progressViewStyle(CircularProgressViewStyle())) }])
+        DynaType.register(DefaultProgressViewStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.progressViewStyle(DefaultProgressViewStyle())) }])
+        DynaType.register(LinearProgressViewStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.progressViewStyle(LinearProgressViewStyle())) }])
     }
 }

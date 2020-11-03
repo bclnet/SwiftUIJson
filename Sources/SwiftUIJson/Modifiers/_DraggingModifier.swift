@@ -21,6 +21,7 @@ struct DraggingItem {
 struct _DraggingModifier: JsonViewModifier, DynaConvertedCodable {
     let itemsForDragHandler: Any
     public init(any: Any) {
+        Mirror.assert(any, name: "_DraggingModifier", keys: ["itemsForDragHandler"])
         itemsForDragHandler = Mirror(reflecting: any).descendant("itemsForDragHandler")!// as! () -> [DraggingItem]
 //        anyFunc(itemsForDragHandler)
     }

@@ -8,17 +8,18 @@
 import SwiftUI
 
 
-struct PropertyList: CustomStringConvertible {
-    var description: String { "" }
-    var elements: Element?
+struct PropertyList {
+    var elements: TypedElement?
     init(any: Any) {
-        elements = Element(any: Mirror.unwrap(value: Mirror(reflecting: any).descendant("elements")!))
+        Mirror.assert(any, name: "PropertyList", keys: ["elements"])
+        elements = TypedElement(any: Mirror.unwrap(value: Mirror(reflecting: any).descendant("elements")!))
     }
 
-    class Element: CustomStringConvertible {
-        var description: String { "" }
+    class TypedElement {
+        let value: Any
         init(any: Any) {
-            let abc = Mirror.children(reflecting: any)
+            Mirror.assert(any, name: "TypedElement", keys: ["value"])
+            value = Mirror(reflecting: any).descendant("value")!
         }
     }
     
@@ -26,11 +27,10 @@ struct PropertyList: CustomStringConvertible {
     }
 }
 
-
-
 struct AccessibilityProperties {
     let plist: PropertyList
     public init(any: Any) {
+        Mirror.assert(any, name: "AccessibilityProperties", keys: ["plist"])
         plist = PropertyList(any: Mirror(reflecting: any).descendant("plist")!)
     }
 }
@@ -38,6 +38,7 @@ struct AccessibilityProperties {
 struct AccessibilityAttachment {
     let properties: AccessibilityProperties
     public init(any: Any) {
+        Mirror.assert(any, name: "AccessibilityAttachment", keys: ["properties"])
         properties = AccessibilityProperties(any: Mirror(reflecting: any).descendant("properties")!)
     }
 }
@@ -46,6 +47,7 @@ struct AccessibilityAttachmentModifier: JsonViewModifier, DynaConvertedCodable {
     let attachment: AccessibilityAttachment?
     let onlyApplyToFirstNode: Bool
     public init(any: Any) {
+        Mirror.assert(any, name: "AccessibilityAttachmentModifier", keys: ["attachment", "onlyApplyToFirstNode"])
         let m = Mirror.children(reflecting: any)
         let a = Mirror.unwrap(value: m["attachment"]!)
         attachment = AccessibilityAttachment(any: a)

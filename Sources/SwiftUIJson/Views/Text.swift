@@ -1,5 +1,5 @@
 //
-//  Text.swift (Incomplete)
+//  Text.swift (Incomplete)(Mirror)
 //
 //  Created by Sky Morey on 8/22/20.
 //  Copyright © 2020 Sky Morey. All rights reserved.
@@ -18,7 +18,7 @@ extension Text {
             switch s.label! {
             case "verbatim": self = .verbatim(s.value as! String)
             case "anyTextStorage": self = .anyTextStorage(AnyTextStorage(any: s.value))
-            default: fatalError(s.label!)
+            case let unrecognized: fatalError(unrecognized)
             }
         }
     }
@@ -45,7 +45,7 @@ extension Text {
             case "baseline": self = .baseline(m.value as! CoreGraphics.CGFloat)
             case "rounded": self = .rounded
             case "anyTextModifier": self = .anyTextModifier(AnyTextModifier(any: m.value))
-            default: fatalError(m.label!)
+            case let unrecognized: fatalError(unrecognized)
             }
         }
         func apply(_ text: Text) -> Text {
@@ -59,7 +59,7 @@ extension Text {
             case .baseline(let value): return text.baselineOffset(value)
 //            case .rounded: return text
 //            case .anyTextModifier(let value): return text
-            default: fatalError("\(self)")
+            case let unrecognized: fatalError("\(unrecognized)")
             }
         }
         //: Codable
@@ -226,7 +226,7 @@ extension Text {
 //        case .relative: try container.encode("relative")
 //        case .offset: try container.encode("offset")
 //        case .timer: try container.encode("timer")
-//        default: fatalError()
+//        case let unrecognized: fatalError(unrecognized)
 //        }
 //    }
 //}
@@ -254,7 +254,7 @@ extension Text.TruncationMode: Codable {
         case "head": self = .head
         case "tail": self = .tail
         case "middle": self = .middle
-        default: fatalError()
+        case let unrecognized: fatalError(unrecognized)
         }
     }
     public func encode(to encoder: Encoder) throws {
@@ -263,7 +263,7 @@ extension Text.TruncationMode: Codable {
         case .head: try container.encode("head")
         case .tail: try container.encode("tail")
         case .middle: try container.encode("middle")
-        default: fatalError()
+        case let unrecognized: fatalError("\(unrecognized)")
         }
     }
 }
@@ -274,7 +274,7 @@ extension Text.Case: Codable {
         switch try container.decode(String.self) {
         case "uppercase": self = .uppercase
         case "lowercase": self = .lowercase
-        default: fatalError()
+        case let unrecognized: fatalError(unrecognized)
         }
     }
     public func encode(to encoder: Encoder) throws {
@@ -282,7 +282,7 @@ extension Text.Case: Codable {
         switch self {
         case .uppercase: try container.encode("uppercase")
         case .lowercase: try container.encode("lowercase")
-        default: fatalError()
+        case let unrecognized: fatalError("\(unrecognized)")
         }
     }
 }
@@ -303,7 +303,7 @@ extension TextAlignment: Codable {
         case "leading": self = .leading
         case "center": self = .center
         case "trailing": self = .trailing
-        default: fatalError()
+        case let unrecognized: fatalError(unrecognized)
         }
     }
     public func encode(to encoder: Encoder) throws {

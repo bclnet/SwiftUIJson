@@ -21,6 +21,7 @@ extension ZStack: JsonView, DynaCodable where Content : View, Content : DynaCoda
         self.init(alignment: root.alignment) { content }
     }
     public func encode(to encoder: Encoder) throws {
+        Mirror.assert(self, name: "ZStack", keys: ["_tree"])
         let tree = Mirror(reflecting: self).descendant("_tree") as! _VariadicView.Tree<_ZStackLayout, Content>
         let root = tree.root
         var container = encoder.container(keyedBy: CodingKeys.self)
@@ -48,7 +49,7 @@ extension Alignment: Codable {
         case "topTrailing": self = .topTrailing
         case "bottomLeading": self = .bottomLeading
         case "bottomTrailing": self = .bottomTrailing
-        default: fatalError()
+        case let unrecognized: fatalError(unrecognized)
         }
     }
     public func encode(to encoder: Encoder) throws {
@@ -63,7 +64,7 @@ extension Alignment: Codable {
         case .topTrailing: try container.encode("topTrailing")
         case .bottomLeading: try container.encode("bottomLeading")
         case .bottomTrailing: try container.encode("bottomTrailing")
-        default: fatalError()
+        case let unrecognized: fatalError("\(unrecognized)")
         }
     }
 }

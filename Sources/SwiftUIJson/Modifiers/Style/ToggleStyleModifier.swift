@@ -1,5 +1,5 @@
 //
-//  ProgressViewStyleModifier.swift
+//  ToggleStyleModifier.swift
 //
 //  Created by Sky Morey on 8/22/20.
 //  Copyright © 2020 Sky Morey. All rights reserved.
@@ -7,10 +7,11 @@
 
 import SwiftUI
 
-struct ProgressViewStyleModifier<Style>: JsonViewModifier, DynaConvertedCodable where Style: Codable {
+struct ToggleStyleModifier<Style>: JsonViewModifier, DynaConvertedCodable where Style: Codable {
     let style: Any
     let action: ((AnyView) -> AnyView)!
     public init(any: Any) {
+        Mirror.assert(any, name: "ToggleStyleModifier", keys: ["style"])
         style = Mirror(reflecting: any).descendant("style")!
         action = nil
     }
@@ -34,9 +35,11 @@ struct ProgressViewStyleModifier<Style>: JsonViewModifier, DynaConvertedCodable 
     }
     //: Register
     static func register() {
-        DynaType.register(ProgressViewStyleModifier<NeverCodable>.self, any: [NeverCodable.self], namespace: "SwiftUI")
-        DynaType.register(CircularProgressViewStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.progressViewStyle(CircularProgressViewStyle())) }])
-        DynaType.register(DefaultProgressViewStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.progressViewStyle(DefaultProgressViewStyle())) }])
-        DynaType.register(LinearProgressViewStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.progressViewStyle(LinearProgressViewStyle())) }])
+        DynaType.register(ToggleStyleModifier<NeverCodable>.self, any: [NeverCodable.self], namespace: "SwiftUI")
+        DynaType.register(DefaultToggleStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.toggleStyle(DefaultToggleStyle())) }])
+        DynaType.register(SwitchToggleStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.toggleStyle(SwitchToggleStyle())) }])
+        #if os(macOS)
+        DynaType.register(CheckboxToggleStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.toggleStyle(CheckboxToggleStyle())) }])
+        #endif
     }
 }

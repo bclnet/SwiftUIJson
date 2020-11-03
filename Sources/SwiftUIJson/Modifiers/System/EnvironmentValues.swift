@@ -60,7 +60,7 @@ extension EnvironmentValues {
         case \EnvironmentValues.textCase: return "textCase"
         case \EnvironmentValues.editMode: return "editMode"
         case \EnvironmentValues.presentationMode: return "presentationMode"
-        default: return nil
+        case let unrecognized: fatalError("\(unrecognized)")
         }
     }
     //: Register

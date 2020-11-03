@@ -1,5 +1,5 @@
 //
-//  ToggleStyleModifier.swift
+//  MenuStyleModifier.swift
 //
 //  Created by Sky Morey on 8/22/20.
 //  Copyright © 2020 Sky Morey. All rights reserved.
@@ -7,10 +7,11 @@
 
 import SwiftUI
 
-struct ToggleStyleModifier<Style>: JsonViewModifier, DynaConvertedCodable where Style: Codable {
+struct MenuStyleModifier<Style>: JsonViewModifier, DynaConvertedCodable where Style: Codable {
     let style: Any
     let action: ((AnyView) -> AnyView)!
     public init(any: Any) {
+        Mirror.assert(any, name: "MenuStyleModifier", keys: ["style"])
         style = Mirror(reflecting: any).descendant("style")!
         action = nil
     }
@@ -34,11 +35,11 @@ struct ToggleStyleModifier<Style>: JsonViewModifier, DynaConvertedCodable where 
     }
     //: Register
     static func register() {
-        DynaType.register(ToggleStyleModifier<NeverCodable>.self, any: [NeverCodable.self], namespace: "SwiftUI")
-        DynaType.register(DefaultToggleStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.toggleStyle(DefaultToggleStyle())) }])
-        DynaType.register(SwitchToggleStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.toggleStyle(SwitchToggleStyle())) }])
+        DynaType.register(MenuStyleModifier<NeverCodable>.self, any: [NeverCodable.self], namespace: "SwiftUI")
+        DynaType.register(BorderlessButtonMenuStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.menuStyle(BorderlessButtonMenuStyle())) }])
+        DynaType.register(DefaultMenuStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.menuStyle(DefaultMenuStyle())) }])
         #if os(macOS)
-        DynaType.register(CheckboxToggleStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.toggleStyle(CheckboxToggleStyle())) }])
+        DynaType.register(BorderedButtonMenuStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.menuStyle(BorderedButtonMenuStyle())) }])
         #endif
     }
 }

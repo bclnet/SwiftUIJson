@@ -11,6 +11,7 @@ struct IndexViewStyleModifier<Style>: JsonViewModifier, DynaConvertedCodable whe
     let style: Any
     let action: ((AnyView) -> AnyView)!
     public init(any: Any) {
+        Mirror.assert(any, name: "IndexViewStyleModifier", keys: ["style"])
         style = Mirror(reflecting: any).descendant("style")!
         action = nil
     }

@@ -34,7 +34,7 @@ extension NSItemProvider: WrapableCodeable {
                 itemProvider.registerItem(forTypeIdentifier: key[0]) { handler, _, _ in
                     handler?(data, error)
                 }
-            default: fatalError(key[1])
+            case let unrecognized: fatalError(unrecognized)
             }
         }
         return itemProvider as! Self
@@ -93,7 +93,7 @@ extension NSItemProvider: WrapableCodeable {
      case kUTTypeFileURL: return NSItemProvider(contentsOf: URL(fileURLWithPath: ""))!
      case kUTTypeURL: return NSItemProvider(contentsOf: URL(string: ""))!
      case kUTTypeUTF8PlainText: return NSItemProvider(object: "" as NSString)
-     default: fatalError(id)
+     case let unrecognized: fatalError(id)
      }
      }
      
@@ -127,7 +127,7 @@ extension NSItemProvider: WrapableCodeable {
      let m = try! PropertyListSerialization.propertyList(from: data, options: [], format: nil) as! [Any]
      let obj = (url: m[0] as! CFString, file: m[1] as! CFString, unk2: m[2] as! [AnyHashable:Any])
      print(obj)
-     default: fatalError("\(type(of: data))")
+     case let unrecognized: fatalError("\(type(of: data))")
      }
      break
      // text
@@ -187,7 +187,7 @@ extension NSItemProvider: WrapableCodeable {
      myImage = UIImage(data: data)
      case let url as URL:
      myImage = UIImage(contentsOfFile: url.path)
-     default:
+     case let unrecognized:
      print("Unexpected data:", type(of: data))
      myImage = nil
      }
@@ -270,7 +270,7 @@ extension NSItemProvider: WrapableCodeable {
      case kUTTypeX509Certificate: break
      case kUTTypeElectronicPublication: break
      case kUTTypeLog: break
-     default: fatalError(id)
+     case let unrecognized: fatalError(id)
      }
      }
      */

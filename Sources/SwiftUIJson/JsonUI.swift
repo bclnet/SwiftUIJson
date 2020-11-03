@@ -75,6 +75,7 @@ public struct JsonUI: Codable {
         // modifiers
         _DraggingModifier.register()
         _EnvironmentKeyWritingModifier<NeverCodable?>.register()
+        _OffsetEffect.register()
         _PaddingLayout.register()
         _TraitWritingModifier<NeverCodable>.register()
         AccessibilityAttachmentModifier.register()

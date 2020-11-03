@@ -30,6 +30,31 @@ import SwiftUI
 //}
 
 extension Mirror {
+    enum KeyMatch {
+        case all, any
+    }
+    static func assert(_ any: Any, name: String, keys: [String]? = nil, keyMatch: KeyMatch = .all) {
+        let m = Mirror(reflecting: any)
+        let anyName = String("\(type(of: any))".split(separator: "<")[0])
+        Swift.assert(name == anyName)
+        var matchKeys = Set(m.children.map { $0.label! })
+        if let keys = keys {
+            var unmatchKeys = Set<String>()
+            for k in keys {
+                let s = k.components(separatedBy: ".")
+                if matchKeys.remove(s[0]) == nil, !keys.contains(s[0]) { unmatchKeys.insert(s[0])}
+                if s.count == 1 { continue }
+                var d = any
+                for i in 0..<s.count {
+                    d = Mirror(reflecting: d).descendant(s[i])!
+                }
+            }
+            switch keyMatch {
+            case .all: Swift.assert(matchKeys.isEmpty && unmatchKeys.isEmpty)
+            case .any: Swift.assert(unmatchKeys.isEmpty)
+            }
+        }
+    }
     static func unwrap(value: Any) -> Any {
         if case Optional<Any>.some(let wrapped) = value { return wrapped }
         return value

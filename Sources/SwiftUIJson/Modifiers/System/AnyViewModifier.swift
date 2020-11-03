@@ -17,8 +17,10 @@ public struct AnyViewModifier: ViewModifier, DynaCodable {
         self.modifier = modifier
     }
     public func body(content: Content) -> some View {
-        let modifier = self.modifier as! JsonViewModifier
-        return modifier.body(content: AnyView(content))
+        switch self.modifier {
+        case let modifier as JsonViewModifier: return modifier.body(content: AnyView(content))
+        case let unrecognized: fatalError("\(unrecognized)")
+        }
     }
     //: Codable
     public init(from decoder: Decoder, for dynaType: DynaType) throws {

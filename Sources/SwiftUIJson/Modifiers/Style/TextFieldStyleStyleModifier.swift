@@ -1,5 +1,5 @@
 //
-//  GroupBoxStyleModifier.swift
+//  TextFieldStyleStyleModifier.swift
 //
 //  Created by Sky Morey on 8/22/20.
 //  Copyright © 2020 Sky Morey. All rights reserved.
@@ -7,10 +7,11 @@
 
 import SwiftUI
 
-struct GroupBoxStyleModifier<Style>: JsonViewModifier, DynaConvertedCodable where Style: Codable {
+struct TextFieldStyleStyleModifier<Style>: JsonViewModifier, DynaConvertedCodable where Style: Codable {
     let style: Any
     let action: ((AnyView) -> AnyView)!
     public init(any: Any) {
+        Mirror.assert(any, name: "TextFieldStyleStyleModifier", keys: ["style"])
         style = Mirror(reflecting: any).descendant("style")!
         action = nil
     }
@@ -34,7 +35,12 @@ struct GroupBoxStyleModifier<Style>: JsonViewModifier, DynaConvertedCodable wher
     }
     //: Register
     static func register() {
-        DynaType.register(GroupBoxStyleModifier<NeverCodable>.self, any: [NeverCodable.self], namespace: "SwiftUI")
-        DynaType.register(DefaultGroupBoxStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.groupBoxStyle(DefaultGroupBoxStyle())) }])
+        DynaType.register(TextFieldStyleStyleModifier<NeverCodable>.self, any: [NeverCodable.self], namespace: "SwiftUI")
+        DynaType.register(DefaultTextFieldStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.textFieldStyle(DefaultTextFieldStyle())) }])
+        DynaType.register(PlainTextFieldStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.textFieldStyle(PlainTextFieldStyle())) }])
+        DynaType.register(RoundedBorderTextFieldStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.textFieldStyle(RoundedBorderTextFieldStyle())) }])
+        #if os(macOS)
+        DynaType.register(SquareBorderTextFieldStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.textFieldStyle(SquareBorderTextFieldStyle())) }])
+        #endif
     }
 }

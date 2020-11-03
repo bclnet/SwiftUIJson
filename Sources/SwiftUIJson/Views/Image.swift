@@ -33,9 +33,10 @@ extension Image {
             self.system = system
             self.bundle = bundle
         }
-        init(any s: Any) {
-            system = String(reflecting: s) == "SwiftUI.Image.Location.system"
-            let m = Mirror.children(reflecting: s)
+        init(any: Any) {
+            Mirror.assert(any, name: "Location", keys: ["bundle"])
+            system = String(reflecting: any) == "SwiftUI.Image.Location.system"
+            let m = Mirror.children(reflecting: any)
             bundle = m["bundle"] as? Bundle
         }
     }
@@ -46,8 +47,9 @@ extension Image {
         let name: String
         let decorative: Bool
         let backupLocation: Any?
-        init(any s: Any) {
-            let m = Mirror.children(reflecting: s)
+        init(any: Any) {
+            Mirror.assert(any, name: "NamedImageProvider", keys: ["label", "location", "isSystem", "bundle", "name", "decorative", "backupLocation"], keyMatch: .any)
+            let m = Mirror.children(reflecting: any)
             label = m["label"]! as? Text
             location = m["location"] != nil
                 ? Location(any: m["location"]!)
@@ -91,8 +93,9 @@ extension Image {
     internal class RenderingModeProvider: AnyImageBox {
         let base: Image
         let renderingMode: TemplateRenderingMode
-        init(any s: Any) {
-            let m = Mirror.children(reflecting: s)
+        init(any: Any) {
+            Mirror.assert(any, name: "RenderingModeProvider", keys: ["base", "renderingMode"])
+            let m = Mirror.children(reflecting: any)
             base = m["base"]! as! Image
             renderingMode = m["renderingMode"]! as! TemplateRenderingMode
             super.init()
@@ -120,8 +123,9 @@ extension Image {
     internal class InterpolationProvider: AnyImageBox {
         let base: Image
         let interpolation: Interpolation
-        init(any s: Any) {
-            let m = Mirror.children(reflecting: s)
+        init(any: Any) {
+            Mirror.assert(any, name: "InterpolationProvider", keys: ["base", "interpolation"])
+            let m = Mirror.children(reflecting: any)
             base = m["base"]! as! Image
             interpolation = m["interpolation"]! as! Interpolation
             super.init()
@@ -149,8 +153,9 @@ extension Image {
     internal class AntialiasedProvider: AnyImageBox {
         let base: Image
         let isAntialiased: Bool
-        init(any s: Any) {
-            let m = Mirror.children(reflecting: s)
+        init(any: Any) {
+            Mirror.assert(any, name: "AntialiasedProvider", keys: ["base", "isAntialiased"])
+            let m = Mirror.children(reflecting: any)
             base = m["base"]! as! Image
             isAntialiased = m["isAntialiased"]! as! Bool
             super.init()
@@ -181,8 +186,9 @@ extension Image {
         let decorative: Bool
         let scale: CGFloat
         let orientation: Orientation
-        init(any s: Any) {
-            let m = Mirror.children(reflecting: s)
+        init(any: Any) {
+            Mirror.assert(any, name: "CGImageProvider", keys: ["image", "label", "decorative", "scale", "orientation"])
+            let m = Mirror.children(reflecting: any)
             image = m["image"]! as! CGImage
             label = m["label"]! as? Text
             decorative = m["decorative"]! as! Bool
@@ -222,8 +228,13 @@ extension Image {
     
     internal class PlatformProvider: AnyImageBox {
         let image: UXImage
-        init(any s: Any) {
-            image = s as! UXImage
+        init(any: Any) {
+            #if os(macOS)
+            Mirror.assert(any, name: "NSImage")
+            #else
+            Mirror.assert(any, name: "UIImage")
+            #endif
+            image = any as! UXImage
             super.init()
         }
         public override func apply() -> Image {
@@ -247,8 +258,9 @@ extension Image {
         let base: Image
         let resizingMode: ResizingMode
         let capInsets: EdgeInsets
-        init(any s: Any) {
-            let m = Mirror.children(reflecting: s)
+        init(any: Any) {
+            Mirror.assert(any, name: "ResizableProvider", keys: ["base", "capInsets", "resizingMode"])
+            let m = Mirror.children(reflecting: any)
             base = m["base"]! as! Image
             capInsets = m["capInsets"]! as! EdgeInsets
             resizingMode = m["resizingMode"]! as! ResizingMode
@@ -302,10 +314,10 @@ extension Image: JsonView, DynaFullCodable {
         self = provider.apply()
     }
     public func encode(to encoder: Encoder) throws {
+        Mirror.assert(self, name: "Image", keys: ["provider.base"])
         var container = encoder.container(keyedBy: CodingKeys.self)
         let provider = Mirror(reflecting: self).descendant("provider", "base")!
-        let providerName = "\(type(of: provider))"
-        switch providerName {
+        switch "\(type(of: provider))" {
         case "NamedImageProvider": try container.encode(NamedImageProvider(any: provider), forKey: .named)
         case "RenderingModeProvider": try container.encode(RenderingModeProvider(any: provider), forKey: .mode)
         case "InterpolationProvider": try container.encode(InterpolationProvider(any: provider), forKey: .interpolation)
@@ -313,7 +325,7 @@ extension Image: JsonView, DynaFullCodable {
         case "CGImageProvider": try container.encode(CGImageProvider(any: provider), forKey: .cgimage)
         case "UIImage", "NSImage": try container.encode(PlatformProvider(any: provider), forKey: .platform)
         case "ResizableProvider": try container.encode(ResizableProvider(any: provider), forKey: .resizable)
-        default: fatalError(providerName)
+        case let unrecognized: fatalError(unrecognized)
         }
     }
     //: Register
@@ -335,7 +347,7 @@ extension Image.Orientation: Codable {
         case "leftMirrored": self = .leftMirrored
         case "right": self = .right
         case "rightMirrored": self = .rightMirrored
-        default: fatalError()
+        case let unrecognized: fatalError(unrecognized)
         }
     }
     public func encode(to encoder: Encoder) throws {
@@ -360,7 +372,7 @@ extension Image.TemplateRenderingMode: Codable {
         switch try container.decode(String.self) {
         case "template": self = .template
         case "original": self = .original
-        default: fatalError()
+        case let unrecognized: fatalError(unrecognized)
         }
     }
     public func encode(to encoder: Encoder) throws {
@@ -368,7 +380,7 @@ extension Image.TemplateRenderingMode: Codable {
         switch self {
         case .template: try container.encode("template")
         case .original: try container.encode("original")
-        default: fatalError()
+        case let unrecognized: fatalError("\(unrecognized)")
         }
     }
 }
@@ -381,7 +393,7 @@ extension Image.TemplateRenderingMode: Codable {
 //        case "small": self = .small
 //        case "medium": self = .medium
 //        case "large": self = .large
-//        default: fatalError()
+//        case let unrecognized: fatalError(unrecognized)
 //        }
 //    }
 //    public func encode(to encoder: Encoder) throws {
@@ -390,7 +402,7 @@ extension Image.TemplateRenderingMode: Codable {
 //        case .small: try container.encode("small")
 //        case .medium: try container.encode("medium")
 //        case .large: try container.encode("large")
-//        default: fatalError()
+//        case let unrecognized: fatalError("\unrecognized\")
 //        }
 //    }
 //}
@@ -404,7 +416,7 @@ extension Image.Interpolation: Codable {
         case "low": self = .low
         case "medium": self = .medium
         case "high": self = .high
-        default: fatalError()
+        case let unrecognized: fatalError(unrecognized)
         }
     }
     public func encode(to encoder: Encoder) throws {
@@ -414,7 +426,7 @@ extension Image.Interpolation: Codable {
         case .low: try container.encode("low")
         case .medium: try container.encode("medium")
         case .high: try container.encode("high")
-        default: fatalError()
+        case let unrecognized: fatalError("\(unrecognized)")
         }
     }
 }
@@ -426,7 +438,7 @@ extension Image.ResizingMode: Codable {
         switch try container.decode(String.self) {
         case "tile": self = .tile
         case "stretch": self = .stretch
-        default: fatalError()
+        case let unrecognized: fatalError(unrecognized)
         }
     }
     public func encode(to encoder: Encoder) throws {
@@ -434,7 +446,7 @@ extension Image.ResizingMode: Codable {
         switch self {
         case .tile: try container.encode("tile")
         case .stretch: try container.encode("stretch")
-        default: fatalError()
+        case let unrecognized: fatalError("\(unrecognized)")
         }
     }
 }
