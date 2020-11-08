@@ -49,7 +49,7 @@ extension DynaType: Codable {
 extension Encoder {
     public func encodeDynaSuper(_ value: Any) throws {
 //        let unwrap = AnyView.unwrap(value: Mirror.unwrap(value: value))
-        let unwrap = Mirror.optional(any: value)
+        let unwrap = Mirror.optional(any: value)!
         let hasNil: Bool; if case Optional<Any>.none = value { hasNil = true } else { hasNil =  false }
         let dynaTypeWithNil = DynaTypeWithNil(try DynaType.type(for: type(of: value).self), hasNil: hasNil)
         if value is DynaUnkeyedContainer {

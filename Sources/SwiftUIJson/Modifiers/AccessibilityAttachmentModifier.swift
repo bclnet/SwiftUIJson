@@ -11,7 +11,7 @@ struct PropertyList {
     var elements: TypedElement?
     init(any: Any) {
         Mirror.assert(any, name: "PropertyList", keys: ["elements"])
-        elements = TypedElement(any: Mirror.optional(any: Mirror(reflecting: any).descendant("elements")!))
+        elements = TypedElement(any: Mirror.optional(any: Mirror(reflecting: any).descendant("elements")!)!)
     }
 
     class TypedElement {
@@ -48,7 +48,7 @@ struct AccessibilityAttachmentModifier: JsonViewModifier, ConvertibleCodable {
     public init(any: Any) {
         Mirror.assert(any, name: "AccessibilityAttachmentModifier", keys: ["attachment", "onlyApplyToFirstNode"])
         let m = Mirror.children(reflecting: any)
-        let a = Mirror.optional(any: m["attachment"]!)
+        let a = Mirror.optional(any: m["attachment"]!)!
         attachment = AccessibilityAttachment(any: a)
         onlyApplyToFirstNode = m["onlyApplyToFirstNode"]! as! Bool
     }

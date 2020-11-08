@@ -321,6 +321,7 @@ public enum DynaType: RawRepresentable {
         register(String.self)
         register(Int.self)
         register(Bool.self)
+        register(Range<Int>.self)
         return true
     }
 }

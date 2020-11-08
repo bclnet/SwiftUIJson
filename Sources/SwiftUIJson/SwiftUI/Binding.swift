@@ -15,6 +15,7 @@ extension Binding: DynaFullCodable {
         switch "\(Value.self)" {
         case "Date": base = Binding<Date?>.constant(Date()) as! Binding<Value?>
         case "Bool": base = Binding<Bool?>.constant(true) as! Binding<Value?>
+        case "Double": base = Binding<Double?>.constant(0) as! Binding<Value?>
         case "AnyHashable": base = Binding<AnyHashable?>.constant(1) as! Binding<Value?>
         case let unrecognized: fatalError("\(unrecognized)")
         }

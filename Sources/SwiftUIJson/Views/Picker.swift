@@ -11,7 +11,7 @@ extension Picker: JsonView, DynaCodable where Label : View, Label : DynaCodable,
     public var anyView: AnyView { AnyView(self) }
     //: Codable
     enum CodingKeys: CodingKey {
-        case label, selection, content
+        case selection, label, content
     }
     public init(from decoder: Decoder, for dynaType: DynaType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -23,7 +23,7 @@ extension Picker: JsonView, DynaCodable where Label : View, Label : DynaCodable,
     public func encode(to encoder: Encoder) throws {
         Mirror.assert(self, name: "Picker", keys: ["selection", "label", "content"])
         let m = Mirror.children(reflecting: self)
-        let selection = m["selection"]! as? Binding<SelectionValue>
+        let selection = m["selection"]! as! Binding<SelectionValue>
         let label = m["label"]! as! Label
         let content = m["content"]! as! Content
         var container = encoder.container(keyedBy: CodingKeys.self)

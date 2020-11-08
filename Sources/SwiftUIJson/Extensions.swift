@@ -62,10 +62,10 @@ extension Mirror {
         default: return any as? T
         }
     }
-    static func optional(any: Any) -> Any {
+    static func optional(any: Any) -> Any? {
         switch any {
         case Optional<Any>.some(let wrapped): return wrapped
-        case Optional<Any>.none: return any
+        case Optional<Any>.none: return nil
         default: return any
         }
     }

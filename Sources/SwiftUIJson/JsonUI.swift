@@ -111,7 +111,7 @@ public struct JsonUI: Codable {
         #endif
         EmptyView.register()
 //        DynaType.register(EquatableView<Any>.self)
-//        DynaType.register(ForEach<AnyRandomAccessCollection, AnyHashable, AnyView>.self)
+        ForEach<AnyRandomAccessCollection<Any>, AnyHashable, AnyView>.register()
         DynaType.register(Form<AnyView>.self)
         DynaType.register(GeometryReader<AnyView>.self)
         DynaType.register(Group<AnyView>.self)
