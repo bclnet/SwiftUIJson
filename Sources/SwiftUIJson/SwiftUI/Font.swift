@@ -54,8 +54,9 @@ extension Font {
         let provider: String
         let base: Font
         let modifier: Modifier
-        init(any s: Any, provider: String) {
-            let mirror = Mirror(reflecting: s)
+        init(any: Any, provider: String) {
+            Mirror.assert(any, name: "ModifierProvider", keys: ["base", "modifier"])
+            let mirror = Mirror(reflecting: any)
             base = mirror.descendant("base")! as! Font
             modifier = Modifier(any: mirror.descendant("modifier")!)
             self.provider = provider
@@ -96,8 +97,9 @@ extension Font {
         let name: String
         let size: CGFloat
         let textStyle: TextStyle?
-        init(any s: Any, provider: String) {
-            let base = Mirror.children(reflecting: s)
+        init(any: Any, provider: String) {
+            Mirror.assert(any, name: "NamedProvider", keys: ["name", "size", "textStyle"])
+            let base = Mirror.children(reflecting: any)
             name = base["name"]! as! String
             size = base["size"]! as! CGFloat
             textStyle = base["textStyle"]! as? TextStyle
@@ -134,8 +136,9 @@ extension Font {
     internal class PlatformFontProvider: AnyFontBox {
         let font: UXFont //try: CTFont
         let fontSize: CGFloat
-        init(any s: Any, provider: String) {
-            let base = Mirror.children(reflecting: s)
+        init(any: Any, provider: String) {
+            Mirror.assert(any, name: "PlatformFontProvider", keys: ["font"])
+            let base = Mirror.children(reflecting: any)
             font = base["font"]! as! UXFont //try: CTFont
             fontSize = font.pointSize
             super.init(provider: provider)
@@ -174,8 +177,9 @@ extension Font {
         let size: CGFloat
         let weight: Weight
         let design: Design
-        init(any s: Any, provider: String) {
-            let base = Mirror.children(reflecting: s)
+        init(any: Any, provider: String) {
+            Mirror.assert(any, name: "SystemProvider", keys: ["size", "weight", "design"])
+            let base = Mirror.children(reflecting: any)
             size = base["size"]! as! CGFloat
             weight = base["weight"]! as! Weight
             design = base["design"]! as! Design
@@ -344,8 +348,9 @@ extension Font: Codable {
         let style: TextStyle
         let design: Design
         let weight: Weight?
-        init(any s: Any, provider: String) {
-            let m = Mirror.children(reflecting: s)
+        init(any: Any, provider: String) {
+            Mirror.assert(any, name: "TextStyleProvider", keys: ["size", "design", "weight"])
+            let m = Mirror.children(reflecting: any)
             style = m["style"]! as! TextStyle
             design = m["design"]! as! Design
             weight = m["weight"]! as? Weight
@@ -462,9 +467,10 @@ extension Font {
     
     internal class WeightModifier: AnyModifier {
         let weight: Weight
-        required init(any s: Any) {
-            weight = Mirror(reflecting: s).descendant("weight")! as! Weight
-            super.init(any: s)
+        required init(any: Any) {
+            Mirror.assert(any, name: "WeightModifier", keys: ["weight"])
+            weight = Mirror(reflecting: any).descendant("weight")! as! Weight
+            super.init(any: any)
         }
         public override func apply(_ font: Font) -> Font {
             font.weight(weight)
@@ -490,9 +496,10 @@ extension Font {
     @available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *)
     internal class LeadingModifier: AnyModifier {
         let leading: Leading
-        required init(any s: Any) {
-            leading = Mirror(reflecting: s).descendant("leading")! as! Leading
-            super.init(any: s)
+        required init(any: Any) {
+            Mirror.assert(any, name: "LeadingModifier", keys: ["leading"])
+            leading = Mirror(reflecting: any).descendant("leading")! as! Leading
+            super.init(any: any)
         }
         public override func apply(_ font: Font) -> Font {
             font.leading(leading)

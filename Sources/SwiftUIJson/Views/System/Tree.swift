@@ -9,12 +9,12 @@
 import SwiftUI
 
 @available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *)
-internal protocol _Tree_ViewRoot {
+protocol _Tree_ViewRoot {
     init(any: Any)
 }
 
 @available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *)
-internal class Tree<Root, Content> where Root : _Tree_ViewRoot, Content : View {
+class Tree<Root, Content> where Root : _Tree_ViewRoot, Content : View {
     let root: Root
     let content: Content
     init(root: Root, content: Content) {

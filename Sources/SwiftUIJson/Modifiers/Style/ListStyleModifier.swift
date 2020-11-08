@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ListStyleModifier<Style>: JsonViewModifier, DynaConvertedCodable where Style: Codable {
+struct ListStyleModifier<Style>: JsonViewModifier, ConvertibleCodable where Style: Codable {
     let style: Any
     let action: ((AnyView) -> AnyView)!
     public init(any: Any) {

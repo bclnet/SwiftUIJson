@@ -7,12 +7,11 @@
 
 import SwiftUI
 
-
 struct PropertyList {
     var elements: TypedElement?
     init(any: Any) {
         Mirror.assert(any, name: "PropertyList", keys: ["elements"])
-        elements = TypedElement(any: Mirror.unwrap(value: Mirror(reflecting: any).descendant("elements")!))
+        elements = TypedElement(any: Mirror.optional(any: Mirror(reflecting: any).descendant("elements")!))
     }
 
     class TypedElement {
@@ -43,13 +42,13 @@ struct AccessibilityAttachment {
     }
 }
 
-struct AccessibilityAttachmentModifier: JsonViewModifier, DynaConvertedCodable {
+struct AccessibilityAttachmentModifier: JsonViewModifier, ConvertibleCodable {
     let attachment: AccessibilityAttachment?
     let onlyApplyToFirstNode: Bool
     public init(any: Any) {
         Mirror.assert(any, name: "AccessibilityAttachmentModifier", keys: ["attachment", "onlyApplyToFirstNode"])
         let m = Mirror.children(reflecting: any)
-        let a = Mirror.unwrap(value: m["attachment"]!)
+        let a = Mirror.optional(any: m["attachment"]!)
         attachment = AccessibilityAttachment(any: a)
         onlyApplyToFirstNode = m["onlyApplyToFirstNode"]! as! Bool
     }

@@ -1,5 +1,5 @@
 //
-//  _OffsetEffect.swift
+//  _AccessibilityIgnoresInvertColorsViewModifier.swift
 //
 //  Created by Sky Morey on 8/22/20.
 //  Copyright © 2020 Sky Morey. All rights reserved.
@@ -7,26 +7,26 @@
 
 import SwiftUI
 
-extension _OffsetEffect: JsonViewModifier, Codable {
+extension _AccessibilityIgnoresInvertColorsViewModifier: JsonViewModifier, Codable {
     //: JsonViewModifier
     public func body(content: AnyView) -> AnyView {
         AnyView(content.modifier(self))
     }
     //: Codable
     enum CodingKeys: CodingKey {
-        case offset
+        case active
     }
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.init(offset: try container.decode(CGSize.self, forKey: .offset))
+        let active = try container.decode(Bool.self, forKey: .active)
+        self.init(active: active)
     }
     public func encode(to encoder: Encoder) throws {
-        Mirror.assert(self, name: "_OffsetEffect")
         var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(offset, forKey: .offset)
+        try container.encode(active, forKey: .active)
     }
     //: Register
     static func register() {
-        DynaType.register(_OffsetEffect.self)
+        DynaType.register(_AccessibilityIgnoresInvertColorsViewModifier.self)
     }
 }

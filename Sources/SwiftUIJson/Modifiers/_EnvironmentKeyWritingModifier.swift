@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct _EnvironmentKeyWritingModifier<Value>: JsonViewModifier, DynaConvertedCodable where Value : Codable {
+struct _EnvironmentKeyWritingModifier<Value>: JsonViewModifier, ConvertibleCodable where Value : Codable {
     let action: String
     let value: Value
     let keyPath: WritableKeyPath<EnvironmentValues, Value>

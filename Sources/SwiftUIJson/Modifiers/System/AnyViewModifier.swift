@@ -27,6 +27,7 @@ public struct AnyViewModifier: ViewModifier, DynaCodable {
         modifier = try decoder.dynaSuperInit(for: dynaType)
     }
     public func encode(to encoder: Encoder) throws {
+//        print("AnyViewModifier: \(String(reflecting: modifier))")
         try encoder.encodeDynaSuper(modifier)
     }
     //: Register

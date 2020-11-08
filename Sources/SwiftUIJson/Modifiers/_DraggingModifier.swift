@@ -18,7 +18,7 @@ struct DraggingItem {
 //    }
 //}
 
-struct _DraggingModifier: JsonViewModifier, DynaConvertedCodable {
+struct _DraggingModifier: JsonViewModifier, ConvertibleCodable {
     let itemsForDragHandler: Any
     public init(any: Any) {
         Mirror.assert(any, name: "_DraggingModifier", keys: ["itemsForDragHandler"])

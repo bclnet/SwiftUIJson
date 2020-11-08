@@ -7,9 +7,9 @@
 
 import SwiftUI
 
-fileprivate protocol AnyTraitKey: JsonViewModifier {}
+protocol AnyTraitKey: JsonViewModifier {}
 
-struct _TraitWritingModifier<TraitKey>: JsonViewModifier, DynaConvertedCodable where TraitKey : Codable {
+struct _TraitWritingModifier<TraitKey>: JsonViewModifier, ConvertibleCodable where TraitKey : Codable {
     let valueKey: String
     let value: Any
     public init(any: Any) {

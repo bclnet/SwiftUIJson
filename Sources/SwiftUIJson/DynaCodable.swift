@@ -16,7 +16,7 @@ fileprivate enum CodingKeys: CodingKey {
 }
 
 fileprivate func printPath(_ value: String) {
-    //Swift.print(value)
+//    Swift.print(value)
 }
 
 public struct NeverCodable: Codable {
@@ -49,7 +49,7 @@ extension DynaType: Codable {
 extension Encoder {
     public func encodeDynaSuper(_ value: Any) throws {
 //        let unwrap = AnyView.unwrap(value: Mirror.unwrap(value: value))
-        let unwrap = Mirror.unwrap(value: value)
+        let unwrap = Mirror.optional(any: value)
         let hasNil: Bool; if case Optional<Any>.none = value { hasNil = true } else { hasNil =  false }
         let dynaTypeWithNil = DynaTypeWithNil(try DynaType.type(for: type(of: value).self), hasNil: hasNil)
         if value is DynaUnkeyedContainer {
@@ -94,7 +94,7 @@ extension Decoder {
     public func dynaSuperInit(for dynaType: DynaType) throws -> Any {
         switch dynaType {
         case .type(let type, let key):
-            let unwrap = DynaType.unwrap(type: type)
+            let unwrap = DynaType.optional(type: type)
             guard let decodable = unwrap as? DynaDecodable.Type else {
                 guard let decodable2 = unwrap as? Decodable.Type else {
                     throw DynaTypeError.typeNotCodable("dynaSuperInit", key: key)
@@ -103,7 +103,7 @@ extension Decoder {
             }
             return try decodable.init(from: self, for: dynaType)
         case .tuple(let type, let key, _), .generic(let type, let key, _, _):
-            let unwrap = DynaType.unwrap(type: type)
+            let unwrap = DynaType.optional(type: type)
             guard let decodable = unwrap as? DynaDecodable.Type else {
                 guard let decodable2 = unwrap as? Decodable.Type else {
                     throw DynaTypeError.typeNotCodable("dynaSuperInit", key: key)
@@ -144,9 +144,9 @@ public typealias DynaCodable = Encodable & DynaDecodable
 /// any type that conforms to these protocols.
 public typealias DynaFullCodable = Encodable & Decodable & DynaDecodable
 
-public typealias DynaConvertedCodable = DynaConvertable & Encodable & Decodable
+public typealias ConvertibleCodable = Convertible & Encodable & Decodable
 
-public typealias DynaConvertedDynaCodable = DynaConvertable & Encodable & DynaDecodable
+public typealias ConvertibleDynaCodable = Convertible & Encodable & DynaDecodable
 
 extension UnkeyedEncodingContainer {
     public mutating func encodeAny<T>(_ value: T) throws {
@@ -177,7 +177,6 @@ extension KeyedEncodingContainerProtocol {
         try encodable.encode(to: baseEncoder)
     }
 }
-
 
 extension UnkeyedDecodingContainer {
     public mutating func decodeAny<T>(_ type: T.Type, dynaType: DynaType) throws -> T {

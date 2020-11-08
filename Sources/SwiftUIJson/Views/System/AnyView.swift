@@ -13,18 +13,20 @@ public protocol JsonView {
 
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension AnyView: DynaCodable {
-    static func unwrap(value: Any) -> Any {
-        guard let anyView = value as? AnyView else { return value }
-        let storage = AnyViewStorageBase(any: Mirror(reflecting: anyView).descendant("storage")!)
-        return storage.view
-    }
+//    static func unwrap(any: Any) -> Any {
+//        guard let anyView = any as? AnyView else { return any }
+//        Mirror.assert(any, name: "AnyView", keys: ["storage"])
+//        let storage = AnyViewStorage(any: Mirror(reflecting: anyView).descendant("storage")!)
+//        return storage.view
+//    }
     //: Codable
     public init(from decoder: Decoder, for dynaType: DynaType) throws {
-        let view = try decoder.dynaSuperInit(for: dynaType[0]) as! JsonView
+        let view = try decoder.dynaSuperInit(for: dynaType) as! JsonView
         self = view.anyView
     }
     public func encode(to encoder: Encoder) throws {
-        let storage = AnyViewStorageBase(any: Mirror(reflecting: self).descendant("storage")!)
+        Mirror.assert(self, name: "AnyView", keys: ["storage"])
+        let storage = AnyViewStorage(any: Mirror(reflecting: self).descendant("storage")!)
         try encoder.encodeDynaSuper(storage.view)
     }
     //: Register
@@ -32,10 +34,11 @@ extension AnyView: DynaCodable {
         DynaType.register(AnyView.self)
     }
     
-    internal class AnyViewStorageBase {
+    internal class AnyViewStorage {
         let view: Any
-        init(any s: Any) {
-            view = Mirror(reflecting: s).descendant("view")!
+        init(any: Any) {
+            Mirror.assert(any, name: "AnyViewStorage", keys: ["view"])
+            view = Mirror(reflecting: any).descendant("view")!
         }
     }
 }

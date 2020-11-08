@@ -15,7 +15,9 @@ public struct JsonUI: Codable {
     
     public init<Content>(view: Content, context: JsonContext) throws where Content : View {
         let _ = JsonUI.registered
-        guard let value = view.body as? Encodable else { throw DynaTypeError.typeNotCodable("JsonUI", key: DynaType.typeKey(for: view)) }
+        guard let value = view.body as? Encodable else {
+            throw DynaTypeError.typeNotCodable("JsonUI", key: DynaType.typeKey(for: view.body))
+        }
         self.context = context
         body = value
     }
@@ -39,7 +41,7 @@ public struct JsonUI: Codable {
         if let anyView = value as? AnyView {
             body = anyView
         } else {
-            guard let view = value as? JsonView else { fatalError("init") }
+            guard let view = value as? JsonView else { fatalError("!JsonView: \(DynaType.typeKey(for: value))") }
             body = view.anyView
         }
     }
@@ -63,7 +65,7 @@ public struct JsonUI: Codable {
         ListStyleModifier<NeverCodable>.register()
         MenuStyleModifier<NeverCodable>.register()
         NavigationViewStyleModifier<NeverCodable>.register()
-        PickerStyleModifier<NeverCodable>.register()
+        PickerStyleWriter<NeverCodable>.register()
         ProgressViewStyleModifier<NeverCodable>.register()
         TextFieldStyleStyleModifier<NeverCodable>.register()
         ToggleStyleModifier<NeverCodable>.register()
@@ -73,6 +75,10 @@ public struct JsonUI: Codable {
         EnvironmentValues.register()
         
         // modifiers
+        _AccessibilityIgnoresInvertColorsViewModifier.register()
+        _AllowsHitTestingModifier.register()
+        _AppearanceActionModifier.register()
+        _ContextMenuContainer.register()
         _DraggingModifier.register()
         _EnvironmentKeyWritingModifier<NeverCodable?>.register()
         _OffsetEffect.register()
@@ -90,15 +96,19 @@ public struct JsonUI: Codable {
         
         // views:system
         _ConditionalContent<AnyView, AnyView>.register()
+        _VariadicView.register()
         AnyView.register()
         //:tree
         TupleView<(JsonAnyView)>.register()
         
         // views
-        DynaType.register(Button<AnyView>.self)
-        DynaType.register(ContextMenu<AnyView>.self)
-        DynaType.register(DatePicker<AnyView>.self)
+        Button<AnyView>.register()
+        ContextMenu<AnyView>.register()
+        DatePicker<AnyView>.register()
         Divider.register()
+        #if os(iOS)
+        EditButton.register()
+        #endif
         EmptyView.register()
 //        DynaType.register(EquatableView<Any>.self)
 //        DynaType.register(ForEach<AnyRandomAccessCollection, AnyHashable, AnyView>.self)
@@ -108,27 +118,27 @@ public struct JsonUI: Codable {
         DynaType.register(GroupBox<AnyView, AnyView>.self)
         HStack<AnyView>.register()
         Image.register()
-        DynaType.register(List<AnyHashable, AnyView>.self)
-        DynaType.register(NavigationLink<AnyView, AnyView>.self)
-        DynaType.register(NavigationView<AnyView>.self)
-        DynaType.register(Never.self)
-        DynaType.register(Picker<AnyView, AnyHashable, AnyView>.self)
-        DynaType.register(ScrollView<AnyView>.self)
-        DynaType.register(Section<AnyView, AnyView, AnyView>.self)
-        DynaType.register(SecureField<AnyView>.self)
-        DynaType.register(Slider<AnyView, AnyView>.self)
-        Spacer.register()
-//        register(SubscriptionView<AnyPublisherType, AnyView>.self)
-        Text.register()
-        DynaType.register(TextField<AnyView>.self)
-        DynaType.register(Toggle<AnyView>.self)
-        
-        VStack<AnyView>.register()
-        ZStack<AnyView>.register()
         if #available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *) {
             LazyHStack<AnyView>.register()
             LazyVStack<AnyView>.register()
         }
+        DynaType.register(List<AnyHashable, AnyView>.self)
+        DynaType.register(NavigationLink<AnyView, AnyView>.self)
+        DynaType.register(NavigationView<AnyView>.self)
+        DynaType.register(Never.self)
+        Picker<AnyView, AnyHashable, AnyView>.register()
+        Slider<AnyView, AnyView>.register()
+        Spacer.register()
+        Stepper<AnyView>.register()
+        DynaType.register(ScrollView<AnyView>.self)
+        DynaType.register(Section<AnyView, AnyView, AnyView>.self)
+        DynaType.register(SecureField<AnyView>.self)
+//        register(SubscriptionView<AnyPublisherType, AnyView>.self)
+        Text.register()
+        DynaType.register(TextField<AnyView>.self)
+        Toggle<AnyView>.register()
+        VStack<AnyView>.register()
+        ZStack<AnyView>.register()
         if #available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 999, *) {
             DynaType.register(TabView<AnyHashable, AnyView>.self)
         }
@@ -138,8 +148,6 @@ public struct JsonUI: Codable {
         DynaType.register(PasteButton.self)
         DynaType.register(TouchBar<AnyView>.self)
         DynaType.register(VSplitView<AnyView>.self)
-        #elseif os(iOS)
-        DynaType.register(EditButton.self)
         #endif
         
         return true

@@ -1,5 +1,5 @@
 //
-//  PickerStyleModifier.swift
+//  PickerStyleWriter.swift
 //
 //  Created by Sky Morey on 8/22/20.
 //  Copyright © 2020 Sky Morey. All rights reserved.
@@ -7,11 +7,11 @@
 
 import SwiftUI
 
-struct PickerStyleModifier<Style>: JsonViewModifier, DynaConvertedCodable where Style: Codable {
+struct PickerStyleWriter<Style>: JsonViewModifier, ConvertibleCodable where Style: Codable {
     let style: Any
     let action: ((AnyView) -> AnyView)!
     public init(any: Any) {
-        Mirror.assert(any, name: "PickerStyleModifier", keys: ["style"])
+        Mirror.assert(any, name: "PickerStyleWriter", keys: ["style"])
         style = Mirror(reflecting: any).descendant("style")!
         action = nil
     }
@@ -35,7 +35,7 @@ struct PickerStyleModifier<Style>: JsonViewModifier, DynaConvertedCodable where 
     }
     //: Register
     static func register() {
-        DynaType.register(PickerStyleModifier<NeverCodable>.self, any: [NeverCodable.self], namespace: "SwiftUI")
+        DynaType.register(PickerStyleWriter<NeverCodable>.self, any: [NeverCodable.self], namespace: "SwiftUI")
         DynaType.register(DefaultPickerStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.pickerStyle(DefaultPickerStyle())) }])
         DynaType.register(InlinePickerStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.pickerStyle(InlinePickerStyle())) }])
         DynaType.register(MenuPickerStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.pickerStyle(MenuPickerStyle())) }])

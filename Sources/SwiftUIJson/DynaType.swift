@@ -15,7 +15,7 @@ public enum DynaTypeError: Error {
     case typeNotCodable(_ mode: String, key: String)
 }
 
-public protocol DynaConvertable {
+public protocol Convertible {
     init(any s: Any)
 }
 
@@ -72,27 +72,27 @@ public enum DynaType: RawRepresentable {
     // MARK: - Register
     static var knownTypes = [String:Self]()
     static var knownGenerics = [String:(type: Any.Type, anys: [Any.Type?]?)]()
-    static var unwrapTypes = [ObjectIdentifier:Any.Type]()
-    static var convertTypes = [String:DynaConvertable.Type]()
+    static var optionalTypes = [ObjectIdentifier:Any.Type]()
+    static var convertTypes = [String:Convertible.Type]()
     static var actionTypes = [String:[String:Any]]()
     
     public static func register<T>(_ type: T.Type, any: [Any.Type?]? = nil, namespace: String? = nil, actions: [String:Any]? = nil) {
-        var key = typeKey(for: type)
+        let key = typeKey(for: type, namespace: namespace)
         if knownTypes[key] == nil {
             // register
             let typeOptional = Optional<T>.self
-            var keyOptional = typeKey(for: typeOptional)
+            let keyOptional = typeKey(for: typeOptional, namespace: namespace)
             let genericIdx = key.firstIndex(of: "<")
-            var baseKey = genericIdx == nil ? key : String(key[..<genericIdx!])
-            if namespace != nil {
-                let newBaseKey = typeKey(for: "\(namespace!)\(baseKey[baseKey.lastIndex(of: ".")!...])")
-                key = key.replacingOccurrences(of: baseKey, with: newBaseKey)
-                keyOptional = keyOptional.replacingOccurrences(of: baseKey, with: newBaseKey)
-                baseKey = newBaseKey
-            }
+            let baseKey = genericIdx == nil ? key : String(key[..<genericIdx!])
+//            if namespace != nil {
+//                let newBaseKey = typeKey(for: "\(namespace!)\(baseKey[baseKey.firstIndex(of: ".")!...])")
+//                key = key.replacingOccurrences(of: baseKey, with: newBaseKey)
+//                keyOptional = keyOptional.replacingOccurrences(of: baseKey, with: newBaseKey)
+//                baseKey = newBaseKey
+//            }
             knownTypes[key] = .type(type, key)
             knownTypes[keyOptional] = .type(typeOptional, keyOptional)
-            unwrapTypes[ObjectIdentifier(typeOptional)] = type
+            optionalTypes[ObjectIdentifier(typeOptional)] = type
             // generic
             if genericIdx != nil {
                 let genericKey = baseKey != ":TupleView" ? baseKey : "\(baseKey):\(key.components(separatedBy: ",").count)"
@@ -101,7 +101,7 @@ public enum DynaType: RawRepresentable {
                 }
             }
             // convert
-            if let convert = type as? DynaConvertable.Type {
+            if let convert = type as? Convertible.Type {
                 convertTypes[key] = convert
             }
         }
@@ -123,9 +123,9 @@ public enum DynaType: RawRepresentable {
         return try find(forKey: typeKey(for: type))
     }
     
-    public static func unwrap(type: Any.Type) -> Any.Type {
+    public static func optional(type: Any.Type) -> Any.Type {
         let _ = registered
-        return unwrapTypes[ObjectIdentifier(type)] ?? type
+        return optionalTypes[ObjectIdentifier(type)] ?? type
     }
     
     public static func convert(value: Any) throws -> Any {
@@ -143,24 +143,29 @@ public enum DynaType: RawRepresentable {
     }
     
     // MARK: - Parse/Build
-    public static func typeKey(type value: Any) -> String {
-        typeKey(for: String(reflecting: Swift.type(of: value)))
+    public static func typeKey(type value: Any, namespace: String? = nil) -> String {
+        typeKey(for: String(reflecting: Swift.type(of: value)), namespace: namespace)
     }
-    public static func typeKey(for value: Any) -> String {
-        typeKey(for: String(reflecting: value))
+    public static func typeKey(for value: Any, namespace: String? = nil) -> String {
+        typeKey(for: String(reflecting: value), namespace: namespace)
     }
-    public static func typeKey(for value: String) -> String {
-        value.replacingOccurrences(of: " ", with: "")
+    public static func typeKey(for value: String, namespace: String? = nil) -> String {
+        let key = value.replacingOccurrences(of: " ", with: "")
             .replacingOccurrences(of: "Swift.Optional", with: "!")
             .replacingOccurrences(of: "Swift.", with: "#")
             .replacingOccurrences(of: "SwiftUI.", with: ":")
+        guard let namespace = namespace else { return key }
+        let keyIdx = !key.starts(with: "!<") ? key.startIndex : key.index(key.startIndex, offsetBy: 2)
+        let genericIdx = key[keyIdx...].firstIndex(of: "<")
+        let baseKey = String(genericIdx == nil ? key[keyIdx...] : key[keyIdx..<genericIdx!])
+        let newBaseKey = typeKey(for: "\(namespace)\(baseKey[baseKey.firstIndex(of: ".")!...])")
+        return key.replacingOccurrences(of: baseKey, with: newBaseKey)
     }
     
     public static func typeName(for value: String) -> String {
         value.replacingOccurrences(of: "!", with: "SwiftUI.Optional")
             .replacingOccurrences(of: "#", with: "Swift.")
             .replacingOccurrences(of: ":", with: "SwiftUI.")
-            
     }
     
     private static func typeParse(tokens raw: String) -> [(op: String, value: String)] {
@@ -202,7 +207,7 @@ public enum DynaType: RawRepresentable {
                 var last: (op: String, value: Any, key: String, any: String)
                 let lastOp = token.op == ")" ? "(" : token.op == ">" ? "<" : ""
                 keyArray.removeAll(); anyArray.removeAll(); typeArray.removeAll()
-                keyArray.append(token.op); anyArray.append(token.op);
+                keyArray.append(token.op); anyArray.append(token.op)
                 repeat {
                     last = stack.removeLast()
                     switch last.op {

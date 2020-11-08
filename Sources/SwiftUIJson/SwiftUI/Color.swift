@@ -47,8 +47,9 @@ extension Color {
     @available(iOS 14.0, macOS 11, tvOS 14.0, watchOS 7.0, *)
     internal class __NSCFType: AnyColorBox {
         let cgColor: CGColor
-        init(any s: Any, provider: String) {
-            cgColor = s as! CGColor
+        init(any: Any, provider: String) {
+            Mirror.assert(any, name: "__NSCFType")
+            cgColor = any as! CGColor
             super.init(provider: provider)
         }
         public override func apply() -> Color {
@@ -74,8 +75,9 @@ extension Color {
         let green: Float
         let blue: Float
         let opacity: Float
-        init(any s: Any, provider: String) {
-            let m = Mirror.children(reflecting: s)
+        init(any: Any, provider: String) {
+            Mirror.assert(any, name: "_Resolved", keys: ["linearRed", "linearGreen", "linearBlue", "opacity"])
+            let m = Mirror.children(reflecting: any)
             red = m["linearRed"]! as! Float
             green = m["linearGreen"]! as! Float
             blue = m["linearBlue"]! as! Float
@@ -112,8 +114,9 @@ extension Color {
         let green: CGFloat
         let blue: CGFloat
         let opacity: Float
-        init(any s: Any, provider: String) {
-            let m = Mirror.children(reflecting: s)
+        init(any: Any, provider: String) {
+            Mirror.assert(any, name: "DisplayP3", keys: ["red", "green", "blue", "opacity"])
+            let m = Mirror.children(reflecting: any)
             red = m["red"]! as! CGFloat
             green = m["green"]! as! CGFloat
             blue = m["blue"]! as! CGFloat
@@ -148,8 +151,9 @@ extension Color {
     internal class NamedColor: AnyColorBox {
         let name: String
         let bundle: Bundle?
-        init(any s: Any, provider: String) {
-            let m = Mirror.children(reflecting: s)
+        init(any: Any, provider: String) {
+            Mirror.assert(any, name: "NamedColor", keys: ["name", "bundle"])
+            let m = Mirror.children(reflecting: any)
             name = m["name"]! as! String
             bundle = m["bundle"]! as? Bundle
             super.init(provider: provider)
@@ -177,8 +181,9 @@ extension Color {
 
     internal class PlatformColor: AnyColorBox {
         let color: UXColor
-        init(any s: Any, provider: String) {
-            color = s as! UXColor
+        init(any: Any, provider: String) {
+            Mirror.assert(any, name: "PlatformColor")
+            color = any as! UXColor
             super.init(provider: provider)
         }
         public override func apply() -> Color {
@@ -202,8 +207,9 @@ extension Color {
     internal class OpacityColor: AnyColorBox {
         let base: Color
         let opacity: Double
-        init(any s: Any, provider: String) {
-            let m = Mirror.children(reflecting: s)
+        init(any: Any, provider: String) {
+            Mirror.assert(any, name: "OpacityColor", keys: ["base", "opacity"])
+            let m = Mirror.children(reflecting: any)
             base = m["base"]! as! Color
             opacity = m["opacity"]! as! Double
             super.init(provider: provider)

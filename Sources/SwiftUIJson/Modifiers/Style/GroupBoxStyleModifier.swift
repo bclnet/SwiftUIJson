@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct GroupBoxStyleModifier<Style>: JsonViewModifier, DynaConvertedCodable where Style: Codable {
+struct GroupBoxStyleModifier<Style>: JsonViewModifier, ConvertibleCodable where Style: Codable {
     let style: Any
     let action: ((AnyView) -> AnyView)!
     public init(any: Any) {

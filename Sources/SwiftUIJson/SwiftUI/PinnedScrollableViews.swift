@@ -28,10 +28,11 @@ extension PinnedScrollableViews: CaseIterable, Codable {
         var container = encoder.unkeyedContainer()
         for (_, element) in Self.allCases.enumerated() {
             if self.contains(element) {
-                switch self {
+                switch element {
                 case .sectionHeaders: try container.encode("sectionHeaders")
                 case .sectionFooters: try container.encode("sectionFooters")
-                default: try container.encode(String(rawValue)); return
+                case let unrecognized: fatalError("\(unrecognized)")
+//                default: try container.encode(String(rawValue)); return
                 }
             }
         }

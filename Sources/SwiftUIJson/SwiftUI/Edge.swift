@@ -59,7 +59,7 @@ extension Edge.Set: CaseIterable, Codable {
         var container = encoder.unkeyedContainer()
         for (_, element) in Self.allCases.enumerated() {
             if self.contains(element) {
-                switch self {
+                switch element {
                 case .all: try container.encode("all"); return
                 case .top: try container.encode("top")
                 case .leading: try container.encode("leading")
@@ -67,7 +67,8 @@ extension Edge.Set: CaseIterable, Codable {
                 case .trailing: try container.encode("trailing")
                 case .horizontal: try container.encode("horizontal")
                 case .vertical: try container.encode("vertical")
-                default: try container.encode(String(rawValue)); return
+                case let unrecognized: fatalError("\(unrecognized)")
+//                default: try container.encode(String(rawValue)); return
                 }
             }
         }

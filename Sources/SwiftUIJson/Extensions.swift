@@ -55,9 +55,19 @@ extension Mirror {
             }
         }
     }
-    static func unwrap(value: Any) -> Any {
-        if case Optional<Any>.some(let wrapped) = value { return wrapped }
-        return value
+    static func optionalAny<T>(_ type: T.Type, any: Any) -> T? where T : Convertible {
+        switch any {
+        case Optional<Any>.some(let wrapped): return T.init(any: wrapped)
+        case Optional<Any>.none: return nil
+        default: return any as? T
+        }
+    }
+    static func optional(any: Any) -> Any {
+        switch any {
+        case Optional<Any>.some(let wrapped): return wrapped
+        case Optional<Any>.none: return any
+        default: return any
+        }
     }
     static func isOptional(_ value: Any) -> Bool {
         Mirror(reflecting: value).displayStyle == .optional

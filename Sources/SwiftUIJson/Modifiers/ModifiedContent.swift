@@ -23,8 +23,8 @@ extension ModifiedContent: JsonView, DynaCodable where Content : View, Content :
     }
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(self.content, forKey: .content)
-        try container.encodeAny(AnyViewModifier(self.modifier), forKey: .modifier)
+        try container.encode(content, forKey: .content)
+        try container.encodeAny(AnyViewModifier(modifier), forKey: .modifier)
     }
     //: Register
     static func register() {
@@ -32,9 +32,7 @@ extension ModifiedContent: JsonView, DynaCodable where Content : View, Content :
     }
 }
 
-//extension _ViewModifier_Content {
-//}
-
+//extension _ViewModifier_Content {}
 
 // MARK: - Accessibility
 /// accessibilityAction(), accessibilityAction(named)
