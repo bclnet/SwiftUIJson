@@ -7,7 +7,7 @@
 //
 
 import SwiftUI
-extension Binding: DynaFullCodable {
+extension Binding: FullyCodable {
     //: Codable
     public init(from decoder: Decoder, for dynaType: DynaType) throws { try self.init(from: decoder) }
     public init(from decoder: Decoder) throws {

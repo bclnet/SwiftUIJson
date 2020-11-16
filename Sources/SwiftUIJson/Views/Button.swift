@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-extension Button: JsonView, DynaCodable where Label : View, Label : DynaCodable {
+extension Button: IAnyView, DynaCodable where Label : View, Label : DynaCodable {
     public var anyView: AnyView { AnyView(self) }
     //: Codable
     enum CodingKeys: CodingKey {

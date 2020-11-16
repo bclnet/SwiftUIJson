@@ -10,7 +10,7 @@ import SwiftUI
 @available(iOS 13.0, OSX 10.15, *)
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
-extension DatePicker: JsonView, DynaCodable where Label : View, Label : DynaCodable {
+extension DatePicker: IAnyView, DynaCodable where Label : View, Label : DynaCodable {
     public var anyView: AnyView { AnyView(self) }
     //: Codable
     enum CodingKeys: CodingKey {

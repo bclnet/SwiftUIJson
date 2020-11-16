@@ -11,7 +11,7 @@ import SwiftUI
 @available(OSX, unavailable)
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
-extension EditButton: JsonView, DynaCodable {
+extension EditButton: IAnyView, DynaCodable {
     public var anyView: AnyView { AnyView(self) }
     //: Codable
     public init(from decoder: Decoder, for dynaType: DynaType) throws { self.init() }

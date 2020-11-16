@@ -8,13 +8,8 @@
 
 import SwiftUI
 
-extension KeyedDecodingContainer where K : CodingKey {
-
-    public func decodeOptional<T>(_ type: T.Type, forKey key: KeyedDecodingContainer<K>.Key, forContext context: JsonContext) throws -> T? where T : Decodable {
-        try decode(type, forKey: key, forContext: context)
-    }
-
-    public func decodeOptionalIfPresent<T>(_ type: T.Type, forKey key: KeyedDecodingContainer<K>.Key, forContext context: JsonContext) throws -> T? where T : Decodable {
-        try decodeIfPresent(type, forKey: key, forContext: context)
-    }
+public struct NeverCodable: FullyCodable {
+    public init(from decoder: Decoder, for dynaType: DynaType) throws { fatalError("Never") }
+    public init(from decoder: Decoder) throws { fatalError("Never") }
+    public func encode(to encoder: Encoder) throws { fatalError("Never") }
 }

@@ -1,5 +1,5 @@
 //
-//  _SampleModifier.swift
+//  _ContextMenuContainer.swift (Incomplete)
 //
 //  Created by Sky Morey on 8/22/20.
 //  Copyright © 2020 Sky Morey. All rights reserved.
@@ -50,7 +50,7 @@ struct _ContextMenuContainer: ConvertibleCodable {
             Mirror.assert(any, name: "Container", keys: ["contextMenu", "content"])
             let m = Mirror.children(reflecting: any)
             contextMenu = Mirror.optionalAny(_ContextMenuContainer.self, any: m["contextMenu"]!)?.contextMenu as? ContextMenu<Content>
-            content = (m["content"]! as! JsonView).anyView as! Content
+            content = (m["content"]! as! IAnyView).anyView as! Content
         }
         //: _VariadicView_ViewRoot
         func body(children: _VariadicView.Children) -> Content {

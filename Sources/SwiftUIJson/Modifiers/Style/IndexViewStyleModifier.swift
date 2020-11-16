@@ -36,6 +36,10 @@ struct IndexViewStyleModifier<Style>: JsonViewModifier, ConvertibleCodable where
     //: Register
     static func register() {
         DynaType.register(IndexViewStyleModifier<NeverCodable>.self, any: [NeverCodable.self], namespace: "SwiftUI")
-        DynaType.register(PageIndexViewStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.indexViewStyle(PageIndexViewStyle())) }])
+        #if !os(macOS) && !os(watchOS)
+        if #available(iOS 14.0, tvOS 14.0, *) {
+            DynaType.register(PageIndexViewStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.indexViewStyle(PageIndexViewStyle())) }])
+        }
+        #endif
     }
 }

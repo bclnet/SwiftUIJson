@@ -15,23 +15,12 @@ extension _VariadicView {
     }
 }
 
-extension _VariadicView.Tree: JsonView, DynaCodable where Root : _VariadicView_ViewRoot, Content : View, Content : DynaCodable {
+extension _VariadicView.Tree: IAnyView, DynaCodable where Root : _VariadicView_ViewRoot, Content : View, Content : DynaCodable {
     public var anyView: AnyView { AnyView(self) }
     //: Codable
     enum CodingKeys: CodingKey {
         case root, content
     }
-//    public init(from decoder: Decoder, for dynaType: DynaType) throws {
-//        let container = try decoder.container(keyedBy: CodingKeys.self)
-//        let root = try container.decodeAny(Root.self, forKey: .root, dynaType: dynaType[0])
-//        let content = try container.decodeAny(Content.self, forKey: .content, dynaType: dynaType[1])
-//        self.init(root, content: { content })
-//    }
-//    public func encode(to encoder: Encoder) throws {
-//        var container = encoder.container(keyedBy: CodingKeys.self)
-//        try container.encodeAny(root, forKey: .root)
-//        try container.encodeAny(content, forKey: .content)
-//    }
     public init(from decoder: Decoder, for dynaType: DynaType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let root = try container.decodeAny(Root.self, forKey: .root, dynaType: dynaType[0])

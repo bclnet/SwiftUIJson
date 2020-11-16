@@ -38,8 +38,10 @@ struct TextFieldStyleStyleModifier<Style>: JsonViewModifier, ConvertibleCodable 
         DynaType.register(TextFieldStyleStyleModifier<NeverCodable>.self, any: [NeverCodable.self], namespace: "SwiftUI")
         DynaType.register(DefaultTextFieldStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.textFieldStyle(DefaultTextFieldStyle())) }])
         DynaType.register(PlainTextFieldStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.textFieldStyle(PlainTextFieldStyle())) }])
+        #if !os(tvOS) && !os(watchOS)
         DynaType.register(RoundedBorderTextFieldStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.textFieldStyle(RoundedBorderTextFieldStyle())) }])
-        #if os(macOS)
+        #endif
+        #if !os(iOS) && !os(tvOS) && !os(watchOS)
         DynaType.register(SquareBorderTextFieldStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.textFieldStyle(SquareBorderTextFieldStyle())) }])
         #endif
     }

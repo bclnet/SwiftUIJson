@@ -1,5 +1,5 @@
 //
-//  ModifiedContent.swift
+//  ModifiedContent.swift (Incomplete)
 //
 //  Created by Sky Morey on 8/22/20.
 //  Copyright © 2020 Sky Morey. All rights reserved.
@@ -9,7 +9,7 @@ import SwiftUI
 
 // MARK: - First
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
-extension ModifiedContent: JsonView, DynaCodable where Content : View, Content : DynaCodable, Modifier : ViewModifier {
+extension ModifiedContent: IAnyView, DynaCodable where Content : View, Content : DynaCodable, Modifier : ViewModifier {
     public var anyView: AnyView { AnyView(self) }
     //: Codable
     enum CodingKeys: CodingKey {

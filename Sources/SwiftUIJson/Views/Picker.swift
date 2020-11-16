@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-extension Picker: JsonView, DynaCodable where Label : View, Label : DynaCodable, SelectionValue : Hashable, Content : View, Content : DynaCodable {
+extension Picker: IAnyView, DynaCodable where Label : View, Label : DynaCodable, SelectionValue : Hashable, Content : View, Content : DynaCodable {
     public var anyView: AnyView { AnyView(self) }
     //: Codable
     enum CodingKeys: CodingKey {

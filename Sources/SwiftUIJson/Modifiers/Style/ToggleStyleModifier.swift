@@ -37,7 +37,9 @@ struct ToggleStyleModifier<Style>: JsonViewModifier, ConvertibleCodable where St
     static func register() {
         DynaType.register(ToggleStyleModifier<NeverCodable>.self, any: [NeverCodable.self], namespace: "SwiftUI")
         DynaType.register(DefaultToggleStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.toggleStyle(DefaultToggleStyle())) }])
+        #if !os(tvOS)
         DynaType.register(SwitchToggleStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.toggleStyle(SwitchToggleStyle())) }])
+        #endif
         #if os(macOS)
         DynaType.register(CheckboxToggleStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.toggleStyle(CheckboxToggleStyle())) }])
         #endif

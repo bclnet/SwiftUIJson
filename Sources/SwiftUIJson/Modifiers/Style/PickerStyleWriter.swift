@@ -37,10 +37,20 @@ struct PickerStyleWriter<Style>: JsonViewModifier, ConvertibleCodable where Styl
     static func register() {
         DynaType.register(PickerStyleWriter<NeverCodable>.self, any: [NeverCodable.self], namespace: "SwiftUI")
         DynaType.register(DefaultPickerStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.pickerStyle(DefaultPickerStyle())) }])
-        DynaType.register(InlinePickerStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.pickerStyle(InlinePickerStyle())) }])
-        DynaType.register(MenuPickerStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.pickerStyle(MenuPickerStyle())) }])
+        if #available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *) {
+            DynaType.register(InlinePickerStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.pickerStyle(InlinePickerStyle())) }])
+        }
+        #if !os(tvOS) && !os(watchOS)
+        if #available(iOS 14.0, macOS 11.0, *) {
+            DynaType.register(MenuPickerStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.pickerStyle(MenuPickerStyle())) }])
+        }
+        #endif
+        #if !os(watchOS)
         DynaType.register(SegmentedPickerStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.pickerStyle(SegmentedPickerStyle())) }])
+        #endif
+        #if !os(macOS) && !os(tvOS)
         DynaType.register(WheelPickerStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.pickerStyle(WheelPickerStyle())) }])
+        #endif
         #if os(macOS)
         DynaType.register(PopUpButtonPickerStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.pickerStyle(PopUpButtonPickerStyle())) }])
         DynaType.register(RadioGroupPickerStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.pickerStyle(RadioGroupPickerStyle())) }])

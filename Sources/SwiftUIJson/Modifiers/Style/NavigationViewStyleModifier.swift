@@ -37,7 +37,11 @@ struct NavigationViewStyleModifier<Style>: JsonViewModifier, ConvertibleCodable 
     static func register() {
         DynaType.register(NavigationViewStyleModifier<NeverCodable>.self, any: [NeverCodable.self], namespace: "SwiftUI")
         DynaType.register(DefaultNavigationViewStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.navigationViewStyle(DefaultNavigationViewStyle())) }])
+        #if !os(watchOS)
         DynaType.register(DoubleColumnNavigationViewStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.navigationViewStyle(DoubleColumnNavigationViewStyle())) }])
+        #endif
+        #if !os(macOS)
         DynaType.register(StackNavigationViewStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.navigationViewStyle(StackNavigationViewStyle())) }])
+        #endif
     }
 }

@@ -8,26 +8,28 @@
 import SwiftUI
 
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
-extension TupleView: JsonView, DynaCodable, DynaUnkeyedContainer {
+extension TupleView: IAnyView, DynaCodable, DynaUnkeyedContainer {
     public var anyView: AnyView { AnyView(self) }
     //: Codable
     public init(from decoder: Decoder, for dynaType: DynaType) throws {
+        guard let context = decoder.userInfo[.jsonContext] as? JsonContext else { fatalError(".jsonContext") }
         var container = try decoder.unkeyedContainer()
         //let sk = try container.decode(String.self) // eat type
-        var items = [JsonView?]()
+        var items = [IAnyView?]()
         while !container.isAtEnd {
             let baseDecoder = try container.superDecoder()
-            let value = try baseDecoder.decodeDynaSuper() as? JsonView
+            let value = try context.decodeDynaSuper(from: baseDecoder) as? IAnyView
             items.append(value)
         }
         let value = DynaType.buildType(tuple: dynaType[0], for: items) as! T
         self.init(value)
     }
     public func encode(to encoder: Encoder) throws {
+        guard let context = encoder.userInfo[.jsonContext] as? JsonContext else { fatalError(".jsonContext") }
         var container = encoder.unkeyedContainer()
         for value in Mirror.values(reflecting: value) {
             let baseEncoder = container.superEncoder()
-            try baseEncoder.encodeDynaSuper(value)
+            try context.encodeDynaSuper(value, to: baseEncoder)
         }
     }
     //: Register

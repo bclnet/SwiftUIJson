@@ -8,6 +8,17 @@
 
 import SwiftUI
 
+extension KeyedDecodingContainer where K : CodingKey {
+
+    public func decodeOptional<T>(_ type: T.Type, forKey key: KeyedDecodingContainer<K>.Key, forContext context: JsonContext) throws -> T? where T : Decodable {
+        try decode(type, forKey: key, forContext: context)
+    }
+
+    public func decodeOptionalIfPresent<T>(_ type: T.Type, forKey key: KeyedDecodingContainer<K>.Key, forContext context: JsonContext) throws -> T? where T : Decodable {
+        try decodeIfPresent(type, forKey: key, forContext: context)
+    }
+}
+
 extension KeyedDecodingContainerProtocol {
     /// Decodes a value of the given type for the given key.
     ///

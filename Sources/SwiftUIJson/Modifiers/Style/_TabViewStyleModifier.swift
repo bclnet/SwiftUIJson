@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+@available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *)
 struct _TabViewStyleWriter<Style>: JsonViewModifier, ConvertibleCodable where Style: Codable {
     let style: Any
     let action: ((AnyView) -> AnyView)!
@@ -37,8 +38,10 @@ struct _TabViewStyleWriter<Style>: JsonViewModifier, ConvertibleCodable where St
     static func register() {
         DynaType.register(_TabViewStyleWriter<NeverCodable>.self, any: [NeverCodable.self], namespace: "SwiftUI")
         DynaType.register(DefaultTabViewStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.tabViewStyle(DefaultTabViewStyle())) }])
+        #if !os(macOS)
         DynaType.register(PageTabViewStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.tabViewStyle(PageTabViewStyle())) }])
-        #if os(macOS)
+        #endif
+        #if os(watchOS)
         DynaType.register(CarouselTabViewStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.tabViewStyle(CarouselTabViewStyle())) }])
         #endif
     }

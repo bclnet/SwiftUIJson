@@ -37,14 +37,30 @@ struct ListStyleModifier<Style>: JsonViewModifier, ConvertibleCodable where Styl
     static func register() {
         DynaType.register(ListStyleModifier<NeverCodable>.self, any: [NeverCodable.self], namespace: "SwiftUI")
         DynaType.register(DefaultListStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.listStyle(DefaultListStyle())) }])
+        #if !os(macOS) && !os(watchOS)
         DynaType.register(GroupedListStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.listStyle(GroupedListStyle())) }])
-        DynaType.register(InsetGroupedListStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.listStyle(InsetGroupedListStyle())) }])
-        DynaType.register(InsetListStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.listStyle(InsetListStyle())) }])
+        #endif
+        #if !os(macOS) && !os(tvOS) && !os(watchOS)
+        if #available(iOS 14.0, *) {
+            DynaType.register(InsetGroupedListStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.listStyle(InsetGroupedListStyle())) }])
+        }
+        #endif
+        #if !os(tvOS) && !os(watchOS)
+        if #available(iOS 14.0, macOS 11.0, *) {
+            DynaType.register(InsetListStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.listStyle(InsetListStyle())) }])
+        }
+        #endif
         DynaType.register(PlainListStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.listStyle(PlainListStyle())) }])
-        DynaType.register(SidebarListStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.listStyle(SidebarListStyle())) }])
-        #if os(macOS)
+        #if !os(tvOS) && !os(watchOS)
+        if #available(iOS 14.0, macOS 10.15, *) {
+            DynaType.register(SidebarListStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.listStyle(SidebarListStyle())) }])
+        }
+        #endif
+        #if os(watchOS)
         DynaType.register(CarouselListStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.listStyle(CarouselListStyle())) }])
-        DynaType.register(EllipticalListStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.listStyle(EllipticalListStyle())) }])
+        if #available(watchOS 7.0, *) {
+            DynaType.register(EllipticalListStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.listStyle(EllipticalListStyle())) }])
+        }
         #endif
     }
 }

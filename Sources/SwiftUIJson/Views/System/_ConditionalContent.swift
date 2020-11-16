@@ -8,7 +8,7 @@
 import SwiftUI
 
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
-extension _ConditionalContent: JsonView, DynaCodable where TrueContent : View, TrueContent : DynaCodable, FalseContent : View, FalseContent : DynaCodable {
+extension _ConditionalContent: IAnyView, DynaCodable where TrueContent : View, TrueContent : DynaCodable, FalseContent : View, FalseContent : DynaCodable {
     public var anyView: AnyView { AnyView(self) }
     //: Codable
     enum CodingKeys: CodingKey {

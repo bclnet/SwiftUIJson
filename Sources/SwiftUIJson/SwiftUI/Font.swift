@@ -214,14 +214,13 @@ extension Font.Design: Codable {
     //: Codable
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
-        let value = try container.decode(String.self)
-        switch value {
+        switch try container.decode(String.self) {
         case "default": self = .default
         case "rounded": self = .rounded
-        default:
-            let defaultFunc = { fatalError(value) }
+        case let unrecognized:
+            let defaultFunc = { fatalError(unrecognized) }
             if #available(watchOS 7.0, *) {
-                switch value {
+                switch unrecognized {
                 case "serif": self = .serif
                 case "monospaced": self = .monospaced
                 default: defaultFunc()
@@ -234,10 +233,10 @@ extension Font.Design: Codable {
         switch self {
         case .default: try container.encode("default")
         case .rounded: try container.encode("rounded")
-        default:
-            let defaultFunc: () -> Void = { fatalError() }
+        case let unrecognized:
+            let defaultFunc: () -> Void = { fatalError("\(unrecognized)") }
             if #available(watchOS 7.0, *) {
-                switch self {
+                switch unrecognized {
                 case .serif: try container.encode("serif")
                 case .monospaced: try container.encode("monospaced")
                 default: defaultFunc()
@@ -268,7 +267,7 @@ extension Font: Codable {
         case "callout": self = .callout
         case "footnote": self = .footnote
         case "caption": self = .caption
-        default:
+        case let unrecognized:
             let defaultFunc: () throws -> Font = {
                 switch try container.decode(AnyFontBox.self).provider {
                 case "system": return try container.decode(SystemProvider.self).apply()
@@ -289,7 +288,7 @@ extension Font: Codable {
                 }
             }
             if #available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *) {
-                switch value {
+                switch unrecognized {
                 case "title2": self = .title2
                 case "title3": self = .title3
                 case "caption2": self = .caption2
@@ -309,7 +308,7 @@ extension Font: Codable {
         case .callout: try container.encode("callout")
         case .footnote: try container.encode("footnote")
         case .caption: try container.encode("caption")
-        default:
+        case let unrecognized:
             let defaultFunc = {
                 let provider = Mirror(reflecting: self).descendant("provider", "base")!
                 switch "\(type(of: provider))" {
@@ -331,7 +330,7 @@ extension Font: Codable {
                 }
             }
             if #available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *) {
-                switch self {
+                switch unrecognized {
                 case .title2: try container.encode("title2")
                 case .title3: try container.encode("title3")
                 case .caption2: try container.encode("caption2")
@@ -387,8 +386,7 @@ extension Font.TextStyle: Codable {
     //: Codable
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
-        let value = try container.decode(String.self)
-        switch value {
+        switch try container.decode(String.self) {
         case "largeTitle": self = .largeTitle
         case "title": self = .title
         case "headline": self = .headline
@@ -397,10 +395,10 @@ extension Font.TextStyle: Codable {
         case "callout": self = .callout
         case "footnote": self = .footnote
         case "caption": self = .caption
-        default:
+        case let unrecognized:
             let defaultFunc = { fatalError() }
             if #available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *) {
-                switch value {
+                switch unrecognized {
                 case "title2": self = .title2
                 case "title3": self = .title3
                 case "caption2": self = .caption2
@@ -420,10 +418,10 @@ extension Font.TextStyle: Codable {
         case .callout: try container.encode("callout")
         case .footnote: try container.encode("footnote")
         case .caption: try container.encode("caption")
-        default:
+        case let unrecognized:
             let defaultFunc = { fatalError() }
             if #available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *) {
-                switch self {
+                switch unrecognized {
                 case .title2: try container.encode("title2")
                 case .title3: try container.encode("title3")
                 case .caption2: try container.encode("caption2")

@@ -21,7 +21,7 @@ import CoreData
 extension EnvironmentValues {
     static func find<Root, Value>(keyPath: KeyPath<Root, Value>) -> String! {
         switch keyPath {
-        case \EnvironmentValues.disableAutocorrection: return "disableAutocorrection"
+        case \EnvironmentValues.disableAutocorrection: return "disableAutocorrection" // watchOS
         case \EnvironmentValues.sizeCategory: return "sizeCategory"
         case \EnvironmentValues.managedObjectContext: return "managedObjectContext"
         case \EnvironmentValues.undoManager: return "undoManager"
@@ -60,6 +60,11 @@ extension EnvironmentValues {
         case \EnvironmentValues.textCase: return "textCase"
         case \EnvironmentValues.editMode: return "editMode"
         case \EnvironmentValues.presentationMode: return "presentationMode"
+//        case let unrecognized:
+//            if #available(, *) {
+//
+//            }
+            
         case let unrecognized: fatalError("\(unrecognized)")
         }
     }

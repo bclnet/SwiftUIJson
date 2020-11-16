@@ -8,7 +8,7 @@
 import SwiftUI
 
 @available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *)
-extension LazyHStack: JsonView, DynaCodable where Content : View, Content : DynaCodable {
+extension LazyHStack: IAnyView, DynaCodable where Content : View, Content : DynaCodable {
     public var anyView: AnyView { AnyView(self) }
     //: Codable
     enum CodingKeys: CodingKey {

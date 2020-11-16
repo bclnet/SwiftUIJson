@@ -7,11 +7,10 @@
 
 import SwiftUI
 
-public protocol JsonView {
+public protocol IAnyView {
     var anyView: AnyView { get }
 }
 
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension AnyView: DynaCodable {
 //    static func unwrap(any: Any) -> Any {
 //        guard let anyView = any as? AnyView else { return any }
@@ -21,13 +20,15 @@ extension AnyView: DynaCodable {
 //    }
     //: Codable
     public init(from decoder: Decoder, for dynaType: DynaType) throws {
-        let view = try decoder.dynaSuperInit(for: dynaType) as! JsonView
+        guard let context = decoder.userInfo[.jsonContext] as? JsonContext else { fatalError(".jsonContext") }
+        let view = try context.dynaSuperInit(from: decoder, for: dynaType) as! IAnyView
         self = view.anyView
     }
     public func encode(to encoder: Encoder) throws {
+        guard let context = encoder.userInfo[.jsonContext] as? JsonContext else { fatalError(".jsonContext") }
         Mirror.assert(self, name: "AnyView", keys: ["storage"])
         let storage = AnyViewStorage(any: Mirror(reflecting: self).descendant("storage")!)
-        try encoder.encodeDynaSuper(storage.view)
+        try context.encodeDynaSuper(storage.view, to: encoder)
     }
     //: Register
     static func register() {
@@ -43,13 +44,12 @@ extension AnyView: DynaCodable {
     }
 }
 
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 public struct JsonAnyView: View {
     public let body: AnyView
-    public init(_ view: JsonView) {
+    public init(_ view: IAnyView) {
         body = view.anyView
     }
     static func any<Element>(_ value: Element) -> JsonAnyView {
-        JsonAnyView(value as? JsonView ?? EmptyView())
+        JsonAnyView(value as? IAnyView ?? EmptyView())
     }
 }

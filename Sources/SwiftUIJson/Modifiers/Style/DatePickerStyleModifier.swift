@@ -36,10 +36,18 @@ struct DatePickerStyleModifier<Style>: JsonViewModifier, ConvertibleCodable wher
     //: Register
     static func register() {
         DynaType.register(DatePickerStyleModifier<NeverCodable>.self, any: [NeverCodable.self], namespace: "SwiftUI")
-        DynaType.register(CompactDatePickerStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.datePickerStyle(CompactDatePickerStyle())) }])
+        #if !os(tvOS) && !os(watchOS)
+        if #available(iOS 14.0, macCatalyst 13.4, macOS 10.15.4, *) {
+            DynaType.register(CompactDatePickerStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.datePickerStyle(CompactDatePickerStyle())) }])
+        }
         DynaType.register(DefaultDatePickerStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.datePickerStyle(DefaultDatePickerStyle())) }])
-        DynaType.register(GraphicalDatePickerStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.datePickerStyle(GraphicalDatePickerStyle())) }])
+        if #available(iOS 14.0, macOS 10.15, *) {
+            DynaType.register(GraphicalDatePickerStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.datePickerStyle(GraphicalDatePickerStyle())) }])
+        }
+        #endif
+        #if !os(tvOS) && !os(watchOS) && !os(macOS)
         DynaType.register(WheelDatePickerStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.datePickerStyle(WheelDatePickerStyle())) }])
+        #endif
         #if os(macOS)
         DynaType.register(FieldDatePickerStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.datePickerStyle(FieldDatePickerStyle())) }])
         DynaType.register(StepperFieldDatePickerStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.datePickerStyle(StepperFieldDatePickerStyle())) }])

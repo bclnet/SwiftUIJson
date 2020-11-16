@@ -7,6 +7,9 @@
 
 import SwiftUI
 
+@available(iOS 14.0, macOS 11.0, *)
+@available(tvOS, unavailable)
+@available(watchOS, unavailable)
 struct MenuStyleModifier<Style>: JsonViewModifier, ConvertibleCodable where Style: Codable {
     let style: Any
     let action: ((AnyView) -> AnyView)!
@@ -38,7 +41,7 @@ struct MenuStyleModifier<Style>: JsonViewModifier, ConvertibleCodable where Styl
         DynaType.register(MenuStyleModifier<NeverCodable>.self, any: [NeverCodable.self], namespace: "SwiftUI")
         DynaType.register(BorderlessButtonMenuStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.menuStyle(BorderlessButtonMenuStyle())) }])
         DynaType.register(DefaultMenuStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.menuStyle(DefaultMenuStyle())) }])
-        #if os(macOS)
+        #if !os(iOS)
         DynaType.register(BorderedButtonMenuStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.menuStyle(BorderedButtonMenuStyle())) }])
         #endif
     }

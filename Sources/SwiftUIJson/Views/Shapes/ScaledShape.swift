@@ -1,5 +1,5 @@
 //
-//  Circle.swift (Incomplete)
+//  ScaledShape.swift (Incomplete)
 //  Glyph
 //
 //  Created by Sky Morey on 8/22/20.
@@ -8,23 +8,17 @@
 
 import SwiftUI
 
-// MARK: - Preamble
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
-extension Circle {
-}
-
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
-extension Circle: Codable {
+extension ScaledShape: Codable {
     //: Codable
     public init(from decoder: Decoder) throws {
 //        let container = try decoder.singleValueContainer()
-        self = Circle()
+        self = ScaledShape(shape: Circle() as! Content, scale: CGSize(width: 5, height: 5), anchor: .center)
     }
     public func encode(to encoder: Encoder) throws {
 //        var container = encoder.singleValueContainer()
     }
     //: Register
     static func register() {
-        DynaType.register(Circle.self)
+        DynaType.register(ScaledShape.self)
     }
 }

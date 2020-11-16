@@ -16,7 +16,7 @@ public enum DynaTypeError: Error {
 }
 
 public protocol Convertible {
-    init(any s: Any)
+    init(any: Any)
 }
 
 public struct DynaTypeWithNil: RawRepresentable {
@@ -84,12 +84,6 @@ public enum DynaType: RawRepresentable {
             let keyOptional = typeKey(for: typeOptional, namespace: namespace)
             let genericIdx = key.firstIndex(of: "<")
             let baseKey = genericIdx == nil ? key : String(key[..<genericIdx!])
-//            if namespace != nil {
-//                let newBaseKey = typeKey(for: "\(namespace!)\(baseKey[baseKey.firstIndex(of: ".")!...])")
-//                key = key.replacingOccurrences(of: baseKey, with: newBaseKey)
-//                keyOptional = keyOptional.replacingOccurrences(of: baseKey, with: newBaseKey)
-//                baseKey = newBaseKey
-//            }
             knownTypes[key] = .type(type, key)
             knownTypes[keyOptional] = .type(typeOptional, keyOptional)
             optionalTypes[ObjectIdentifier(typeOptional)] = type
@@ -150,7 +144,8 @@ public enum DynaType: RawRepresentable {
         typeKey(for: String(reflecting: value), namespace: namespace)
     }
     public static func typeKey(for value: String, namespace: String? = nil) -> String {
-        let key = value.replacingOccurrences(of: " ", with: "")
+        let key = value.split(separator: ":").last!
+            .replacingOccurrences(of: " ", with: "")
             .replacingOccurrences(of: "Swift.Optional", with: "!")
             .replacingOccurrences(of: "Swift.", with: "#")
             .replacingOccurrences(of: "SwiftUI.", with: ":")
@@ -261,16 +256,16 @@ public enum DynaType: RawRepresentable {
         if let knownType = knownTypes[key] { return knownType }
         var type: Any.Type
         switch tuple.count {
-        case 01: type = (JsonView).Type.self
-        case 02: type = (JsonView, JsonView).Type.self
-        case 03: type = (JsonView, JsonView, JsonView).Type.self
-        case 04: type = (JsonView, JsonView, JsonView, JsonView).Type.self
-        case 05: type = (JsonView, JsonView, JsonView, JsonView, JsonView).Type.self
-        case 06: type = (JsonView, JsonView, JsonView, JsonView, JsonView, JsonView).Type.self
-        case 07: type = (JsonView, JsonView, JsonView, JsonView, JsonView, JsonView, JsonView).Type.self
-        case 08: type = (JsonView, JsonView, JsonView, JsonView, JsonView, JsonView, JsonView, JsonView).Type.self
-        case 09: type = (JsonView, JsonView, JsonView, JsonView, JsonView, JsonView, JsonView, JsonView, JsonView).Type.self
-        case 10: type = (JsonView, JsonView, JsonView, JsonView, JsonView, JsonView, JsonView, JsonView, JsonView, JsonView).Type.self
+        case 01: type = (IAnyView).Type.self
+        case 02: type = (IAnyView, IAnyView).Type.self
+        case 03: type = (IAnyView, IAnyView, IAnyView).Type.self
+        case 04: type = (IAnyView, IAnyView, IAnyView, IAnyView).Type.self
+        case 05: type = (IAnyView, IAnyView, IAnyView, IAnyView, IAnyView).Type.self
+        case 06: type = (IAnyView, IAnyView, IAnyView, IAnyView, IAnyView, IAnyView).Type.self
+        case 07: type = (IAnyView, IAnyView, IAnyView, IAnyView, IAnyView, IAnyView, IAnyView).Type.self
+        case 08: type = (IAnyView, IAnyView, IAnyView, IAnyView, IAnyView, IAnyView, IAnyView, IAnyView).Type.self
+        case 09: type = (IAnyView, IAnyView, IAnyView, IAnyView, IAnyView, IAnyView, IAnyView, IAnyView, IAnyView).Type.self
+        case 10: type = (IAnyView, IAnyView, IAnyView, IAnyView, IAnyView, IAnyView, IAnyView, IAnyView, IAnyView, IAnyView).Type.self
         case let unrecognized: fatalError("\(unrecognized)")
         }
         knownTypes[key] = .tuple(type, key, tuple)

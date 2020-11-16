@@ -30,8 +30,9 @@ public struct JsonPreview<Content>: View where Content: View {
         }
         do {
             let encoder = JSONEncoder()
+            encoder.userInfo[.jsonContext] = context
             encoder.outputFormatting = .prettyPrinted
-            data = try encoder.encode(JsonUI(view: view, context: context))
+            data = try encoder.encode(JsonUI(view: view))
         } catch DynaTypeError.typeNotCodable(let mode, let named) {
             data = "typeNotCodable mode: \(mode) named: \(named)".data(using: .utf8)!
             content2 = AnyView(Text("ERROR"))

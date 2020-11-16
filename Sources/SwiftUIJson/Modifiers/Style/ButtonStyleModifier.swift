@@ -36,13 +36,19 @@ struct ButtonStyleModifier<Style>: JsonViewModifier, ConvertibleCodable where St
     //: Register
     static func register() {
         DynaType.register(ButtonStyleModifier<NeverCodable>.self, any: [NeverCodable.self], namespace: "SwiftUI")
+        #if !os(iOS) &&  !os(watchOS)
         DynaType.register(BorderlessButtonStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.buttonStyle(BorderlessButtonStyle())) }])
+        #endif
         DynaType.register(DefaultButtonStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.buttonStyle(DefaultButtonStyle())) }])
         DynaType.register(PlainButtonStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.buttonStyle(PlainButtonStyle())) }])
-        #if os(macOS)
-        DynaType.register(BorderedButtonStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.buttonStyle(BorderedButtonStyle())) }])
-        DynaType.register(CardButtonStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.buttonStyle(CardButtonStyle())) }])
+        #if !os(iOS)
+        if #available(macOS 10.15, tvOS 13.0, watchOS 7.0, *) {
+            DynaType.register(BorderedButtonStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.buttonStyle(BorderedButtonStyle())) }])
+        }
         DynaType.register(LinkButtonStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.buttonStyle(LinkButtonStyle())) }])
+        #endif
+        #if os(tvOS)
+        DynaType.register(CardButtonStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.buttonStyle(CardButtonStyle())) }])
         #endif
     }
 }

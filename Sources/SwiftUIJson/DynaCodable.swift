@@ -19,11 +19,6 @@ fileprivate func printPath(_ value: String) {
 //    Swift.print(value)
 }
 
-public struct NeverCodable: Codable {
-    public init(from decoder: Decoder) throws { fatalError("Never") }
-    public func encode(to encoder: Encoder) throws { fatalError("Never") }
-}
-
 extension DynaTypeWithNil: Codable {
     //: Codable
     public init(from decoder: Decoder) throws {
@@ -142,7 +137,7 @@ public typealias DynaCodable = Encodable & DynaDecodable
 /// `DynaFullCodable` is a type alias for the `Encodable` and `Decodable` and `DynaDecodable` protocols.
 /// When you use `DynaFullCodable` as a type or a generic constraint, it matches
 /// any type that conforms to these protocols.
-public typealias DynaFullCodable = Encodable & Decodable & DynaDecodable
+public typealias FullyCodable = Encodable & Decodable & DynaDecodable
 
 public typealias ConvertibleCodable = Convertible & Encodable & Decodable
 

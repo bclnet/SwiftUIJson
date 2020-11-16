@@ -7,9 +7,16 @@
 
 import SwiftUI
 
+extension Slider {
+    public func hint<Content>(_ view: Content, start: Double) -> _StateWrapper<Self> where Content : View {
+        _StateWrapper(body: self, state: ["start" : start])
+    }
+}
+
+
 @available(iOS 13.0, OSX 10.15, watchOS 6.0, *)
 @available(tvOS, unavailable)
-extension Slider: JsonView, DynaCodable where Label : View, Label : DynaCodable, ValueLabel : View, ValueLabel : DynaCodable {
+extension Slider: IAnyView, DynaCodable where Label : View, Label : DynaCodable, ValueLabel : View, ValueLabel : DynaCodable {
     public var anyView: AnyView { AnyView(self) }
     //: Codable
     enum CodingKeys: CodingKey {
