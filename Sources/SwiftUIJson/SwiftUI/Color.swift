@@ -236,8 +236,9 @@ extension Color {
 
 }
 
-extension Color: Codable {
+extension Color: FullyCodable {
     //: Codable
+    public init(from decoder: Decoder, for dynaType: DynaType) throws { try self.init(from: decoder) }
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         let value: String

@@ -101,10 +101,21 @@ public struct JsonUI: Codable {
         ModifiedContent<AnyView, AnyViewModifier>.register()
         ModifierGesture<Any, Any>.register()
         
+        // swiftui:shapestyles
+        AngularGradient.register()
+        BackgroundStyle.register()
+        ForegroundStyle.register()
+        ImagePaint.register()
+        LinearGradient.register()
+        #if !os(iOS)
+        SelectionShapeStyle.register()
+        SeparatorShapeStyle.register()
+        #endif
         // swiftui
         Color.register()
         
         // views:shapes
+        _ShapeView<AnyShape, Color>.register()
         _StrokedShape<AnyShape>.register()
         Capsule.register()
         Circle.register()

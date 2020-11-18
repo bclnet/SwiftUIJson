@@ -29,9 +29,6 @@ extension Edge: Codable {
         case .trailing: try container.encode("trailing")
         }
     }
-    //: Register
-    static func register() {
-    }
 }
 
 extension Edge.Set: CaseIterable, Codable {
