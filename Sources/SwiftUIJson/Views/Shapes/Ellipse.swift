@@ -10,6 +10,7 @@ import SwiftUI
 
 extension Ellipse: IAnyShape, DynaCodable {
     public var anyShape: AnyShape { AnyShape(self) }
+    public var anyView: AnyView { AnyView(self) }
     //: Codable
     public init(from decoder: Decoder, for dynaType: DynaType) throws { self.init() }
     public func encode(to encoder: Encoder) throws {}
@@ -19,7 +20,8 @@ extension Ellipse: IAnyShape, DynaCodable {
         DynaType.register(Ellipse._Inset.self)
     }
     
-    struct _Inset: IAnyView, ConvertibleDynaCodable {
+    struct _Inset: IAnyShape, IAnyView, ConvertibleDynaCodable {
+        public var anyShape: AnyShape { AnyShape(Ellipse().inset(by: self.amount)) }
         public var anyView: AnyView { AnyView(Ellipse().inset(by: self.amount)) }
         let amount: CGFloat
         public init(any: Any) {

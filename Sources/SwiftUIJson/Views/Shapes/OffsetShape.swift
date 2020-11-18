@@ -1,5 +1,5 @@
 //
-//  OffsetShape.swift (Incomplete)
+//  OffsetShape.swift
 //  Glyph
 //
 //  Created by Sky Morey on 8/22/20.
@@ -8,8 +8,17 @@
 
 import SwiftUI
 
-extension OffsetShape: IAnyShape, DynaCodable where Content : Shape, Content : DynaCodable {
+extension OffsetShape: IAnyShape, IAnyView, ConvertibleDynaCodable where Content : Shape, Content : DynaCodable {
     public var anyShape: AnyShape { AnyShape(self) }
+    public var anyView: AnyView { AnyView(self) }
+    public init(any: Any) {
+        Mirror.assert(any, name: "OffsetShape", keys: ["shape", "offset"])
+        let m = Mirror.children(reflecting: any)
+        let newValue = try! DynaType.convert(value: m["shape"]!)
+        let shape = (newValue as! IAnyShape).anyShape as! Content
+        let offset = m["offset"]! as! CGSize
+        self.init(shape: shape, offset: offset)
+    }
     //: Codable
     enum CodingKeys: CodingKey {
         case shape, offset
@@ -27,33 +36,6 @@ extension OffsetShape: IAnyShape, DynaCodable where Content : Shape, Content : D
     }
     //: Register
     static func register() {
-        DynaType.register(OffsetShape<AnyShape>.self)
-        DynaType.register(OffsetShape._Inset<AnyShape>.self)
-    }
-    
-    struct _Inset<Content>: IAnyView, ConvertibleDynaCodable where Content : Shape {
-        public var anyView: AnyView {
-            fatalError()
-//            AnyView(OffsetShape().inset(by: self.amount))
-        }
-        let amount: CGFloat
-        public init(any: Any) {
-//            Mirror.assert(any, name: "_Inset", keys: ["amount"])
-//            amount = Mirror(reflecting: any).descendant("amount") as! CGFloat
-//            let m = Mirror.children(reflecting: any)
-            fatalError()
-        }
-        //: Codable
-        enum CodingKeys: CodingKey {
-            case amount
-        }
-        public init(from decoder: Decoder, for dynaType: DynaType) throws {
-            let container = try decoder.container(keyedBy: CodingKeys.self)
-            amount = try container.decode(CGFloat.self, forKey: .amount)
-        }
-        public func encode(to encoder: Encoder) throws {
-            var container = encoder.container(keyedBy: CodingKeys.self)
-            try container.encode(amount, forKey: .amount)
-        }
+        DynaType.register(OffsetShape<AnyShape>.self, any: [AnyShape.self])
     }
 }

@@ -1,5 +1,5 @@
 //
-//  Rectangle.swift (Incomplete)
+//  Rectangle.swift
 //  Glyph
 //
 //  Created by Sky Morey on 8/22/20.
@@ -10,6 +10,7 @@ import SwiftUI
 
 extension Rectangle: IAnyShape, DynaCodable {
     public var anyShape: AnyShape { AnyShape(self) }
+    public var anyView: AnyView { AnyView(self) }
     //: Codable
     public init(from decoder: Decoder, for dynaType: DynaType) throws { self.init() }
     public func encode(to encoder: Encoder) throws {}
@@ -19,7 +20,8 @@ extension Rectangle: IAnyShape, DynaCodable {
         DynaType.register(Rectangle._Inset.self)
     }
     
-    struct _Inset: IAnyView, ConvertibleDynaCodable {
+    struct _Inset: IAnyShape, IAnyView, ConvertibleDynaCodable {
+        public var anyShape: AnyShape { AnyShape(Rectangle().inset(by: self.amount)) }
         public var anyView: AnyView { AnyView(Rectangle().inset(by: self.amount)) }
         let amount: CGFloat
         public init(any: Any) {

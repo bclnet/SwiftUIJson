@@ -10,6 +10,7 @@ import SwiftUI
 
 extension Capsule: IAnyShape, DynaCodable {
     public var anyShape: AnyShape { AnyShape(self) }
+    public var anyView: AnyView { AnyView(self) }
     //: Codable
     enum CodingKeys: CodingKey {
         case style
@@ -29,7 +30,8 @@ extension Capsule: IAnyShape, DynaCodable {
         DynaType.register(Capsule._Inset.self)
     }
     
-    struct _Inset: IAnyView, ConvertibleDynaCodable {
+    struct _Inset: IAnyShape, IAnyView, ConvertibleDynaCodable {
+        public var anyShape: AnyShape { AnyShape(Capsule().inset(by: self.amount)) }
         public var anyView: AnyView { AnyView(Capsule().inset(by: self.amount)) }
         let amount: CGFloat
         public init(any: Any) {

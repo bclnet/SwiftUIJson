@@ -15,7 +15,6 @@ public typealias UXColor = UIColor
 #endif
 
 // MARK: - Preamble
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension Color {
     
     internal class AnyColorBox: Codable {
@@ -236,8 +235,7 @@ extension Color {
     }
 
 }
-    
-//@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
+
 extension Color: Codable {
     //: Codable
     public init(from decoder: Decoder) throws {

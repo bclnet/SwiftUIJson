@@ -15,7 +15,6 @@ public typealias UXFont = UIFont
 #endif
 
 // MARK: - Preamble
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension Font {
     
     internal class AnyFontBox: Codable {
@@ -83,14 +82,11 @@ extension Font {
             try container.encode(provider, forKey: .provider)
         }
     }
-    
 }
-
 
 // MARK: - First
 /// custom(:size), custom(:size:relativeTo), custom(:fixedSize)
 /// init()
-//@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension Font {
     
     internal class NamedProvider: AnyFontBox {
@@ -132,7 +128,6 @@ extension Font {
         }
     }
     
-    @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
     internal class PlatformFontProvider: AnyFontBox {
         let font: UXFont //try: CTFont
         let fontSize: CGFloat
@@ -170,7 +165,6 @@ extension Font {
 // MARK: - Second
 /// system(size:weight:design)
 /// Design
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension Font {
     
     internal class SystemProvider: AnyFontBox {
@@ -207,9 +201,8 @@ extension Font {
             try super.encode(to: encoder)
         }
     }
-    
 }
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
+
 extension Font.Design: Codable {
     //: Codable
     public init(from decoder: Decoder) throws {
@@ -250,7 +243,6 @@ extension Font.Design: Codable {
 /// largeTitle, title, title2, title3, headline, subheadline, body, callout, footnote, caption, caption2
 /// system(:design)
 /// TextStyle
-//@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension Font: Codable {
     //: Codable
     public init(from decoder: Decoder) throws {
@@ -379,9 +371,8 @@ extension Font: Codable {
             try super.encode(to: encoder)
         }
     }
-    
 }
-//@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
+
 extension Font.TextStyle: Codable {
     //: Codable
     public init(from decoder: Decoder) throws {
@@ -436,7 +427,6 @@ extension Font.TextStyle: Codable {
 /// italic(), smallCaps(), lowercaseSmallCaps(), uppercaseSmallCaps(), monospacedDigit(), weight(), bold(), leading()
 /// Weight
 /// Leading
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension Font {
     
     internal class ItalicModifier: AnyModifier {
@@ -513,9 +503,8 @@ extension Font {
             try container.encode(leading)
         }
     }
-    
 }
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
+
 extension Font.Weight: Codable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
@@ -548,6 +537,7 @@ extension Font.Weight: Codable {
         }
     }
 }
+
 @available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *)
 extension Font.Leading: Codable {
     public init(from decoder: Decoder) throws {

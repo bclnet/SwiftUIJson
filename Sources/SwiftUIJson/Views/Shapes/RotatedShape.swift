@@ -1,5 +1,5 @@
 //
-//  RotatedShape.swift (Incomplete)
+//  RotatedShape.swift
 //  Glyph
 //
 //  Created by Sky Morey on 8/22/20.
@@ -8,17 +8,37 @@
 
 import SwiftUI
 
-extension RotatedShape: Codable {
+extension RotatedShape: IAnyShape, IAnyView, ConvertibleDynaCodable where Content : Shape, Content : DynaCodable {
+    public var anyShape: AnyShape { AnyShape(self) }
+    public var anyView: AnyView { AnyView(self) }
+    public init(any: Any) {
+        Mirror.assert(any, name: "RotatedShape", keys: ["shape", "angle", "anchor"])
+        let m = Mirror.children(reflecting: any)
+        let newValue = try! DynaType.convert(value: m["shape"]!)
+        let shape = (newValue as! IAnyShape).anyShape as! Content
+        let angle = m["angle"]! as! Angle
+        let anchor = m["anchor"]! as! UnitPoint
+        self.init(shape: shape, angle: angle, anchor: anchor)
+    }
     //: Codable
-    public init(from decoder: Decoder) throws {
-//        let container = try decoder.singleValueContainer()
-        self = RotatedShape(shape: Circle() as! Content, angle: Angle(), anchor: .center)
+    enum CodingKeys: CodingKey {
+        case shape, angle, anchor
+    }
+    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let shape = try container.decode(Content.self, forKey: .shape, dynaType: dynaType[0])
+        let angle = try container.decode(Angle.self, forKey: .angle)
+        let anchor = try container.decodeIfPresent(UnitPoint.self, forKey: .anchor) ?? .center
+        self.init(shape: shape, angle: angle, anchor: anchor)
     }
     public func encode(to encoder: Encoder) throws {
-//        var container = encoder.singleValueContainer()
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(shape, forKey: .shape)
+        try container.encode(angle, forKey: .angle)
+        if anchor != .center { try container.encode(anchor, forKey: .anchor) }
     }
     //: Register
     static func register() {
-        DynaType.register(RotatedShape.self)
+        DynaType.register(RotatedShape<AnyShape>.self, any: [AnyShape.self])
     }
 }

@@ -11,6 +11,7 @@ import SwiftUI
 @available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *)
 extension ContainerRelativeShape: IAnyShape, DynaCodable {
     public var anyShape: AnyShape { AnyShape(self) }
+    public var anyView: AnyView { AnyView(self) }
     //: Codable
     public init(from decoder: Decoder, for dynaType: DynaType) throws { self.init() }
     public func encode(to encoder: Encoder) throws {}
@@ -20,7 +21,8 @@ extension ContainerRelativeShape: IAnyShape, DynaCodable {
         DynaType.register(ContainerRelativeShape._Inset.self)
     }
     
-    struct _Inset: IAnyView, ConvertibleDynaCodable {
+    struct _Inset: IAnyShape, IAnyView, ConvertibleDynaCodable {
+        public var anyShape: AnyShape { AnyShape(ContainerRelativeShape().inset(by: self.amount)) }
         public var anyView: AnyView { AnyView(ContainerRelativeShape().inset(by: self.amount)) }
         let amount: CGFloat
         public init(any: Any) {

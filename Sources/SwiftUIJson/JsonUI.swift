@@ -105,6 +105,7 @@ public struct JsonUI: Codable {
         Color.register()
         
         // views:shapes
+        _StrokedShape<AnyShape>.register()
         Capsule.register()
         Circle.register()
         ContainerRelativeShape.register()

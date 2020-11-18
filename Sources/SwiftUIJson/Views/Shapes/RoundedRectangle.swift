@@ -10,6 +10,7 @@ import SwiftUI
 
 extension RoundedRectangle: IAnyShape, DynaCodable {
     public var anyShape: AnyShape { AnyShape(self) }
+    public var anyView: AnyView { AnyView(self) }
     //: Codable
     enum CodingKeys: CodingKey {
         case cornerSize, cornerRadius, style
@@ -34,7 +35,8 @@ extension RoundedRectangle: IAnyShape, DynaCodable {
         DynaType.register(RoundedRectangle._Inset.self)
     }
     
-    struct _Inset: IAnyView, ConvertibleDynaCodable {
+    struct _Inset: IAnyShape, IAnyView, ConvertibleDynaCodable {
+        public var anyShape: AnyShape { AnyShape(Rectangle().inset(by: self.amount)) }
         public var anyView: AnyView { AnyView(base.inset(by: self.amount)) }
         let base: RoundedRectangle
         let amount: CGFloat
@@ -50,7 +52,7 @@ extension RoundedRectangle: IAnyShape, DynaCodable {
         }
         public init(from decoder: Decoder, for dynaType: DynaType) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
-            base = try container.decode(RoundedRectangle.self, forKey: .base, dynaType: dynaType)
+            base = try container.decode(RoundedRectangle.self, forKey: .base, dynaType: dynaType[0])
             amount = try container.decode(CGFloat.self, forKey: .amount)
         }
         public func encode(to encoder: Encoder) throws {
@@ -58,6 +60,19 @@ extension RoundedRectangle: IAnyShape, DynaCodable {
             try container.encode(base, forKey: .base)
             try container.encode(amount, forKey: .amount)
         }
+    }
+}
+
+struct FixedRoundedRect: Codable {
+    let rect: CGRect
+    let cornerSize: CGSize
+    let style: RoundedCornerStyle
+    init(any: Any) {
+        Mirror.assert(any, name: "FixedRoundedRect", keys: ["rect", "cornerSize", "style"])
+        let m = Mirror.children(reflecting: any)
+        rect = m["rect"]! as! CGRect
+        cornerSize = m["cornerSize"]! as! CGSize
+        style = m["style"]! as! RoundedCornerStyle
     }
 }
 

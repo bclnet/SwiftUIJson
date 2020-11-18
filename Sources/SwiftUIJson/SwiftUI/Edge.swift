@@ -8,7 +8,6 @@
 
 import SwiftUI
 
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension Edge: Codable {
     //: Codable
     public init(from decoder: Decoder) throws {
@@ -34,7 +33,7 @@ extension Edge: Codable {
     static func register() {
     }
 }
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
+
 extension Edge.Set: CaseIterable, Codable {
     public static let allCases: [Self] = [.all, .top, .leading, .bottom, .trailing, .horizontal, .vertical]
     //: Codable
@@ -75,7 +74,6 @@ extension Edge.Set: CaseIterable, Codable {
     }
 }
 
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension EdgeInsets: Codable {
     var isEmpty: Bool {
         top == 0 && leading == 0 && bottom == 0 && trailing == 0

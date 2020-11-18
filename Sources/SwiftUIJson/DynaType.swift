@@ -71,12 +71,12 @@ public enum DynaType: RawRepresentable {
     
     // MARK: - Register
     static var knownTypes = [String:Self]()
-    static var knownGenerics = [String:(type: Any.Type, anys: [Any.Type?]?)]()
+    static var knownGenerics = [String:(type: Any.Type, anys: [Any.Type]?)]()
     static var optionalTypes = [ObjectIdentifier:Any.Type]()
     static var convertTypes = [String:Convertible.Type]()
     static var actionTypes = [String:[String:Any]]()
     
-    public static func register<T>(_ type: T.Type, any: [Any.Type?]? = nil, namespace: String? = nil, actions: [String:Any]? = nil) {
+    public static func register<T>(_ type: T.Type, any: [Any.Type]? = nil, namespace: String? = nil, actions: [String:Any]? = nil) {
         let key = typeKey(for: type, namespace: namespace)
         if knownTypes[key] == nil {
             // register
@@ -224,8 +224,10 @@ public enum DynaType: RawRepresentable {
                         anyArray.insert(any, at: 0); anyArray.insert(last.op, at: 0); anyArray.insert(genericName, at: 0)
                         if let generic = knownGenerics[genericName], let anys = generic.anys {
                             for i in 0..<anys.count {
-                                guard let type = anys[i] else { continue }
-                                anyArray[2+(i*2)] = typeKey(for: type)
+                                let type = anys[i]
+                                anyArray[2+(i*2)] = type != Operation.self
+                                    ? typeKey(for: type)
+                                    : ""
                             }
                         }
                         any = anyArray.joined()

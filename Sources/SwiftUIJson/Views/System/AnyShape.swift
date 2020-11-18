@@ -7,19 +7,16 @@
 
 import SwiftUI
 
-public protocol IAnyShape {
+public protocol IAnyShape: IAnyView {
     var anyShape: AnyShape { get }
 }
 
 public struct AnyShape: Shape, DynaCodable {
-
-    public func path(in rect: CGRect) -> Path {
-        fatalError("Never")
-    }
-
-    let view: AnyView
-    public init<V>(_ view: V) where V : View {
-        self.view = AnyView(view)
+    public func path(in rect: CGRect) -> Path { storage.path(rect) }
+    public var body: AnyView { storage.view }
+    let storage: AnyShapeStorage
+    public init<V>(_ shape: V) where V : Shape {
+        storage = AnyShapeStorage(shape: shape, view: AnyView(shape), path: shape.path)
     }
     //: Codable
     public init(from decoder: Decoder, for dynaType: DynaType) throws {
@@ -27,13 +24,25 @@ public struct AnyShape: Shape, DynaCodable {
         let shape = try context.dynaSuperInit(from: decoder, for: dynaType) as! IAnyShape
         self = shape.anyShape
     }
-    public func encode(to encoder: Encoder) throws { fatalError("Never") }
+    public func encode(to encoder: Encoder) throws {
+        guard let context = encoder.userInfo[.jsonContext] as? JsonContext else { fatalError(".jsonContext") }
+        try context.encodeDynaSuper(storage.shape, to: encoder)
+    }
     //: Register
     static func register() {
         DynaType.register(AnyShape.self)
     }
 
-    public var body: AnyView { view }
+    internal class AnyShapeStorage {
+        let shape: Any
+        let view: AnyView
+        let path: (CGRect) -> Path
+        init(shape: Any, view: AnyView, path: @escaping (CGRect) -> Path) {
+            self.shape = shape
+            self.view = view
+            self.path = path
+        }
+    }
     
     public typealias Body = AnyView
 }
