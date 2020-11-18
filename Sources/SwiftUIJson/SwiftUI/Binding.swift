@@ -23,5 +23,6 @@ extension Binding: FullyCodable {
         self.init(base)!
     }
     public func encode(to encoder: Encoder) throws {
+        Mirror.assert(self, name: "Binding")
     }
 }

@@ -29,17 +29,17 @@ extension _ShapeView: IAnyView, DynaCodable where Content : DynaCodable, Style :
     }
     //: Register
     static func register() {
-//        DynaType.register(_ShapeView<AnyShape, AngularGradient>.self, any: [AnyShape.self])
-//        DynaType.register(_ShapeView<AnyShape, BackgroundStyle>.self, any: [AnyShape.self])
-//        DynaType.register(_ShapeView<AnyShape, Color>.self, any: [AnyShape.self])
+        DynaType.register(_ShapeView<AnyShape, AngularGradient>.self, any: [AnyShape.self])
+        DynaType.register(_ShapeView<AnyShape, BackgroundStyle>.self, any: [AnyShape.self])
+        DynaType.register(_ShapeView<AnyShape, Color>.self, any: [AnyShape.self])
         DynaType.register(_ShapeView<AnyShape, ForegroundStyle>.self, any: [AnyShape.self])
-//        DynaType.register(_ShapeView<AnyShape, ImagePaint>.self, any: [AnyShape.self])
-//        DynaType.register(_ShapeView<AnyShape, LinearGradient>.self, any: [AnyShape.self])
-//        DynaType.register(_ShapeView<AnyShape, RadialGradient>.self, any: [AnyShape.self])
-//        #if !os(iOS)
-//        DynaType.register(_ShapeView<AnyShape, SelectionShapeStyle>.self, any: [AnyShape.self])
-//        DynaType.register(_ShapeView<AnyShape, SeparatorShapeStyle>.self, any: [AnyShape.self])
-//        #endif
+        DynaType.register(_ShapeView<AnyShape, ImagePaint>.self, any: [AnyShape.self])
+        DynaType.register(_ShapeView<AnyShape, LinearGradient>.self, any: [AnyShape.self])
+        DynaType.register(_ShapeView<AnyShape, RadialGradient>.self, any: [AnyShape.self])
+        #if !os(iOS)
+        DynaType.register(_ShapeView<AnyShape, SelectionShapeStyle>.self, any: [AnyShape.self])
+        DynaType.register(_ShapeView<AnyShape, SeparatorShapeStyle>.self, any: [AnyShape.self])
+        #endif
     }
 }
 

@@ -8,7 +8,8 @@
 
 import SwiftUI
 
-extension RadialGradient: FullyCodable {
+extension RadialGradient: IAnyView, FullyCodable {
+    public var anyView: AnyView { AnyView(self) }
     //: Codable
     enum CodingKeys: CodingKey {
         case gradient, center, startRadius, endRadius
@@ -23,13 +24,13 @@ extension RadialGradient: FullyCodable {
         self.init(gradient: gradient, center: center, startRadius: startRadius, endRadius: endRadius)
     }
     public func encode(to encoder: Encoder) throws {
-//        let m = Mirror.children(reflecting: self)
-        fatalError()
-//        var container = encoder.container(keyedBy: CodingKeys.self)
-//        try container.encode(gradient, forKey: .gradient)
-//        try container.encode(center, forKey: .center)
-//        try container.encode(startRadius, forKey: .startRadius)
-//        try container.encode(endRadius, forKey: .endRadius)
+        Mirror.assert(self, name: "RadialGradient", keys: ["gradient", "center", "startRadius", "endRadius"])
+        let m = Mirror.children(reflecting: self)
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(m["gradient"]! as! Gradient, forKey: .gradient)
+        try container.encode(m["center"]! as! UnitPoint, forKey: .center)
+        try container.encode(m["startRadius"]! as! CGFloat, forKey: .startRadius)
+        try container.encode(m["endRadius"]! as! CGFloat, forKey: .endRadius)
     }
     //: Register
     static func register() {

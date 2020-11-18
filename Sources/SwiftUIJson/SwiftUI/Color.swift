@@ -181,7 +181,7 @@ extension Color {
     internal class PlatformColor: AnyColorBox {
         let color: UXColor
         init(any: Any, provider: String) {
-            Mirror.assert(any, name: "PlatformColor")
+//          Mirror.assert(any, name: "PlatformColor")
             color = any as! UXColor
             super.init(provider: provider)
         }

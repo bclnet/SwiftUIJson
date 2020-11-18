@@ -15,6 +15,7 @@ extension Angle: Codable {
         self.init(radians: try container.decode(Double.self))
     }
     public func encode(to encoder: Encoder) throws {
+        Mirror.assert(self, name: "Angle", keys: ["radians"])
         var container = encoder.singleValueContainer()
         try container.encode(radians)
     }

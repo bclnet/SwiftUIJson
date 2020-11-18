@@ -8,7 +8,8 @@
 
 import SwiftUI
 
-extension LinearGradient: FullyCodable {
+extension LinearGradient: IAnyView, FullyCodable {
+    public var anyView: AnyView { AnyView(self) }
     //: Codable
     enum CodingKeys: CodingKey {
         case gradient, startPoint, endPoint
@@ -22,12 +23,12 @@ extension LinearGradient: FullyCodable {
         self.init(gradient: gradient, startPoint: startPoint, endPoint: endPoint)
     }
     public func encode(to encoder: Encoder) throws {
-//        let m = Mirror.children(reflecting: self)
-        fatalError()
-//        var container = encoder.container(keyedBy: CodingKeys.self)
-//        try container.encode(gradient, forKey: .gradient)
-//        try container.encode(startPoint, forKey: .startPoint)
-//        try container.encode(endPoint, forKey: .endPoint)
+        Mirror.assert(self, name: "LinearGradient", keys: ["gradient", "startPoint", "endPoint"])
+        let m = Mirror.children(reflecting: self)
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(m["gradient"]! as! Gradient, forKey: .gradient)
+        try container.encode(m["startPoint"]! as! UnitPoint, forKey: .startPoint)
+        try container.encode(m["endPoint"]! as! UnitPoint, forKey: .endPoint)
     }
     //: Register
     static func register() {

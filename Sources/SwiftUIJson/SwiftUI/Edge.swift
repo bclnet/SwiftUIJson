@@ -21,6 +21,7 @@ extension Edge: Codable {
         }
     }
     public func encode(to encoder: Encoder) throws {
+        Mirror.assert(self, name: "Edge")
         var container = encoder.singleValueContainer()
         switch self {
         case .top: try container.encode("top")
@@ -52,6 +53,7 @@ extension Edge.Set: CaseIterable, Codable {
         self = elements
     }
     public func encode(to encoder: Encoder) throws {
+        Mirror.assert(self, name: "Edge.Set")
         var container = encoder.unkeyedContainer()
         for (_, element) in Self.allCases.enumerated() {
             if self.contains(element) {
@@ -91,6 +93,7 @@ extension EdgeInsets: Codable {
         self.init(top: top, leading: leading, bottom: bottom, trailing: trailing)
     }
     public func encode(to encoder: Encoder) throws {
+        Mirror.assert(self, name: "EdgeInsets")
         var container = encoder.container(keyedBy: CodingKeys.self)
         if top != 0 { try container.encode(top, forKey: .top) }
         if leading != 0 { try container.encode(leading, forKey: .leading) }

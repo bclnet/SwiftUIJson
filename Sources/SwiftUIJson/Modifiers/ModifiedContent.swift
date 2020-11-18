@@ -8,7 +8,6 @@
 import SwiftUI
 
 // MARK: - First
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension ModifiedContent: IAnyView, DynaCodable where Content : View, Content : DynaCodable, Modifier : ViewModifier {
     public var anyView: AnyView { AnyView(self) }
     //: Codable
@@ -36,7 +35,6 @@ extension ModifiedContent: IAnyView, DynaCodable where Content : View, Content :
 
 // MARK: - Accessibility
 /// accessibilityAction(), accessibilityAction(named)
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension ModifiedContent {
 //    public func accessibilityAction(_ actionKind: AccessibilityActionKind = .default, _ handler: @escaping () -> Void) -> ModifiedContent<Content, Modifier>
 //    public func accessibilityAction(named name: Text, _ handler: @escaping () -> Void) -> ModifiedContent<Content, Modifier>
@@ -51,18 +49,15 @@ extension ModifiedContent {
 
 
 // MARK: - ViewModifier
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension ModifiedContent where Content : ViewModifier, Modifier : ViewModifier {
 }
 
 // MARK: - DynamicViewContent
 /// data
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension ModifiedContent where Content : DynamicViewContent, Modifier : ViewModifier {
 }
 
 // MARK: - Scene
-@available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *)
 extension ModifiedContent where Content : Scene, Modifier : _SceneModifier {
 }
 
@@ -84,14 +79,12 @@ extension ModifiedContent where Modifier == AccessibilityAttachmentModifier {
 
 // MARK: - Accessibility 3
 /// accessibilityScrollAction
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension ModifiedContent where Modifier == AccessibilityAttachmentModifier {
 
 }
 
 // MARK: - Accessibility 3
 /// accessibilityAdjustableAction
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension ModifiedContent where Modifier == AccessibilityAttachmentModifier {
 
 }

@@ -43,5 +43,6 @@ struct _EnvironmentKeyWritingModifier<Value>: JsonViewModifier, ConvertibleCodab
     static func register() {
         // MARK: - Autocorrection:17266
         DynaType.register(_EnvironmentKeyWritingModifier<Bool?>.self, any: [Bool?.self], namespace: "SwiftUI")
+        DynaType.register(_EnvironmentKeyWritingModifier<Color?>.self, any: [Color?.self], namespace: "SwiftUI")
     }
 }

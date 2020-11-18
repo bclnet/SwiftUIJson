@@ -60,11 +60,6 @@ extension EnvironmentValues {
         case \EnvironmentValues.textCase: return "textCase"
         case \EnvironmentValues.editMode: return "editMode"
         case \EnvironmentValues.presentationMode: return "presentationMode"
-//        case let unrecognized:
-//            if #available(, *) {
-//
-//            }
-            
         case let unrecognized: fatalError("\(unrecognized)")
         }
     }
