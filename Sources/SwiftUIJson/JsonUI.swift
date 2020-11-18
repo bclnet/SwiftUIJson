@@ -105,12 +105,14 @@ public struct JsonUI: Codable {
         
         // swiftui:shapestyles
         AngularGradient.register()
-        BackgroundStyle.register()
+        if #available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *) {
+            BackgroundStyle.register()
+        }
         ForegroundStyle.register()
         ImagePaint.register()
         LinearGradient.register()
         RadialGradient.register()
-        #if !os(iOS)
+        #if os(macOS)
         SelectionShapeStyle.register()
         SeparatorShapeStyle.register()
         #endif
@@ -118,11 +120,15 @@ public struct JsonUI: Codable {
         Color.register()
         
         // views:shapes
-        _ShapeView<AnyShape, Color>.register()
+        _ShapeView<AnyShape, AngularGradient>.register()
+        _SizedShape<AnyShape>.register()
         _StrokedShape<AnyShape>.register()
+        _TrimmedShape<AnyShape>.register()
         Capsule.register()
         Circle.register()
-        ContainerRelativeShape.register()
+        if #available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *) {
+            ContainerRelativeShape.register()
+        }
         Ellipse.register()
         OffsetShape<AnyShape>.register()
         Path.register()
@@ -183,9 +189,11 @@ public struct JsonUI: Codable {
         VSplitView<AnyView>.register()
         #endif
         ZStack<AnyView>.register()
-        if #available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 999, *) {
+        #if os(watchOS)
+        if #available(iOS 13.0, OSX 10.15, tvOS 13.0, *) {
             DynaType.register(TabView<AnyHashable, AnyView>.self)
         }
+        #endif
         #if os(macOS)
         DynaType.register(HSplitView<AnyView>.self)
         DynaType.register(MenuButton<AnyView, AnyView>.self)

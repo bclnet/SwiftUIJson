@@ -8,27 +8,25 @@
 
 import SwiftUI
 
-//extension SeparatorShapeStyle: FullyCodable {
-//    //: Codable
-//    enum CodingKeys: CodingKey {
-//        case image, sourceRect, scale
-//    }
-//    public init(from decoder: Decoder, for dynaType: DynaType) throws { try self.init(from: decoder) }
-//    public init(from decoder: Decoder) throws {
+@available(macOS 10.15, *)
+@available(iOS, unavailable)
+@available(tvOS, unavailable)
+@available(watchOS, unavailable)
+extension SeparatorShapeStyle: FullyCodable {
+    //: Codable
+    enum CodingKeys: CodingKey {
+        case image, sourceRect, scale
+    }
+    public init(from decoder: Decoder, for dynaType: DynaType) throws { try self.init(from: decoder) }
+    public init(from decoder: Decoder) throws {
 //        let container = try decoder.container(keyedBy: CodingKeys.self)
-//        image = try container.decode(Image.self, forKey: .image)
-//        sourceRect = try container.decodeIfPresent(CGRect.self, forKey: .sourceRect) ?? CGRect(x: 0, y: 0, width: 1, height: 1)
-//        scale = try container.decodeIfPresent(CGFloat.self, forKey: .scale) ?? .1
-//        super.init(image: image, sourceRect: sourceRect, scale: scale)
-//    }
-//    public func encode(to encoder: Encoder) throws {
+        fatalError()
+    }
+    public func encode(to encoder: Encoder) throws {
 //        var container = encoder.container(keyedBy: CodingKeys.self)
-//        try container.encode(image, forKey: .image)
-//        if sourceRect != CGRect(x: 0, y: 0, width: 1, height: 1) { try container.encode(sourceRect, forKey: .sourceRect) }
-//        if scale != 1 { try container.encode(scale, forKey: .scale) }
-//    }
-//    //: Register
-//    static func register() {
-//        DynaType.register(SeparatorShapeStyle.self)
-//    }
-//}
+    }
+    //: Register
+    static func register() {
+        DynaType.register(SeparatorShapeStyle.self)
+    }
+}

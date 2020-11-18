@@ -30,7 +30,9 @@ extension _ShapeView: IAnyView, DynaCodable where Content : DynaCodable, Style :
     //: Register
     static func register() {
         DynaType.register(_ShapeView<AnyShape, AngularGradient>.self, any: [AnyShape.self])
-        DynaType.register(_ShapeView<AnyShape, BackgroundStyle>.self, any: [AnyShape.self])
+        if #available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *) {
+            DynaType.register(_ShapeView<AnyShape, BackgroundStyle>.self, any: [AnyShape.self])
+        }
         DynaType.register(_ShapeView<AnyShape, Color>.self, any: [AnyShape.self])
         DynaType.register(_ShapeView<AnyShape, ForegroundStyle>.self, any: [AnyShape.self])
         DynaType.register(_ShapeView<AnyShape, ImagePaint>.self, any: [AnyShape.self])

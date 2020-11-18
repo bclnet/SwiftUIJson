@@ -36,8 +36,10 @@ struct GroupBoxStyleModifier<Style>: JsonViewModifier, ConvertibleCodable where 
     //: Register
     static func register() {
         DynaType.register(GroupBoxStyleModifier<NeverCodable>.self, any: [NeverCodable.self], namespace: "SwiftUI")
-        if #available(iOS 14.0, macOS 11.0, tvOS 999, watchOS 999, *) {
+        #if !os(tvOS) && !os(watchOS)
+        if #available(iOS 14.0, macOS 11.0, *) {
             DynaType.register(DefaultGroupBoxStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.groupBoxStyle(DefaultGroupBoxStyle())) }])
         }
+        #endif
     }
 }
