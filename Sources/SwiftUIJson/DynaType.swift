@@ -215,7 +215,7 @@ public enum DynaType: RawRepresentable {
                         typeArray.insert(type, at: 0)
                         keyArray.insert(key, at: 0); keyArray.insert(last.op, at: 0); key = keyArray.joined()
                         anyArray.insert(any, at: 0); anyArray.insert(last.op, at: 0); any = anyArray.joined()
-                        stack.append(("t", try findType(key: key, tuple: typeArray), key, any))
+                        stack.append(("t", try findType(Any.self, key: key, tuple: typeArray), key, any))
                     case "<":
                         let generic = stack.removeLast(), genericName = generic.value as! String
                         typeArray.insert(type, at: 0)
@@ -251,20 +251,20 @@ public enum DynaType: RawRepresentable {
         throw DynaTypeError.typeNotFound(named: key)
     }
     
-    private static func findType(key: String, tuple: [Self]) throws -> Self {
+    private static func findType<T>(_ type: T.Type, key: String, tuple: [Self]) throws -> Self {
         if let knownType = knownTypes[key] { return knownType }
         var type: Any.Type
         switch tuple.count {
-        case 01: type = (IAnyView).Type.self
-        case 02: type = (IAnyView, IAnyView).Type.self
-        case 03: type = (IAnyView, IAnyView, IAnyView).Type.self
-        case 04: type = (IAnyView, IAnyView, IAnyView, IAnyView).Type.self
-        case 05: type = (IAnyView, IAnyView, IAnyView, IAnyView, IAnyView).Type.self
-        case 06: type = (IAnyView, IAnyView, IAnyView, IAnyView, IAnyView, IAnyView).Type.self
-        case 07: type = (IAnyView, IAnyView, IAnyView, IAnyView, IAnyView, IAnyView, IAnyView).Type.self
-        case 08: type = (IAnyView, IAnyView, IAnyView, IAnyView, IAnyView, IAnyView, IAnyView, IAnyView).Type.self
-        case 09: type = (IAnyView, IAnyView, IAnyView, IAnyView, IAnyView, IAnyView, IAnyView, IAnyView, IAnyView).Type.self
-        case 10: type = (IAnyView, IAnyView, IAnyView, IAnyView, IAnyView, IAnyView, IAnyView, IAnyView, IAnyView, IAnyView).Type.self
+        case 01: type = (T).Type.self
+        case 02: type = (T, T).Type.self
+        case 03: type = (T, T, T).Type.self
+        case 04: type = (T, T, T, T).Type.self
+        case 05: type = (T, T, T, T, T).Type.self
+        case 06: type = (T, T, T, T, T, T).Type.self
+        case 07: type = (T, T, T, T, T, T, T).Type.self
+        case 08: type = (T, T, T, T, T, T, T, T).Type.self
+        case 09: type = (T, T, T, T, T, T, T, T, T).Type.self
+        case 10: type = (T, T, T, T, T, T, T, T, T, T).Type.self
         case let unrecognized: fatalError("\(unrecognized)")
         }
         knownTypes[key] = .tuple(type, key, tuple)
@@ -273,21 +273,16 @@ public enum DynaType: RawRepresentable {
     
     internal static func buildType<Element>(tuple dataType: Self, for s: [Element]) -> Any {
         switch s.count {
-        case 01: return (JsonAnyView.any(s[0]))
-        case 02: return (JsonAnyView.any(s[0]), JsonAnyView.any(s[1]))
-        case 03: return (JsonAnyView.any(s[0]), JsonAnyView.any(s[1]), JsonAnyView.any(s[2]))
-        case 04: return (JsonAnyView.any(s[0]), JsonAnyView.any(s[1]), JsonAnyView.any(s[2]), JsonAnyView.any(s[3]))
-        case 05: return (JsonAnyView.any(s[0]), JsonAnyView.any(s[1]), JsonAnyView.any(s[2]), JsonAnyView.any(s[3]), JsonAnyView.any(s[4]))
-        case 06: return (JsonAnyView.any(s[0]), JsonAnyView.any(s[1]), JsonAnyView.any(s[2]), JsonAnyView.any(s[3]), JsonAnyView.any(s[4]),
-                         JsonAnyView.any(s[5]))
-        case 07: return (JsonAnyView.any(s[0]), JsonAnyView.any(s[1]), JsonAnyView.any(s[2]), JsonAnyView.any(s[3]), JsonAnyView.any(s[4]),
-                         JsonAnyView.any(s[5]), JsonAnyView.any(s[6]))
-        case 08: return (JsonAnyView.any(s[0]), JsonAnyView.any(s[1]), JsonAnyView.any(s[2]), JsonAnyView.any(s[3]), JsonAnyView.any(s[4]),
-                         JsonAnyView.any(s[5]), JsonAnyView.any(s[6]), JsonAnyView.any(s[7]))
-        case 09: return (JsonAnyView.any(s[0]), JsonAnyView.any(s[1]), JsonAnyView.any(s[2]), JsonAnyView.any(s[3]), JsonAnyView.any(s[4]),
-                         JsonAnyView.any(s[5]), JsonAnyView.any(s[6]), JsonAnyView.any(s[7]), JsonAnyView.any(s[8]))
-        case 10: return (JsonAnyView.any(s[0]), JsonAnyView.any(s[1]), JsonAnyView.any(s[2]), JsonAnyView.any(s[3]), JsonAnyView.any(s[4]),
-                         JsonAnyView.any(s[5]), JsonAnyView.any(s[6]), JsonAnyView.any(s[7]), JsonAnyView.any(s[8]), JsonAnyView.any(s[9]))
+        case 01: return (s[0])
+        case 02: return (s[0], s[1])
+        case 03: return (s[0], s[1], s[2])
+        case 04: return (s[0], s[1], s[2], s[3])
+        case 05: return (s[0], s[1], s[2], s[3], s[4])
+        case 06: return (s[0], s[1], s[2], s[3], s[4], s[5])
+        case 07: return (s[0], s[1], s[2], s[3], s[4], s[5], s[6])
+        case 08: return (s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7])
+        case 09: return (s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7], s[8])
+        case 10: return (s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7], s[8], s[9])
         case let unrecognized: fatalError("\(unrecognized)")
         }
     }

@@ -23,7 +23,7 @@ struct _TraitWritingModifier<TraitKey>: JsonViewModifier, ConvertibleCodable whe
     }
     //: Codable
     enum CodingKeys: CodingKey {
-        case isDeleteDisabled, isMoveDisabled, itemProvider
+        case isDeleteDisabled, isMoveDisabled, itemProvider, previewLayout
     }
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -33,6 +33,7 @@ struct _TraitWritingModifier<TraitKey>: JsonViewModifier, ConvertibleCodable whe
             case .isDeleteDisabled: traitKey = try container.decode(IsDeleteDisabledTraitKey.self, forKey: key)
             case .isMoveDisabled: traitKey = try container.decode(IsMoveDisabledTraitKey.self, forKey: key)
             case .itemProvider: traitKey = try container.decode(ItemProviderTraitKey.self, forKey: key)
+            case .previewLayout: traitKey = try container.decode(PreviewLayoutTraitKey.self, forKey: key)
             }
         }
         valueKey = ""
@@ -44,6 +45,7 @@ struct _TraitWritingModifier<TraitKey>: JsonViewModifier, ConvertibleCodable whe
         case ":_TraitWritingModifier<:IsDeleteDisabledTraitKey>": try container.encode(IsDeleteDisabledTraitKey(any: value), forKey: .isDeleteDisabled)
         case ":_TraitWritingModifier<:IsMoveDisabledTraitKey>": try container.encode(IsMoveDisabledTraitKey(any: value), forKey: .isMoveDisabled)
         case ":_TraitWritingModifier<:ItemProviderTraitKey>": try container.encode(ItemProviderTraitKey(any: value), forKey: .itemProvider)
+        case ":_TraitWritingModifier<:PreviewLayoutTraitKey>": try container.encode(PreviewLayoutTraitKey(any: value), forKey: .previewLayout)
         case let unrecognized: fatalError(unrecognized)
         }
     }
@@ -53,6 +55,7 @@ struct _TraitWritingModifier<TraitKey>: JsonViewModifier, ConvertibleCodable whe
         DynaType.register(IsDeleteDisabledTraitKey.self, namespace: "SwiftUI")
         DynaType.register(IsMoveDisabledTraitKey.self, namespace: "SwiftUI")
         DynaType.register(ItemProviderTraitKey.self, namespace: "SwiftUI")
+        DynaType.register(PreviewLayoutTraitKey.self, namespace: "SwiftUI")
     }
 }
 
@@ -120,5 +123,24 @@ struct ItemProviderTraitKey: AnyTraitKey, Codable {
             return
         }
         try item!.encode(to: encoder)
+    }
+}
+
+struct PreviewLayoutTraitKey: AnyTraitKey, Codable {
+    let value: PreviewLayout
+    init(any s: Any) {
+        value = s as! PreviewLayout
+    }
+    func body(content: AnyView) -> AnyView {
+        AnyView(content.previewLayout(value))
+    }
+    //: Codable
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        value = try container.decode(PreviewLayout.self)
+    }
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(value)
     }
 }

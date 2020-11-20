@@ -53,7 +53,7 @@ extension Edge.Set: CaseIterable, Codable {
         self = elements
     }
     public func encode(to encoder: Encoder) throws {
-        Mirror.assert(self, name: "Edge.Set")
+        Mirror.assert(self, name: "Set")
         var container = encoder.unkeyedContainer()
         for (_, element) in Self.allCases.enumerated() {
             if self.contains(element) {

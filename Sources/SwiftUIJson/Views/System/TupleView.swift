@@ -15,11 +15,12 @@ extension TupleView: IAnyView, DynaCodable, DynaUnkeyedContainer {
         guard let context = decoder.userInfo[.jsonContext] as? JsonContext else { fatalError(".jsonContext") }
         var container = try decoder.unkeyedContainer()
         //let sk = try container.decode(String.self) // eat type
-        var items = [IAnyView?]()
+        var items = [AnyView]()
         while !container.isAtEnd {
             let baseDecoder = try container.superDecoder()
-            let value = try context.decodeDynaSuper(from: baseDecoder) as? IAnyView
-            items.append(value)
+            let value = try context.decodeDynaSuper(from: baseDecoder)
+            guard let anyView = AnyView.any(value) as? AnyView else { fatalError("AnyView") }
+            items.append(anyView)
         }
         let value = DynaType.buildType(tuple: dynaType[0], for: items) as! T
         self.init(value)
@@ -34,16 +35,16 @@ extension TupleView: IAnyView, DynaCodable, DynaUnkeyedContainer {
     }
     //: Register
     static func register() {
-        DynaType.register(TupleView<(JsonAnyView)>.self)
-        DynaType.register(TupleView<(JsonAnyView, JsonAnyView)>.self)
-        DynaType.register(TupleView<(JsonAnyView, JsonAnyView, JsonAnyView)>.self)
-        DynaType.register(TupleView<(JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView)>.self)
-        DynaType.register(TupleView<(JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView)>.self)
-        DynaType.register(TupleView<(JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView)>.self)
-        DynaType.register(TupleView<(JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView)>.self)
-        DynaType.register(TupleView<(JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView)>.self)
-        DynaType.register(TupleView<(JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView)>.self)
-        DynaType.register(TupleView<(JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView, JsonAnyView)>.self)
+        DynaType.register(TupleView<(AnyView)>.self)
+        DynaType.register(TupleView<(AnyView, AnyView)>.self)
+        DynaType.register(TupleView<(AnyView, AnyView, AnyView)>.self)
+        DynaType.register(TupleView<(AnyView, AnyView, AnyView, AnyView)>.self)
+        DynaType.register(TupleView<(AnyView, AnyView, AnyView, AnyView, AnyView)>.self)
+        DynaType.register(TupleView<(AnyView, AnyView, AnyView, AnyView, AnyView, AnyView)>.self)
+        DynaType.register(TupleView<(AnyView, AnyView, AnyView, AnyView, AnyView, AnyView, AnyView)>.self)
+        DynaType.register(TupleView<(AnyView, AnyView, AnyView, AnyView, AnyView, AnyView, AnyView, AnyView)>.self)
+        DynaType.register(TupleView<(AnyView, AnyView, AnyView, AnyView, AnyView, AnyView, AnyView, AnyView, AnyView)>.self)
+        DynaType.register(TupleView<(AnyView, AnyView, AnyView, AnyView, AnyView, AnyView, AnyView, AnyView, AnyView, AnyView)>.self)
     }
 }
 

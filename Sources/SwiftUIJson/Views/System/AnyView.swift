@@ -18,11 +18,20 @@ extension AnyView: DynaCodable {
 //        let storage = AnyViewStorage(any: Mirror(reflecting: anyView).descendant("storage")!)
 //        return storage.view
 //    }
+    public static func any<Element>(_ value: Element) -> AnyView {
+        switch value {
+        case nil: return AnyView(EmptyView())
+        case let view as AnyView: return view
+        case let view as IAnyView: return AnyView(view.anyView)
+        case let view as JsonView: return AnyView(view.base.anyView(view))
+        default: fatalError("AnyView: \(DynaType.typeKey(for: value))")
+        }
+    }
     //: Codable
     public init(from decoder: Decoder, for dynaType: DynaType) throws {
         guard let context = decoder.userInfo[.jsonContext] as? JsonContext else { fatalError(".jsonContext") }
-        let view = try context.dynaSuperInit(from: decoder, for: dynaType) as! IAnyView
-        self = view.anyView
+        let value = try context.dynaSuperInit(from: decoder, for: dynaType)
+        self = Self.any(value)
     }
     public func encode(to encoder: Encoder) throws {
         guard let context = encoder.userInfo[.jsonContext] as? JsonContext else { fatalError(".jsonContext") }
@@ -41,15 +50,5 @@ extension AnyView: DynaCodable {
             Mirror.assert(any, name: "AnyViewStorage", keys: ["view"])
             view = Mirror(reflecting: any).descendant("view")!
         }
-    }
-}
-
-public struct JsonAnyView: View {
-    public let body: AnyView
-    public init(_ view: IAnyView) {
-        body = view.anyView
-    }
-    static func any<Element>(_ value: Element) -> JsonAnyView {
-        JsonAnyView(value as? IAnyView ?? EmptyView())
     }
 }

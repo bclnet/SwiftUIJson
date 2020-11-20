@@ -14,11 +14,20 @@ public struct JsonUI: Codable {
     
     public init<Content>(view: Content) throws where Content : View {
         let _ = JsonUI.registered
-        guard let value = view.body as? Encodable else {
-            throw DynaTypeError.typeNotCodable("JsonUI", key: DynaType.typeKey(for: view.body))
+        if Content.Body.self == Never.self {
+            fatalError("NEVER")
+        }
+        guard let value = view as? Encodable else {
+            guard let value2 = view.body as? Encodable else {
+                throw DynaTypeError.typeNotCodable("JsonUI", key: DynaType.typeKey(for: view.body))
+            }
+            body = value2
+            return
         }
         body = value
     }
+    
+
 
     //: Codable
     enum CodingKeys: CodingKey {
@@ -37,12 +46,7 @@ public struct JsonUI: Codable {
         }
         guard let context = decoder.userInfo[.jsonContext] as? JsonContext else { fatalError(".jsonContext") }
         let value = try context.decodeDynaSuper(from: decoder)
-        if let anyView = value as? AnyView {
-            body = anyView
-        } else {
-            guard let view = value as? IAnyView else { fatalError("!JsonView: \(DynaType.typeKey(for: value))") }
-            body = view.anyView
-        }
+        body = AnyView.any(value)
     }
     public func encode(to encoder: Encoder) throws {
         guard let context = encoder.userInfo[.jsonContext] as? JsonContext else { fatalError(".jsonContext") }
@@ -86,18 +90,25 @@ public struct JsonUI: Codable {
         EnvironmentValues.register()
         
         // modifiers
+        __DesignTimeSelectionIdentifier.register()
         if #available(iOS 13.0, macOS 11.0, tvOS 13.0, watchOS 6.0, *) {
             _AccessibilityIgnoresInvertColorsViewModifier.register()
         }
         _AllowsHitTestingModifier.register()
         _AppearanceActionModifier.register()
         _BackgroundModifier<AnyView>.register()
+        _ClipEffect<AnyShape>.register()
         _ContextMenuContainer.register()
         _DraggingModifier.register()
         _EnvironmentKeyWritingModifier<NeverCodable?>.register()
+        _FrameLayout.register()
+        _IdentifiedModifier<__DesignTimeSelectionIdentifier>.register()
         _OffsetEffect.register()
+        _OverlayModifier<AnyView>.register()
         _PaddingLayout.register()
         _RotationEffect.register()
+        _SafeAreaIgnoringLayout.register()
+        _ShadowEffect.register()
         _TraitWritingModifier<NeverCodable>.register()
         AccessibilityAttachmentModifier.register()
         ModifiedContent<AnyView, AnyViewModifier>.register()
@@ -143,7 +154,7 @@ public struct JsonUI: Codable {
         _VariadicView.register()
         AnyView.register()
         //:tree
-        TupleView<(JsonAnyView)>.register()
+        TupleView<(AnyView)>.register()
         
         // views
         Button<AnyView>.register()

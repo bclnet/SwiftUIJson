@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-extension _SizedShape: IAnyView, DynaCodable where S : DynaCodable {
+extension _SizedShape: DynaCodable where S : DynaCodable {
     public var anyView: AnyView { AnyView(self) }
     //: Codable
     enum CodingKeys: CodingKey {
