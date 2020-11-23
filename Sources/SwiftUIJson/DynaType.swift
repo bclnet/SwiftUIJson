@@ -310,6 +310,7 @@ public enum DynaType: RawRepresentable {
     
     public static func registerDefault() -> Bool {
         register(Any.self)
+        register(Never.self)
         register(String.self)
         register(Int.self)
         register(Bool.self)

@@ -64,7 +64,7 @@ struct _ContextMenuContainer: ConvertibleCodable {
         }
         public init(from decoder: Decoder, for dynaType: DynaType) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
-            contextMenu = try container.decodeIfPresent(ContextMenu.self, forKey: .contextMenu)
+            contextMenu = try? container.decodeIfPresent(ContextMenu.self, forKey: .contextMenu)
             content = try container.decode(Content.self, forKey: .content, dynaType: dynaType[0])
         }
         public func encode(to encoder: Encoder) throws {

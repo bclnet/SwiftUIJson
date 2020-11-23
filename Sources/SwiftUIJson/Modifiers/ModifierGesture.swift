@@ -167,8 +167,8 @@ extension LongPressGesture: Codable {
     }
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let minimumDuration = try container.decodeIfPresent(Double.self, forKey: .minimumDuration) ?? 0.5
-        let maximumDistance = try container.decodeIfPresent(CGFloat.self, forKey: .maximumDistance) ?? 10
+        let minimumDuration = (try? container.decodeIfPresent(Double.self, forKey: .minimumDuration)) ?? 0.5
+        let maximumDistance = (try? container.decodeIfPresent(CGFloat.self, forKey: .maximumDistance)) ?? 10
         self.init(minimumDuration: minimumDuration, maximumDistance: maximumDistance)
     }
     public func encode(to encoder: Encoder) throws {

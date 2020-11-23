@@ -16,7 +16,7 @@ extension Bundle: WrapableCodeable {
     }
     public static func decode(from decoder: Decoder) throws -> Self {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        if try container.decodeIfPresent(Bool.self, forKey: .main) ?? false {
+        if (try? container.decodeIfPresent(Bool.self, forKey: .main)) ?? false {
             return Bundle.main as! Self
         }
         let path = try container.decode(String.self, forKey: .path)

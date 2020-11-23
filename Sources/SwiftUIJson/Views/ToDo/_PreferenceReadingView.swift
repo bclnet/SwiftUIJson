@@ -7,7 +7,5 @@
 
 import SwiftUI
 
-extension _PreferenceReadingView: Encodable where Key : PreferenceKey, Content : View {
-    public func encode(to encoder: Encoder) throws {
-    }
-}
+//extension _PreferenceReadingView: IAnyView, DynaCodable where Key : PreferenceKey, Content : View {
+//}

@@ -39,12 +39,12 @@ extension StrokeStyle: Codable {
     }
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let lineWidth = try container.decodeIfPresent(CGFloat.self, forKey: .lineWidth) ?? 1
-        let lineCap = try container.decodeIfPresent(CGLineCap.self, forKey: .lineCap) ?? .butt
-        let lineJoin = try container.decodeIfPresent(CGLineJoin.self, forKey: .lineJoin) ?? .miter
-        let miterLimit = try container.decodeIfPresent(CGFloat.self, forKey: .miterLimit) ?? 10
-        let dash = try container.decodeIfPresent([CGFloat].self, forKey: .dash) ?? [CGFloat]()
-        let dashPhase = try container.decodeIfPresent(CGFloat.self, forKey: .dashPhase) ?? 0
+        let lineWidth = (try? container.decodeIfPresent(CGFloat.self, forKey: .lineWidth)) ?? 1
+        let lineCap = (try? container.decodeIfPresent(CGLineCap.self, forKey: .lineCap)) ?? .butt
+        let lineJoin = (try? container.decodeIfPresent(CGLineJoin.self, forKey: .lineJoin)) ?? .miter
+        let miterLimit = (try? container.decodeIfPresent(CGFloat.self, forKey: .miterLimit)) ?? 10
+        let dash = (try? container.decodeIfPresent([CGFloat].self, forKey: .dash)) ?? [CGFloat]()
+        let dashPhase = (try? container.decodeIfPresent(CGFloat.self, forKey: .dashPhase)) ?? 0
         self.init(lineWidth: lineWidth, lineCap: lineCap, lineJoin: lineJoin, miterLimit: miterLimit, dash: dash, dashPhase: dashPhase)
     }
     public func encode(to encoder: Encoder) throws {

@@ -19,8 +19,8 @@ extension AngularGradient: IAnyView, FullyCodable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let gradient = try container.decode(Gradient.self, forKey: .gradient)
         let center = try container.decode(UnitPoint.self, forKey: .center)
-        let startAngle = try container.decodeIfPresent(Angle.self, forKey: .startAngle) ?? .zero
-        let endAngle = try container.decodeIfPresent(Angle.self, forKey: .endAngle) ?? .zero
+        let startAngle = (try? container.decodeIfPresent(Angle.self, forKey: .startAngle)) ?? .zero
+        let endAngle = (try? container.decodeIfPresent(Angle.self, forKey: .endAngle)) ?? .zero
         self.init(gradient: gradient, center: center, startAngle: startAngle, endAngle: endAngle)
     }
     public func encode(to encoder: Encoder) throws {

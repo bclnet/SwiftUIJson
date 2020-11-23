@@ -71,12 +71,12 @@ extension Image {
         }
         public required init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
-            label = try container.decodeIfPresent(Text.self, forKey: .label)
+            label = try? container.decodeIfPresent(Text.self, forKey: .label)
             location = Location(
-                system: try container.decodeIfPresent(Bool.self, forKey: .system) ?? false,
-                bundle: try container.decodeIfPresent(CodableWrap<Bundle>.self, forKey: .bundle)?.wrapValue)
+                system: (try? container.decodeIfPresent(Bool.self, forKey: .system)) ?? false,
+                bundle: (try? container.decodeIfPresent(CodableWrap<Bundle>.self, forKey: .bundle))?.wrapValue)
             name = try container.decode(String.self, forKey: .name)
-            decorative = try container.decodeIfPresent(Bool.self, forKey: .decorative) ?? false
+            decorative = (try? container.decodeIfPresent(Bool.self, forKey: .decorative)) ?? false
             backupLocation = nil
             super.init()
         }
@@ -110,7 +110,7 @@ extension Image {
         public required init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             base = try container.decode(Image.self, forKey: .base)
-            renderingMode = try container.decodeIfPresent(TemplateRenderingMode.self, forKey: .mode) ?? .original
+            renderingMode = (try? container.decodeIfPresent(TemplateRenderingMode.self, forKey: .mode)) ?? .original
             super.init()
         }
         public override func encode(to encoder: Encoder) throws {
@@ -140,7 +140,7 @@ extension Image {
         public required init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             base = try container.decode(Image.self, forKey: .base)
-            interpolation = try container.decodeIfPresent(Interpolation.self, forKey: .interpolation) ?? .none
+            interpolation = (try? container.decodeIfPresent(Interpolation.self, forKey: .interpolation)) ?? .none
             super.init()
         }
         public override func encode(to encoder: Encoder) throws {
@@ -170,7 +170,7 @@ extension Image {
         public required init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             base = try container.decode(Image.self, forKey: .base)
-            isAntialiased = try container.decodeIfPresent(Bool.self, forKey: .antialiased) ?? true
+            isAntialiased = (try? container.decodeIfPresent(Bool.self, forKey: .antialiased)) ?? true
             super.init()
         }
         public override func encode(to encoder: Encoder) throws {
@@ -209,10 +209,10 @@ extension Image {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             let baseDecoder = try container.superDecoder(forKey: .image)
             image = try CGImage.decode(from: baseDecoder)
-            label = try container.decodeIfPresent(Text.self, forKey: .label)
-            decorative = try container.decodeIfPresent(Bool.self, forKey: .decorative) ?? false
-            scale = try container.decodeIfPresent(CGFloat.self, forKey: .scale) ?? 0
-            orientation = try container.decodeIfPresent(Orientation.self, forKey: .orientation) ?? .up
+            label = try? container.decodeIfPresent(Text.self, forKey: .label)
+            decorative = (try? container.decodeIfPresent(Bool.self, forKey: .decorative)) ?? false
+            scale = (try? container.decodeIfPresent(CGFloat.self, forKey: .scale)) ?? 0
+            orientation = (try? container.decodeIfPresent(Orientation.self, forKey: .orientation)) ?? .up
             super.init()
         }
         public override func encode(to encoder: Encoder) throws {
@@ -276,8 +276,8 @@ extension Image {
         public required init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             base = try container.decode(Image.self, forKey: .base)
-            capInsets = try container.decodeIfPresent(EdgeInsets.self, forKey: .capInsets) ?? EdgeInsets()
-            resizingMode = try container.decodeIfPresent(ResizingMode.self, forKey: .resizingMode) ?? .stretch
+            capInsets = (try? container.decodeIfPresent(EdgeInsets.self, forKey: .capInsets)) ?? EdgeInsets()
+            resizingMode = (try? container.decodeIfPresent(ResizingMode.self, forKey: .resizingMode)) ?? .stretch
             super.init()
         }
         public override func encode(to encoder: Encoder) throws {

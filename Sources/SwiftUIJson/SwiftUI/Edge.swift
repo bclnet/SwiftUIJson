@@ -86,10 +86,10 @@ extension EdgeInsets: Codable {
     }
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let top = try container.decodeIfPresent(CGFloat.self, forKey: .top) ?? 0
-        let leading = try container.decodeIfPresent(CGFloat.self, forKey: .leading) ?? 0
-        let bottom = try container.decodeIfPresent(CGFloat.self, forKey: .bottom) ?? 0
-        let trailing = try container.decodeIfPresent(CGFloat.self, forKey: .trailing) ?? 0
+        let top = (try? container.decodeIfPresent(CGFloat.self, forKey: .top)) ?? 0
+        let leading = (try? container.decodeIfPresent(CGFloat.self, forKey: .leading)) ?? 0
+        let bottom = (try? container.decodeIfPresent(CGFloat.self, forKey: .bottom)) ?? 0
+        let trailing = (try? container.decodeIfPresent(CGFloat.self, forKey: .trailing)) ?? 0
         self.init(top: top, leading: leading, bottom: bottom, trailing: trailing)
     }
     public func encode(to encoder: Encoder) throws {

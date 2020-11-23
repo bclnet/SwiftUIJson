@@ -17,7 +17,7 @@ extension Path: IAnyShape, DynaCodable {
     }
     public init(from decoder: Decoder, for dynaType: DynaType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let description = try container.decodeIfPresent(String.self, forKey: .path) ?? ""
+        let description = (try? container.decodeIfPresent(String.self, forKey: .path)) ?? ""
         self = Path(description) ?? Path()
     }
     public func encode(to encoder: Encoder) throws {

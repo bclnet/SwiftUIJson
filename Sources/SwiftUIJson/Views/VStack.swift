@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension VStack: IAnyView, DynaCodable where Content : View, Content : DynaCodable {
     public var anyView: AnyView { AnyView(self) }
     //: Codable
@@ -16,7 +15,7 @@ extension VStack: IAnyView, DynaCodable where Content : View, Content : DynaCoda
     }
     public init(from decoder: Decoder, for dynaType: DynaType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let root = try container.decodeIfPresent(_VStackLayout.self, forKey: .root) ?? _VStackLayout(alignment: .center, spacing: nil)
+        let root = (try? container.decodeIfPresent(_VStackLayout.self, forKey: .root)) ?? _VStackLayout(alignment: .center, spacing: nil)
         let content = try container.decode(Content.self, forKey: .content, dynaType: dynaType[0])
         self.init(alignment: root.alignment, spacing: root.spacing) { content }
     }
@@ -64,7 +63,7 @@ extension _VStackLayout: Codable {
     }
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let spacing = try container.decodeIfPresent(CGFloat.self, forKey: .spacing)
+        let spacing = try? container.decodeIfPresent(CGFloat.self, forKey: .spacing)
         let alignment = try container.decode(HorizontalAlignment.self, forKey: .alignment)
         self.init(alignment: alignment, spacing: spacing)
     }

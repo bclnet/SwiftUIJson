@@ -26,8 +26,6 @@ public struct JsonUI: Codable {
         }
         body = value
     }
-    
-
 
     //: Codable
     enum CodingKeys: CodingKey {
@@ -165,13 +163,13 @@ public struct JsonUI: Codable {
         EditButton.register()
         #endif
         EmptyView.register()
-//        DynaType.register(EquatableView<Any>.self)
+//        EquatableView<AnyView>.register()
         ForEach<AnyRandomAccessCollection<Any>, AnyHashable, AnyView>.register()
-        DynaType.register(Form<AnyView>.self)
-        DynaType.register(GeometryReader<AnyView>.self)
-        DynaType.register(Group<AnyView>.self)
-        DynaType.register(GroupBox<AnyView, AnyView>.self)
+        Form<AnyView>.register()
+        GeometryReader<AnyView>.register()
+//        Group<AnyView>.register()
         #if os(macOS)
+        GroupBox<AnyView, AnyView>.register()
         HSplitView<AnyView>.register()
         #endif
         HStack<AnyView>.register()
@@ -180,39 +178,41 @@ public struct JsonUI: Codable {
             LazyHStack<AnyView>.register()
             LazyVStack<AnyView>.register()
         }
-        DynaType.register(List<AnyHashable, AnyView>.self)
-        DynaType.register(NavigationLink<AnyView, AnyView>.self)
-        DynaType.register(NavigationView<AnyView>.self)
-        DynaType.register(Never.self)
-        Picker<AnyView, AnyHashable, AnyView>.register()
-        Slider<AnyView, AnyView>.register()
-        Spacer.register()
-        Stepper<AnyView>.register()
-        DynaType.register(ScrollView<AnyView>.self)
-        DynaType.register(Section<AnyView, AnyView, AnyView>.self)
-        DynaType.register(SecureField<AnyView>.self)
-//        register(SubscriptionView<AnyPublisherType, AnyView>.self)
-        Text.register()
-        DynaType.register(TextField<AnyView>.self)
-        Toggle<AnyView>.register()
-        VStack<AnyView>.register()
+//        List<AnyHashable, AnyView>.register()
         #if os(macOS)
+        MenuButton<AnyView, AnyView>.register()
+        #endif
+        NavigationLink<AnyView, AnyView>.register()
+        #if !os(watchOS)
+        NavigationView<AnyView>.register()
+        #endif
+        #if os(macOS)
+        PasteButton.register()
+        #endif
+        Picker<AnyView, AnyHashable, AnyView>.register()
+        ScrollView<AnyView>.register()
+        Section<AnyView, AnyView, AnyView>.register()
+        SecureField<Text>.register()
+        #if !os(tvOS)
+        Slider<AnyView, AnyView>.register()
+        #endif
+        Spacer.register()
+        #if !os(tvOS) && !os(watchOS)
+        Stepper<AnyView>.register()
+        #endif
+//      SubscriptionView<AnyPublisherType, AnyView>.register()
+        #if !os(watchOS)
+        TabView<AnyHashable, AnyView>.register()
+        #endif
+        Text.register()
+        TextField<Text>.register()
+        Toggle<AnyView>.register()
+        #if os(macOS)
+        TouchBar<AnyView>.register()
         VSplitView<AnyView>.register()
         #endif
+        VStack<AnyView>.register()
         ZStack<AnyView>.register()
-        #if os(watchOS)
-        if #available(iOS 13.0, OSX 10.15, tvOS 13.0, *) {
-            DynaType.register(TabView<AnyHashable, AnyView>.self)
-        }
-        #endif
-        #if os(macOS)
-        DynaType.register(HSplitView<AnyView>.self)
-        DynaType.register(MenuButton<AnyView, AnyView>.self)
-        DynaType.register(PasteButton.self)
-        DynaType.register(TouchBar<AnyView>.self)
-        DynaType.register(VSplitView<AnyView>.self)
-        #endif
-        
         return true
     }
 }

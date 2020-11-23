@@ -8,7 +8,5 @@
 
 import SwiftUI
 
-extension _UnaryViewAdaptor: Encodable where Content : View {
-    public func encode(to encoder: Encoder) throws {
-    }
-}
+//extension _UnaryViewAdaptor: IAnyView, DynaCodable where Content : View {
+//}

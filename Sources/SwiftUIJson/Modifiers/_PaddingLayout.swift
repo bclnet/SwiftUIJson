@@ -20,11 +20,11 @@ extension _PaddingLayout: JsonViewModifier, Codable {
     }
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let edges = try container.decodeIfPresent(Edge.Set.self, forKey: .edges) ?? .all
-        let length = try container.decodeIfPresent(CGFloat.self, forKey: .length)
+        let edges = (try? container.decodeIfPresent(Edge.Set.self, forKey: .edges)) ?? .all
+        let length = try? container.decodeIfPresent(CGFloat.self, forKey: .length)
         let insets = length != nil
             ? EdgeInsets(top: length!, leading: length!, bottom: length!, trailing: length!)
-            : try container.decodeIfPresent(EdgeInsets.self, forKey: .insets)
+            : try? container.decodeIfPresent(EdgeInsets.self, forKey: .insets)
         self.init(edges: edges, insets: insets)
     }
     public func encode(to encoder: Encoder) throws {

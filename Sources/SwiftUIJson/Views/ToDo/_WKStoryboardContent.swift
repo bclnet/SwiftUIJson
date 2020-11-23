@@ -7,11 +7,9 @@
 
 import SwiftUI
 
-@available(watchOS 6.0, *)
-@available(iOS, unavailable)
-@available(OSX, unavailable)
-@available(tvOS, unavailable)
-extension _WKStoryboardContent: Encodable {
-    public func encode(to encoder: Encoder) throws {
-    }
-}
+//@available(watchOS 6.0, *)
+//@available(iOS, unavailable)
+//@available(OSX, unavailable)
+//@available(tvOS, unavailable)
+//extension _WKStoryboardContent: IAnyView, DynaCodable {
+//}

@@ -17,9 +17,9 @@ extension RoundedRectangle: IAnyShape, DynaCodable {
     }
     public init(from decoder: Decoder, for dynaType: DynaType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let cornerSize = try container.decodeIfPresent(CGSize.self, forKey: .cornerSize)
-        let cornerRadius = try container.decodeIfPresent(CGFloat.self, forKey: .cornerRadius)
-        let style = try container.decodeIfPresent(RoundedCornerStyle.self, forKey: .style) ?? .circular
+        let cornerSize = try? container.decodeIfPresent(CGSize.self, forKey: .cornerSize)
+        let cornerRadius = try? container.decodeIfPresent(CGFloat.self, forKey: .cornerRadius)
+        let style = (try? container.decodeIfPresent(RoundedCornerStyle.self, forKey: .style)) ?? .circular
         if cornerSize != nil { self.init(cornerSize: cornerSize!, style: style) }
         else { self.init(cornerRadius: cornerRadius!, style: style) }
     }

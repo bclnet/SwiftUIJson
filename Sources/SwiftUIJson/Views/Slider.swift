@@ -28,8 +28,8 @@ extension Slider: IAnyView, DynaCodable where Label : View, Label : DynaCodable,
         let discreteValueCount = try container.decode(Int.self, forKey: .discreteValueCount)
         let onEditingChanged = try container.decodeAction(Bool.self, forKey: .onEditingChanged)
         let value = try container.decode(Binding<Double>.self, forKey: .value)
-        let maximumValueLabel = try container.decodeIfPresent(ValueLabel.self, forKey: .maximumValueLabel, dynaType: dynaType[1]) ?? (EmptyView() as! ValueLabel)
-        let minimumValueLabel = try container.decodeIfPresent(ValueLabel.self, forKey: .minimumValueLabel, dynaType: dynaType[1]) ?? (EmptyView() as! ValueLabel)
+        let maximumValueLabel = (try? container.decodeIfPresent(ValueLabel.self, forKey: .maximumValueLabel, dynaType: dynaType[1])) ?? (EmptyView() as! ValueLabel)
+        let minimumValueLabel = (try? container.decodeIfPresent(ValueLabel.self, forKey: .minimumValueLabel, dynaType: dynaType[1])) ?? (EmptyView() as! ValueLabel)
         let skipDistance = try container.decode(Double.self, forKey: .skipDistance)
         let step = 1.0 / skipDistance / Double(discreteValueCount - 1)
         let from: Double = 0

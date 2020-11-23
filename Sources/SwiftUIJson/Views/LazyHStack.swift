@@ -16,7 +16,7 @@ extension LazyHStack: IAnyView, DynaCodable where Content : View, Content : Dyna
     }
     public init(from decoder: Decoder, for dynaType: DynaType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let root = try container.decodeIfPresent(LazyHStackLayout.self, forKey: .root) ?? LazyHStackLayout(alignment: .center, spacing: nil, pinnedViews: .init())
+        let root = (try? container.decodeIfPresent(LazyHStackLayout.self, forKey: .root)) ?? LazyHStackLayout(alignment: .center, spacing: nil, pinnedViews: .init())
         let content = try container.decode(Content.self, forKey: .content, dynaType: dynaType[0])
         self.init(alignment: root.alignment, spacing: root.spacing, pinnedViews: root.pinnedViews) { content }
     }
@@ -60,7 +60,7 @@ extension LazyHStackLayout: Codable {
     }
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let spacing = try container.decodeIfPresent(CGFloat.self, forKey: .spacing)
+        let spacing = try? container.decodeIfPresent(CGFloat.self, forKey: .spacing)
         let alignment = try container.decode(VerticalAlignment.self, forKey: .alignment)
         let pinnedViews = try container.decode(PinnedScrollableViews.self, forKey: .pinnedViews)
         self.init(alignment: alignment, spacing: spacing, pinnedViews: pinnedViews)

@@ -7,7 +7,5 @@
 
 import SwiftUI
 
-extension __ScaleToFitView: Encodable where V : View {
-    public func encode(to encoder: Encoder) throws {
-    }
-}
+//extension __ScaleToFitView: IAnyView, DynaCodable where V : View {
+//}

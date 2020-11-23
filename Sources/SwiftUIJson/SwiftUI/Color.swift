@@ -167,7 +167,7 @@ extension Color {
         public required init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             name = try container.decode(String.self, forKey: .name)
-            bundle = try container.decodeIfPresent(CodableWrap<Bundle>.self, forKey: .bundle)?.wrapValue
+            bundle = (try? container.decodeIfPresent(CodableWrap<Bundle>.self, forKey: .bundle))?.wrapValue
             try super.init(from: decoder)
         }
         public override func encode(to encoder: Encoder) throws {

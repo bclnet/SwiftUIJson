@@ -7,7 +7,5 @@
 
 import SwiftUI
 
-extension _PagingView: Encodable where Views : RandomAccessCollection, Views.Element : View, Views.Index : Hashable {
-    public func encode(to encoder: Encoder) throws {
-    }
-}
+//extension _PagingView: IAnyView, DynaCodable where Views : RandomAccessCollection, Views.Element : View, Views.Index : Hashable {
+//}

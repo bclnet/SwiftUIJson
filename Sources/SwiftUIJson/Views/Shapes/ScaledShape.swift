@@ -28,7 +28,7 @@ extension ScaledShape: IAnyShape, IAnyView, ConvertibleDynaCodable where Content
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let shape = try container.decode(Content.self, forKey: .shape, dynaType: dynaType[0])
         let scale = try container.decode(CGSize.self, forKey: .scale)
-        let anchor = try container.decodeIfPresent(UnitPoint.self, forKey: .anchor) ?? .center
+        let anchor = (try? container.decodeIfPresent(UnitPoint.self, forKey: .anchor)) ?? .center
         self.init(shape: shape, scale: scale, anchor: anchor)
     }
     public func encode(to encoder: Encoder) throws {

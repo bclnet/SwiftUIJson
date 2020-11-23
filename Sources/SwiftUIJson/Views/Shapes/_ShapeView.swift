@@ -52,8 +52,8 @@ extension FillStyle: Codable {
     }
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let eoFill = try container.decodeIfPresent(Bool.self, forKey: .eoFill) ?? true
-        let antialiased = try container.decodeIfPresent(Bool.self, forKey: .antialiased) ?? true
+        let eoFill = (try? container.decodeIfPresent(Bool.self, forKey: .eoFill)) ?? true
+        let antialiased = (try? container.decodeIfPresent(Bool.self, forKey: .antialiased)) ?? true
         self.init(eoFill: eoFill, antialiased: antialiased)
     }
     public func encode(to encoder: Encoder) throws {

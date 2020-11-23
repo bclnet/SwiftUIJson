@@ -8,16 +8,15 @@
 import SwiftUI
 
 // MARK: - Preamble
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension Text {
 
     @frozen internal enum Storage  {
         case verbatim(String)
         case anyTextStorage(AnyTextStorage)
-        init(any s: Mirror.Child) {
-            switch s.label! {
-            case "verbatim": self = .verbatim(s.value as! String)
-            case "anyTextStorage": self = .anyTextStorage(AnyTextStorage(any: s.value))
+        init(any: Mirror.Child) {
+            switch any.label! {
+            case "verbatim": self = .verbatim(any.value as! String)
+            case "anyTextStorage": self = .anyTextStorage(AnyTextStorage(any: any.value))
             case let unrecognized: fatalError(unrecognized)
             }
         }
@@ -33,8 +32,8 @@ extension Text {
         case baseline(CoreGraphics.CGFloat)
         case rounded
         case anyTextModifier(AnyTextModifier)
-        init(any s: Mirror.Child) {
-            let m = Mirror.single(reflecting: s.value)
+        init(any: Any) {
+            let m = Mirror.single(reflecting: any)
             switch m.label! {
             case "color": self = .color(m.value as? Color)
             case "font": self = .font(m.value as? Font)
@@ -113,8 +112,8 @@ extension Text {
             let context = decoder.userInfo[.jsonContext] as! JsonContext
             let container = try decoder.container(keyedBy: CodingKeys.self)
             key = LocalizedStringKey(try container.decode(String.self, forKey: .text, forContext: context))
-            table = try container.decodeIfPresent(String.self, forKey: .table, forContext: context)
-            bundle = try container.decodeIfPresent(CodableWrap<Bundle>.self, forKey: .bundle)?.wrapValue
+            table = try? container.decodeIfPresent(String.self, forKey: .table, forContext: context)
+            bundle = (try? container.decodeIfPresent(CodableWrap<Bundle>.self, forKey: .bundle))?.wrapValue
         }
         public func encode(to encoder: Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
@@ -141,7 +140,6 @@ extension Text {
 
 // MARK: - First
 /// init(verbatim), init(S)
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension Text: IAnyView, FullyCodable {
     public var anyView: AnyView { AnyView(self) }
     //: Codable
@@ -161,27 +159,24 @@ extension Text: IAnyView, FullyCodable {
         }
         else { fatalError() }
         // modifiers
-        guard let modifiers = try container.decodeIfPresent([Modifier].self, forKey: .modifiers) else { return }
+        guard let modifiers = try? container.decodeIfPresent([Modifier].self, forKey: .modifiers) else { return }
         for modifier in modifiers {
             self = modifier.apply(self)
         }
     }
     public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
+        Mirror.assert(self, name: "Text", keys: ["storage", "modifiers"])
         let m = Mirror.children(reflecting: self)
-        // storage
         let storage = Storage(any: m.child(named: "storage"))
-        switch storage {
-        case .verbatim(let text): try container.encode(text, forKey: .verbatim)
-        case .anyTextStorage(let anyText):
-            if anyText.table == nil && anyText.bundle == nil { try container.encode(anyText.key.encodeValue, forKey: .text) }
-            else { try container.encode(anyText, forKey: .anyText) }
-        }
-        // modifiers
         let modifiers = m.children(named: "modifiers").map { Modifier(any: $0) }
-        if !modifiers.isEmpty {
-            try container.encode(modifiers, forKey: .modifiers)
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        switch storage {
+        case .verbatim(let value): try container.encode(value, forKey: .verbatim)
+        case .anyTextStorage(let value):
+            if value.table == nil && value.bundle == nil { try container.encode(value.key.encodeValue, forKey: .text) }
+            else { try container.encode(value, forKey: .anyText) }
         }
+        if !modifiers.isEmpty { try container.encode(modifiers, forKey: .modifiers) }
     }
     //: Register
     static func register() {
@@ -237,7 +232,6 @@ extension Text {
 
 // MARK: - Fifth
 /// init(:tableName:bundle:comment)
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension Text {
 }
 
@@ -246,7 +240,6 @@ extension Text {
 
 // MARK: - Seventh
 /// TruncationMode
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension Text.TruncationMode: Codable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
@@ -290,12 +283,10 @@ extension Text.Case: Codable {
 
 // MARK: - Eight
 /// foregroundColor, font, fontWeight, bold, italic, strikethrough, underline, kerning, tracking, baselineOffset
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension Text {
 }
 
 // MARK: - Ninth
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension TextAlignment: Codable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()

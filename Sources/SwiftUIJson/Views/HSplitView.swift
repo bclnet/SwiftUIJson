@@ -20,7 +20,7 @@ extension HSplitView: IAnyView, DynaCodable where Content : View, Content : Dyna
     public init(from decoder: Decoder, for dynaType: DynaType) throws {
         fatalError()
 //        let container = try decoder.container(keyedBy: CodingKeys.self)
-//        let root = try container.decodeIfPresent(_HStackLayout.self, forKey: .root) ?? _HStackLayout(alignment: .center, spacing: nil)
+//        let root = (try? container.decodeIfPresent(_HStackLayout.self, forKey: .root)) ?? _HStackLayout(alignment: .center, spacing: nil)
 //        let content = try container.decode(Content.self, forKey: .content, dynaType: dynaType[0])
 //        self.init(alignment: root.alignment, spacing: root.spacing) { content }
     }

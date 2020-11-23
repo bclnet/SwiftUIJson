@@ -7,12 +7,8 @@
 
 import SwiftUI
 
-extension _DetachedView: Encodable where Detached : _Detachable, Content : View, Child : View {
-    public func encode(to encoder: Encoder) throws {
-    }
-}
+//extension _DetachedView: IAnyView, DynaCodable where Detached : _Detachable, Content : View, Child : View {
+//}
 
-extension _DetachedPlaceholder: Encodable where Detached : _Detachable {
-    public func encode(to encoder: Encoder) throws {
-    }
-}
+//extension _DetachedPlaceholder: IAnyView, DynaCodable where Detached : _Detachable {
+//}

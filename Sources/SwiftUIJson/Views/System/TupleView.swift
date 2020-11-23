@@ -19,8 +19,7 @@ extension TupleView: IAnyView, DynaCodable, DynaUnkeyedContainer {
         while !container.isAtEnd {
             let baseDecoder = try container.superDecoder()
             let value = try context.decodeDynaSuper(from: baseDecoder)
-            guard let anyView = AnyView.any(value) as? AnyView else { fatalError("AnyView") }
-            items.append(anyView)
+            items.append(AnyView.any(value))
         }
         let value = DynaType.buildType(tuple: dynaType[0], for: items) as! T
         self.init(value)

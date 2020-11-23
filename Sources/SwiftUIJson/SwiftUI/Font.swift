@@ -70,7 +70,7 @@ extension Font {
         public required init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             base = try container.decode(Font.self, forKey: .base)
-            modifier = try container.decodeIfPresent(Modifier.self, forKey: .modifier) ?? Modifier(any: 0)
+            modifier = (try? container.decodeIfPresent(Modifier.self, forKey: .modifier)) ?? Modifier(any: 0)
             provider = try container.decode(String.self, forKey: .provider)
         }
         public func encode(to encoder: Encoder) throws {
@@ -116,7 +116,7 @@ extension Font {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             name = try container.decode(String.self, forKey: .name)
             size = try container.decode(CGFloat.self, forKey: .size)
-            textStyle = try container.decodeIfPresent(TextStyle.self, forKey: .textStyle)
+            textStyle = try? container.decodeIfPresent(TextStyle.self, forKey: .textStyle)
             try super.init(from: decoder)
         }
         public override func encode(to encoder: Encoder) throws {
@@ -189,8 +189,8 @@ extension Font {
         public required init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             size = try container.decode(CGFloat.self, forKey: .size)
-            weight = try container.decodeIfPresent(Weight.self, forKey: .weight) ?? .regular
-            design = try container.decodeIfPresent(Design.self, forKey: .design) ?? .default
+            weight = (try? container.decodeIfPresent(Weight.self, forKey: .weight)) ?? .regular
+            design = (try? container.decodeIfPresent(Design.self, forKey: .design)) ?? .default
             super.init(provider: "system")
         }
         public override func encode(to encoder: Encoder) throws {
@@ -360,7 +360,7 @@ extension Font: Codable {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             style = try container.decode(TextStyle.self, forKey: .style)
             design = try container.decode(Design.self, forKey: .design)
-            weight = try container.decodeIfPresent(Weight.self, forKey: .weight)
+            weight = try? container.decodeIfPresent(Weight.self, forKey: .weight)
             try super.init(from: decoder)
         }
         public override func encode(to encoder: Encoder) throws {

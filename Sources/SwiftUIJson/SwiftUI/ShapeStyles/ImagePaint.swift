@@ -17,8 +17,8 @@ extension ImagePaint: FullyCodable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let image = try container.decode(Image.self, forKey: .image)
-        let sourceRect = try container.decodeIfPresent(CGRect.self, forKey: .sourceRect) ?? CGRect(x: 0, y: 0, width: 1, height: 1)
-        let scale = try container.decodeIfPresent(CGFloat.self, forKey: .scale) ?? 1
+        let sourceRect = (try? container.decodeIfPresent(CGRect.self, forKey: .sourceRect)) ?? CGRect(x: 0, y: 0, width: 1, height: 1)
+        let scale = (try? container.decodeIfPresent(CGFloat.self, forKey: .scale)) ?? 1
         self.init(image: image, sourceRect: sourceRect, scale: scale)
     }
     public func encode(to encoder: Encoder) throws {

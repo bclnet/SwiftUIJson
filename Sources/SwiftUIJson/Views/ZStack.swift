@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension ZStack: IAnyView, DynaCodable where Content : View, Content : DynaCodable {
     public var anyView: AnyView { AnyView(self) }
     //: Codable
@@ -16,7 +15,7 @@ extension ZStack: IAnyView, DynaCodable where Content : View, Content : DynaCoda
     }
     public init(from decoder: Decoder, for dynaType: DynaType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let root = try container.decodeIfPresent(_ZStackLayout.self, forKey: .root) ?? _ZStackLayout(alignment: .center)
+        let root = (try? container.decodeIfPresent(_ZStackLayout.self, forKey: .root)) ?? _ZStackLayout(alignment: .center)
         let content = try container.decode(Content.self, forKey: .content, dynaType: dynaType[0])
         self.init(alignment: root.alignment) { content }
     }

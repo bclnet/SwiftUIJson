@@ -16,7 +16,7 @@ extension HStack: IAnyView, DynaCodable where Content : View, Content : DynaCoda
     }
     public init(from decoder: Decoder, for dynaType: DynaType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let root = try container.decodeIfPresent(_HStackLayout.self, forKey: .root) ?? _HStackLayout(alignment: .center, spacing: nil)
+        let root = (try? container.decodeIfPresent(_HStackLayout.self, forKey: .root)) ?? _HStackLayout(alignment: .center, spacing: nil)
         let content = try container.decode(Content.self, forKey: .content, dynaType: dynaType[0])
         self.init(alignment: root.alignment, spacing: root.spacing) { content }
     }
@@ -68,7 +68,7 @@ extension _HStackLayout: Codable {
     }
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let spacing = try container.decodeIfPresent(CGFloat.self, forKey: .spacing)
+        let spacing = try? container.decodeIfPresent(CGFloat.self, forKey: .spacing)
         let alignment = try container.decode(VerticalAlignment.self, forKey: .alignment)
         self.init(alignment: alignment, spacing: spacing)
     }

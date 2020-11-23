@@ -7,7 +7,5 @@
 
 import SwiftUI
 
-extension _AligningContentProvider: Encodable where Content : View {
-    public func encode(to encoder: Encoder) throws {
-    }
-}
+//extension _AligningContentProvider: IAnyView, DynaCodable where Content : View {
+//}

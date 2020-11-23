@@ -10,15 +10,11 @@
 //@available(iOS 13.0, tvOS 13.0, *)
 //@available(OSX, unavailable)
 //@available(watchOS, unavailable)
-//extension UIViewRepresentable: Encodable where Self.Body == Never {
-//    public func encode(to encoder: Encoder) throws {
-//    }
+//extension UIViewRepresentable where Self.Body == Never {
 //}
 
 //@available(iOS 13.0, tvOS 13.0, *)
 //@available(OSX, unavailable)
 //@available(watchOS, unavailable)
-//extension UIViewControllerRepresentable: Encodable where Self.Body == Never {
-//    public func encode(to encoder: Encoder) throws {
-//    }
+//extension UIViewControllerRepresentable where Self.Body == Never {
 //}

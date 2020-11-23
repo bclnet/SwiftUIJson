@@ -7,7 +7,5 @@
 
 import SwiftUI
 
-extension _SymmetricallyScaledText: Encodable {
-    public func encode(to encoder: Encoder) throws {
-    }
-}
+//extension _SymmetricallyScaledText: IAnyView, DynaCodable {
+//}

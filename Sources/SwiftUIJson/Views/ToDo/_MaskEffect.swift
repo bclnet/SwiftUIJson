@@ -7,7 +7,5 @@
 
 import SwiftUI
 
-extension _MaskEffect: Encodable where Mask : View {
-    public func encode(to encoder: Encoder) throws {
-    }
-}
+//extension _MaskEffect: IAnyView, DynaCodable where Mask : View {
+//}

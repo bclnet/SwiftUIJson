@@ -17,7 +17,7 @@ extension Capsule: IAnyShape, DynaCodable {
     }
     public init(from decoder: Decoder, for dynaType: DynaType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let style = try container.decodeIfPresent(RoundedCornerStyle.self, forKey: .style) ?? .circular
+        let style = (try? container.decodeIfPresent(RoundedCornerStyle.self, forKey: .style)) ?? .circular
         self.init(style: style)
     }
     public func encode(to encoder: Encoder) throws {

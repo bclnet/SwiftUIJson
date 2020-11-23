@@ -18,9 +18,9 @@ extension _FrameLayout: JsonViewModifier, Codable {
     }
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let width = try container.decodeIfPresent(CGFloat.self, forKey: .width)
-        let height = try container.decodeIfPresent(CGFloat.self, forKey: .height)
-        let alignment = try container.decodeIfPresent(Alignment.self, forKey: .alignment) ?? .center
+        let width = try? container.decodeIfPresent(CGFloat.self, forKey: .width)
+        let height = try? container.decodeIfPresent(CGFloat.self, forKey: .height)
+        let alignment = (try? container.decodeIfPresent(Alignment.self, forKey: .alignment)) ?? .center
         self = (Capsule().frame(width: width, height: height, alignment: alignment) as! ModifiedContent<Capsule, _FrameLayout>).modifier
     }
     public func encode(to encoder: Encoder) throws {

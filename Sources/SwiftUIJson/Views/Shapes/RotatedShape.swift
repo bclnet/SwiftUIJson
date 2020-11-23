@@ -28,7 +28,7 @@ extension RotatedShape: IAnyShape, IAnyView, ConvertibleDynaCodable where Conten
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let shape = try container.decode(Content.self, forKey: .shape, dynaType: dynaType[0])
         let angle = try container.decode(Angle.self, forKey: .angle)
-        let anchor = try container.decodeIfPresent(UnitPoint.self, forKey: .anchor) ?? .center
+        let anchor = (try? container.decodeIfPresent(UnitPoint.self, forKey: .anchor)) ?? .center
         self.init(shape: shape, angle: angle, anchor: anchor)
     }
     public func encode(to encoder: Encoder) throws {

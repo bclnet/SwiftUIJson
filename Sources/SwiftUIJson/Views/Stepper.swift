@@ -26,7 +26,7 @@ extension Stepper: IAnyView, DynaCodable where Label : View, Label : DynaCodable
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let label = try container.decode(Label.self, forKey: .label, dynaType: dynaType[0])
         let configuration = try container.decode(StepperStyleConfiguration.self, forKey: .configuration)
-        let step = try container.decodeIfPresent(Double.self, forKey: .step)
+        let step = try? container.decodeIfPresent(Double.self, forKey: .step)
         guard var accessibilityValue = configuration.accessibilityValue else {
             self.init(onIncrement: configuration.onIncrement, onDecrement: configuration.onDecrement, onEditingChanged: configuration.onEditingChanged, label: { label })
             return
@@ -85,7 +85,7 @@ extension Stepper: IAnyView, DynaCodable where Label : View, Label : DynaCodable
             onIncrement = try container.decodeActionIfPresent(forKey: .onIncrement)
             onDecrement = try container.decodeActionIfPresent(forKey: .onDecrement)
             onEditingChanged = try container.decodeAction(Bool.self, forKey: .onEditingChanged)
-            accessibilityValue = try container.decodeIfPresent(AccessibilityAdjustableNumericValue.self, forKey: .accessibilityValue)
+            accessibilityValue = try? container.decodeIfPresent(AccessibilityAdjustableNumericValue.self, forKey: .accessibilityValue)
         }
         public func encode(to encoder: Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
@@ -127,9 +127,9 @@ extension Stepper: IAnyView, DynaCodable where Label : View, Label : DynaCodable
         public init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             value = try container.decode(Double.self, forKey: .value)
-            minValue = try container.decodeIfPresent(Double.self, forKey: .minValue)
-            maxValue = try container.decodeIfPresent(Double.self, forKey: .maxValue)
-            adjustmentMethod = try container.decodeIfPresent(AccessibilityAdjustmentMethod.self, forKey: .adjustmentMethod)
+            minValue = try? container.decodeIfPresent(Double.self, forKey: .minValue)
+            maxValue = try? container.decodeIfPresent(Double.self, forKey: .maxValue)
+            adjustmentMethod = try? container.decodeIfPresent(AccessibilityAdjustmentMethod.self, forKey: .adjustmentMethod)
         }
         public func encode(to encoder: Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
