@@ -69,7 +69,7 @@ extension _VStackLayout: Codable {
     }
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encodeIfPresent(self.spacing, forKey: .spacing)
-        try container.encode(self.alignment, forKey: .alignment)
+        try container.encodeIfPresent(spacing, forKey: .spacing)
+        try container.encode(alignment, forKey: .alignment)
     }
 }

@@ -7,33 +7,33 @@
 
 import SwiftUI
 
-//@available(OSX 10.15, *)
-//@available(iOS, unavailable)
-//@available(tvOS, unavailable)
-//@available(watchOS, unavailable)
-//extension MenuButton: IAnyView, DynaCodable where Label : View, Content : View {
-//    public var anyView: AnyView { AnyView(self) }
-//    //: Codable
-//    enum CodingKeys: CodingKey {
-//        case label, action
-//    }
-//    public init(from decoder: Decoder, for dynaType: DynaType) throws {
-//        let container = try decoder.container(keyedBy: CodingKeys.self)
-//        let label = try container.decode(Label.self, forKey: .label, dynaType: dynaType[0])
-//        let action = try container.decodeAction(forKey: .action)
-//        self.init(action: action, label: { label })
-//    }
-//    public func encode(to encoder: Encoder) throws {
-//        Mirror.assert(self, name: "Button", keys: ["_label", "action"])
-//        let m = Mirror.children(reflecting: self)
-//        let label = m["_label"]! as! Text
-//        let action = m["action"]! as! (() -> ())
-//        var container = encoder.container(keyedBy: CodingKeys.self)
-//        try container.encode(label, forKey: .label)
-//        try container.encodeAction(action, forKey: .action)
-//    }
-//    //: Register
-//    static func register() {
-//        DynaType.register(MenuButton<AnyView, AnyView>.self)
-//    }
-//}
+@available(OSX 10.15, *)
+@available(iOS, unavailable)
+@available(tvOS, unavailable)
+@available(watchOS, unavailable)
+extension MenuButton: IAnyView, DynaCodable where Label : View, Label : DynaCodable, Content : View, Content : DynaCodable {
+    public var anyView: AnyView { AnyView(self) }
+    //: Codable
+    enum CodingKeys: CodingKey {
+        case label, content
+    }
+    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let label = try container.decode(Label.self, forKey: .label, dynaType: dynaType[0])
+        let content = try container.decode(Content.self, forKey: .content, dynaType: dynaType[1])
+        self.init(label: label, content: { content })
+    }
+    public func encode(to encoder: Encoder) throws {
+        Mirror.assert(self, name: "MenuButton", keys: ["label", "content"])
+        let m = Mirror.children(reflecting: self)
+        let label = m["label"]! as! Label
+        let content = m["content"]! as! Content
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(label, forKey: .label)
+        try container.encode(content, forKey: .content)
+    }
+    //: Register
+    static func register() {
+        DynaType.register(MenuButton<AnyView, AnyView>.self)
+    }
+}

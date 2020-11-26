@@ -38,8 +38,9 @@ extension SecureField: IAnyView, DynaCodable where Label == Text {
         let storage = Text.Storage(any: m2.child(named: "storage"))
         var container = encoder.container(keyedBy: CodingKeys.self)
         switch storage {
+        case .text(let value): try container.encode(value, forKey: .titleKey)
         case .verbatim(let value): try container.encode(value, forKey: .title)
-        case .anyTextStorage(let value): try container.encode(value.key.encodeValue, forKey: .titleKey)
+        default: fatalError("Not Supported")
         }
         try container.encode(text, forKey: .text)
         try container.encodeAction(onCommit, forKey: .onCommit)

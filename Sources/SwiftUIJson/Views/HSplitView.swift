@@ -15,25 +15,22 @@ extension HSplitView: IAnyView, DynaCodable where Content : View, Content : Dyna
     public var anyView: AnyView { AnyView(self) }
     //: Codable
     enum CodingKeys: CodingKey {
-        case root, content
+        case content
     }
     public init(from decoder: Decoder, for dynaType: DynaType) throws {
-        fatalError()
-//        let container = try decoder.container(keyedBy: CodingKeys.self)
-//        let root = (try? container.decodeIfPresent(_HStackLayout.self, forKey: .root)) ?? _HStackLayout(alignment: .center, spacing: nil)
-//        let content = try container.decode(Content.self, forKey: .content, dynaType: dynaType[0])
-//        self.init(alignment: root.alignment, spacing: root.spacing) { content }
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let content = try container.decode(Content.self, forKey: .content, dynaType: dynaType[0])
+        self.init(content: { content })
     }
     public func encode(to encoder: Encoder) throws {
-        fatalError()
-//        Mirror.assert(self, name: "HStack", keys: ["_tree"])
-//        let tree = Mirror(reflecting: self).descendant("_tree") as! _VariadicView.Tree<_HStackLayout, Content>, root = tree.root
-//        var container = encoder.container(keyedBy: CodingKeys.self)
-//        if root.alignment != .center || root.spacing != nil { try container.encode(root, forKey: .root) }
-//        try container.encode(tree.content, forKey: .content)
+        Mirror.assert(self, name: "HSplitView", keys: ["content"])
+        let content = Mirror(reflecting: self).descendant("content") as! Content
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(content, forKey: .content)
     }
     //: Register
     static func register() {
         DynaType.register(HSplitView<AnyView>.self)
     }
 }
+

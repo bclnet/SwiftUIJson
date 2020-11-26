@@ -31,13 +31,14 @@ import SwiftUI
 
 extension Mirror {
     enum KeyMatch {
-        case all, any
+        case all, any, single
     }
     static func assert(_ any: Any, name: String, keys: [String]? = nil, keyMatch: KeyMatch = .all) {
         let m = Mirror(reflecting: any)
         let anyName = String("\(type(of: any))".split(separator: "<")[0])
         Swift.assert(name == anyName)
         var matchKeys = Set(m.children.map { $0.label! })
+        if case .single = keyMatch { Swift.assert(matchKeys.count == 1) }
         if let keys = keys {
             var unmatchKeys = Set<String>()
             for k in keys {
@@ -51,7 +52,7 @@ extension Mirror {
             }
             switch keyMatch {
             case .all: Swift.assert(matchKeys.isEmpty && unmatchKeys.isEmpty)
-            case .any: Swift.assert(unmatchKeys.isEmpty)
+            case .single, .any: Swift.assert(unmatchKeys.isEmpty)
             }
         }
     }
@@ -89,7 +90,7 @@ extension Dictionary where Key == String, Value:Any {
     func child(named: String) -> Mirror.Child {
         Mirror(reflecting: self[named]!).children.first!
     }
-    func children(named: String) -> Mirror.Children {
-        Mirror(reflecting: self[named]!).children
-    }
+//    func children(named: String) -> Mirror.Children {
+//        Mirror(reflecting: self[named]!).children
+//    }
 }

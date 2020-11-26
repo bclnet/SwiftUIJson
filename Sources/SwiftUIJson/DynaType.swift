@@ -193,7 +193,7 @@ public enum DynaType: RawRepresentable {
         if let type = knownTypes[forKey] { return type }
         let tokens = typeParse(tokens: forKey)
         var type: Self = .type(Never.self, "Never")
-        var key: String = "", any: String = ""
+        var key: String = forKey, any: String = ""
         var keyArray = [String](), anyArray = [String](), typeArray = [Self]()
         var stack = [(op: String, value: Any, key: String, any: String)]()
         for token in tokens {
@@ -315,6 +315,8 @@ public enum DynaType: RawRepresentable {
         register(Int.self)
         register(Bool.self)
         register(Range<Int>.self)
+        register(NSDate.self)
+        register(DateFormatter.self)
         return true
     }
 }

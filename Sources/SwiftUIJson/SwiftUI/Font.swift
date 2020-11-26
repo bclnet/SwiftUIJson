@@ -14,17 +14,14 @@ public typealias UXFont = NSFont
 public typealias UXFont = UIFont
 #endif
 
-// MARK: - Preamble
 extension Font {
     
-    internal class AnyFontBox: Codable {
+    class AnyFontBox: Codable {
         let provider: String
         init(provider: String) {
             self.provider = provider
         }
-        public func apply() -> Font {
-            fatalError()
-        }
+        public func apply() -> Font { fatalError("Not Implemented") }
         //: Codable
         enum CodingKeys: CodingKey {
             case provider
@@ -39,57 +36,7 @@ extension Font {
         }
     }
     
-    internal class AnyModifier: Codable {
-        required init(any s: Any) { }
-        public func apply(_ font: Font) -> Font {
-            font
-        }
-        //: Codable
-        public required init(from decoder: Decoder) throws { }
-        public func encode(to encoder: Encoder) throws { }
-    }
-    
-    internal class ModifierProvider<Modifier: AnyModifier>: Codable {
-        let provider: String
-        let base: Font
-        let modifier: Modifier
-        init(any: Any, provider: String) {
-            Mirror.assert(any, name: "ModifierProvider", keys: ["base", "modifier"])
-            let mirror = Mirror(reflecting: any)
-            base = mirror.descendant("base")! as! Font
-            modifier = Modifier(any: mirror.descendant("modifier")!)
-            self.provider = provider
-        }
-        public func apply() -> Font {
-            modifier.apply(base)
-        }
-        //: Codable
-        enum CodingKeys: CodingKey {
-            case base, modifier, provider
-        }
-        public required init(from decoder: Decoder) throws {
-            let container = try decoder.container(keyedBy: CodingKeys.self)
-            base = try container.decode(Font.self, forKey: .base)
-            modifier = (try? container.decodeIfPresent(Modifier.self, forKey: .modifier)) ?? Modifier(any: 0)
-            provider = try container.decode(String.self, forKey: .provider)
-        }
-        public func encode(to encoder: Encoder) throws {
-            var container = encoder.container(keyedBy: CodingKeys.self)
-            try container.encode(base, forKey: .base)
-            if !Mirror(reflecting: modifier).children.isEmpty {
-                try container.encode(modifier, forKey: .modifier)
-            }
-            try container.encode(provider, forKey: .provider)
-        }
-    }
-}
-
-// MARK: - First
-/// custom(:size), custom(:size:relativeTo), custom(:fixedSize)
-/// init()
-extension Font {
-    
-    internal class NamedProvider: AnyFontBox {
+    class NamedProvider: AnyFontBox {
         let name: String
         let size: CGFloat
         let textStyle: TextStyle?
@@ -128,7 +75,7 @@ extension Font {
         }
     }
     
-    internal class PlatformFontProvider: AnyFontBox {
+    class PlatformFontProvider: AnyFontBox {
         let font: UXFont //try: CTFont
         let fontSize: CGFloat
         init(any: Any, provider: String) {
@@ -138,9 +85,7 @@ extension Font {
             fontSize = font.pointSize
             super.init(provider: provider)
         }
-        public override func apply() -> Font {
-            Font(font)
-        }
+        public override func apply() -> Font { Font(font) }
         //: Codable
         enum CodingKeys: CodingKey {
             case font, size
@@ -160,14 +105,7 @@ extension Font {
         }
     }
     
-}
-
-// MARK: - Second
-/// system(size:weight:design)
-/// Design
-extension Font {
-    
-    internal class SystemProvider: AnyFontBox {
+    class SystemProvider: AnyFontBox {
         let size: CGFloat
         let weight: Weight
         let design: Design
@@ -179,9 +117,7 @@ extension Font {
             design = base["design"]! as! Design
             super.init(provider: provider)
         }
-        public override func apply() -> Font {
-            Font.system(size: size, weight: weight, design: design)
-        }
+        public override func apply() -> Font { Font.system(size: size, weight: weight, design: design) }
         //: Codable
         enum CodingKeys: CodingKey {
             case size, weight, design
@@ -201,7 +137,116 @@ extension Font {
             try super.encode(to: encoder)
         }
     }
+    
+    class AnyModifier: Codable {
+        required init(any s: Any) { }
+        public func apply(_ font: Font) -> Font { fatalError("Not Implemented") }
+        //: Codable
+        public required init(from decoder: Decoder) throws { }
+        public func encode(to encoder: Encoder) throws { }
+    }
+    
+    class ItalicModifier: AnyModifier {
+        public override func apply(_ font: Font) -> Font { font.italic() }
+    }
+    
+    class LowercaseSmallCapsModifier: AnyModifier {
+        public override func apply(_ font: Font) -> Font { font.lowercaseSmallCaps() }
+    }
+    
+    class UppercaseSmallCapsModifier: AnyModifier {
+        public override func apply(_ font: Font) -> Font { font.uppercaseSmallCaps() }
+    }
+    
+    class MonospacedDigitModifier: AnyModifier {
+        public override func apply(_ font: Font) -> Font { font.monospacedDigit() }
+    }
+    
+    class WeightModifier: AnyModifier {
+        let weight: Weight
+        required init(any: Any) {
+            Mirror.assert(any, name: "WeightModifier", keys: ["weight"])
+            weight = Mirror(reflecting: any).descendant("weight")! as! Weight
+            super.init(any: any)
+        }
+        public override func apply(_ font: Font) -> Font { font.weight(weight) }
+        //: Codable
+        public required init(from decoder: Decoder) throws {
+            let container = try decoder.singleValueContainer()
+            weight = try container.decode(Weight.self)
+            super.init(any: 0)
+        }
+        public override func encode(to encoder: Encoder) throws {
+            var container = encoder.singleValueContainer()
+            try container.encode(weight)
+        }
+    }
+    
+    class BoldModifier: AnyModifier {
+        public override func apply(_ font: Font) -> Font { font.bold() }
+    }
+    
+    @available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *)
+    class LeadingModifier: AnyModifier {
+        let leading: Leading
+        required init(any: Any) {
+            Mirror.assert(any, name: "LeadingModifier", keys: ["leading"])
+            leading = Mirror(reflecting: any).descendant("leading")! as! Leading
+            super.init(any: any)
+        }
+        public override func apply(_ font: Font) -> Font { font.leading(leading) }
+        //: Codable
+        public required init(from decoder: Decoder) throws {
+            let container = try decoder.singleValueContainer()
+            leading = try container.decode(Leading.self)
+            super.init(any: 0)
+        }
+        public override func encode(to encoder: Encoder) throws {
+            var container = encoder.singleValueContainer()
+            try container.encode(leading)
+        }
+    }
+    
+    class ModifierProvider<Modifier: AnyModifier>: Codable {
+        let provider: String
+        let base: Font
+        let modifier: Modifier
+        init(any: Any, provider: String) {
+            Mirror.assert(any, name: "ModifierProvider", keys: ["base", "modifier"])
+            let mirror = Mirror(reflecting: any)
+            base = mirror.descendant("base")! as! Font
+            modifier = Modifier(any: mirror.descendant("modifier")!)
+            self.provider = provider
+        }
+        public func apply() -> Font { modifier.apply(base) }
+        //: Codable
+        enum CodingKeys: CodingKey {
+            case base, modifier, provider
+        }
+        public required init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            base = try container.decode(Font.self, forKey: .base)
+            modifier = (try? container.decodeIfPresent(Modifier.self, forKey: .modifier)) ?? Modifier(any: 0)
+            provider = try container.decode(String.self, forKey: .provider)
+        }
+        public func encode(to encoder: Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(base, forKey: .base)
+            if !Mirror(reflecting: modifier).children.isEmpty { try container.encode(modifier, forKey: .modifier) }
+            try container.encode(provider, forKey: .provider)
+        }
+    }
 }
+
+// MARK: - First
+/// custom(:size), custom(:size:relativeTo), custom(:fixedSize)
+/// init()
+extension Font {}
+
+// MARK: - Second
+/// system(size:weight:design)
+/// Design
+extension Font {}
 
 extension Font.Design: Codable {
     //: Codable
@@ -427,83 +472,7 @@ extension Font.TextStyle: Codable {
 /// italic(), smallCaps(), lowercaseSmallCaps(), uppercaseSmallCaps(), monospacedDigit(), weight(), bold(), leading()
 /// Weight
 /// Leading
-extension Font {
-    
-    internal class ItalicModifier: AnyModifier {
-        public override func apply(_ font: Font) -> Font {
-            font.italic()
-        }
-    }
-    
-    internal class LowercaseSmallCapsModifier: AnyModifier {
-        public override func apply(_ font: Font) -> Font {
-            font.lowercaseSmallCaps()
-        }
-    }
-    
-    internal class UppercaseSmallCapsModifier: AnyModifier {
-        public override func apply(_ font: Font) -> Font {
-            font.uppercaseSmallCaps()
-        }
-    }
-    
-    internal class MonospacedDigitModifier: AnyModifier {
-        public override func apply(_ font: Font) -> Font {
-            font.monospacedDigit()
-        }
-    }
-    
-    internal class WeightModifier: AnyModifier {
-        let weight: Weight
-        required init(any: Any) {
-            Mirror.assert(any, name: "WeightModifier", keys: ["weight"])
-            weight = Mirror(reflecting: any).descendant("weight")! as! Weight
-            super.init(any: any)
-        }
-        public override func apply(_ font: Font) -> Font {
-            font.weight(weight)
-        }
-        //: Codable
-        public required init(from decoder: Decoder) throws {
-            let container = try decoder.singleValueContainer()
-            weight = try container.decode(Weight.self)
-            super.init(any: 0)
-        }
-        public override func encode(to encoder: Encoder) throws {
-            var container = encoder.singleValueContainer()
-            try container.encode(weight)
-        }
-    }
-    
-    internal class BoldModifier: AnyModifier {
-        public override func apply(_ font: Font) -> Font {
-            font.bold()
-        }
-    }
-    
-    @available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *)
-    internal class LeadingModifier: AnyModifier {
-        let leading: Leading
-        required init(any: Any) {
-            Mirror.assert(any, name: "LeadingModifier", keys: ["leading"])
-            leading = Mirror(reflecting: any).descendant("leading")! as! Leading
-            super.init(any: any)
-        }
-        public override func apply(_ font: Font) -> Font {
-            font.leading(leading)
-        }
-        //: Codable
-        public required init(from decoder: Decoder) throws {
-            let container = try decoder.singleValueContainer()
-            leading = try container.decode(Leading.self)
-            super.init(any: 0)
-        }
-        public override func encode(to encoder: Encoder) throws {
-            var container = encoder.singleValueContainer()
-            try container.encode(leading)
-        }
-    }
-}
+extension Font {}
 
 extension Font.Weight: Codable {
     public init(from decoder: Decoder) throws {

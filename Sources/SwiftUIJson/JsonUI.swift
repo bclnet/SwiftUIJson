@@ -107,6 +107,9 @@ public struct JsonUI: Codable {
         _RotationEffect.register()
         _SafeAreaIgnoringLayout.register()
         _ShadowEffect.register()
+        #if os(macOS)
+        _TouchBarModifier<AnyView>.register()
+        #endif
         _TraitWritingModifier<NeverCodable>.register()
         AccessibilityAttachmentModifier.register()
         ModifiedContent<AnyView, AnyViewModifier>.register()

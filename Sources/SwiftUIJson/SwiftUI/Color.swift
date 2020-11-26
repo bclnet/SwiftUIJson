@@ -17,7 +17,7 @@ public typealias UXColor = UIColor
 // MARK: - Preamble
 extension Color {
     
-    internal class AnyColorBox: Codable {
+    class AnyColorBox: Codable {
         let provider: String
         init(provider: String) {
             self.provider = provider
@@ -44,7 +44,7 @@ extension Color {
 extension Color {
     
     @available(iOS 14.0, macOS 11, tvOS 14.0, watchOS 7.0, *)
-    internal class __NSCFType: AnyColorBox {
+    class __NSCFType: AnyColorBox {
         let cgColor: CGColor
         init(any: Any, provider: String) {
             Mirror.assert(any, name: "__NSCFType")
@@ -69,7 +69,7 @@ extension Color {
         }
     }
     
-    internal class _Resolved: AnyColorBox {
+    class _Resolved: AnyColorBox {
         let red: Float
         let green: Float
         let blue: Float
@@ -108,7 +108,7 @@ extension Color {
         }
     }
     
-    internal class DisplayP3: AnyColorBox {
+    class DisplayP3: AnyColorBox {
         let red: CGFloat
         let green: CGFloat
         let blue: CGFloat
@@ -147,7 +147,7 @@ extension Color {
         }
     }
     
-    internal class NamedColor: AnyColorBox {
+    class NamedColor: AnyColorBox {
         let name: String
         let bundle: Bundle?
         init(any: Any, provider: String) {
@@ -178,7 +178,7 @@ extension Color {
         }
     }
 
-    internal class PlatformColor: AnyColorBox {
+    class PlatformColor: AnyColorBox {
         let color: UXColor
         init(any: Any, provider: String) {
 //          Mirror.assert(any, name: "PlatformColor")
@@ -203,7 +203,7 @@ extension Color {
         }
     }
     
-    internal class OpacityColor: AnyColorBox {
+    class OpacityColor: AnyColorBox {
         let base: Color
         let opacity: Double
         init(any: Any, provider: String) {

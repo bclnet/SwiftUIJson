@@ -7,39 +7,41 @@
 
 import SwiftUI
 
-//@available(OSX 10.15, *)
-//@available(iOS, unavailable)
-//@available(tvOS, unavailable)
-//@available(watchOS, unavailable)
-//extension TouchBar: DynaCodable where Content : View {
-//    //: Codable
-//    enum CodingKeys: CodingKey {
-//        case label, action
-//    }
-//    public init(from decoder: Decoder, for dynaType: DynaType) throws {
-//        let container = try decoder.container(keyedBy: CodingKeys.self)
-//        let label = try container.decode(Label.self, forKey: .label, dynaType: dynaType[0])
-//        let action = try container.decodeAction(forKey: .action)
-//        self.init(action: action, label: { label })
-//    }
-//    public func encode(to encoder: Encoder) throws {
-//        Mirror.assert(self, name: "Button", keys: ["_label", "action"])
-//        let m = Mirror.children(reflecting: self)
-//        let label = m["_label"]! as! Text
-//        let action = m["action"]! as! (() -> ())
-//        var container = encoder.container(keyedBy: CodingKeys.self)
-//        try container.encode(label, forKey: .label)
-//        try container.encodeAction(action, forKey: .action)
-//    }
-//    //: Register
-//    static func register() {
-//        DynaType.register(Button<AnyView>.self)
-//    }
-//}
+@available(OSX 10.15, *)
+@available(iOS, unavailable)
+@available(tvOS, unavailable)
+@available(watchOS, unavailable)
+extension TouchBar: DynaCodable where Content : View, Content : DynaCodable {
+    //: Codable
+    enum CodingKeys: CodingKey {
+        case content, id
+    }
+    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let content = try container.decode(Content.self, forKey: .content, dynaType: dynaType[0])
+        let id = try container.decodeIfPresent(String.self, forKey: .id)
+        if id == nil { self.init(content: { content }) }
+        else { self.init(id: id!, content: { content }) }
+    }
+    public func encode(to encoder: Encoder) throws {
+        Mirror.assert(self, name: "TouchBar", keys: ["content", "container"])
+        let m = Mirror.children(reflecting: self)
+        let content = m["content"]! as! Content
+        let container2 = TouchBarContainer(any: m["container"]!)
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(content, forKey: .content)
+        try container.encodeIfPresent(container2.id, forKey: .id)
+    }
+    //: Register
+    static func register() {
+        DynaType.register(TouchBar<AnyView>.self)
+    }
+}
 
-//@available(OSX 10.15, *)
-//@available(iOS, unavailable)
-//@available(tvOS, unavailable)
-//@available(watchOS, unavailable)
-//extension _TouchBarModifier: IAnyView, DynaCodable where Content : View {
-//}
+struct TouchBarContainer {
+    let id: String?
+    init(any: Any) {
+        Mirror.assert(any, name: "TouchBarContainer", keys: ["id"])
+        id = Mirror(reflecting: any).descendant("id")! as? String
+    }
+}

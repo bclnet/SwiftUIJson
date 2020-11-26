@@ -7,10 +7,6 @@
 
 import SwiftUI
 
-extension TextField {
-    // does not support Binder<Value>
-}
-
 extension TextField: IAnyView, DynaCodable where Label == Text {
     public var anyView: AnyView { AnyView(self) }
     //: Codable
@@ -24,10 +20,12 @@ extension TextField: IAnyView, DynaCodable where Label == Text {
         let onEditingChanged = try container.decodeAction(Bool.self, forKey: .onEditingChanged)
         if container.contains(.title) {
             let title = try container.decode(String.self, forKey: .title)
+            // does not support TextField(_:value:formatter:onEditingChanged:onCommit:)
             self.init(title, text: text, onEditingChanged: onEditingChanged, onCommit: onCommit)
         }
         else if container.contains(.titleKey) {
             let titleKey = LocalizedStringKey(try container.decode(String.self, forKey: .titleKey))
+            // does not support TextField(_:value:formatter:onEditingChanged:onCommit:)
             self.init(titleKey, text: text, onEditingChanged: onEditingChanged, onCommit: onCommit) }
         else { fatalError() }
     }
@@ -38,16 +36,14 @@ extension TextField: IAnyView, DynaCodable where Label == Text {
         let text = m["_text"]! as! Binding<String>
         let onCommit = m["onCommit"]! as! (() -> Void)
         let onEditingChanged = m["onEditingChanged"]! as! ((Bool) -> Void)
-//        let updatesContinuously = m["updatesContinuously"]! as! Bool
-//        let uncommittedText = m["_uncommittedText"]! as! State<String?>
-//        let isSecure = m["isSecure"]! as! Bool
         Mirror.assert(label, name: "Text", keys: ["storage", "modifiers"])
         let m2 = Mirror.children(reflecting: label)
         let storage = Text.Storage(any: m2.child(named: "storage"))
         var container = encoder.container(keyedBy: CodingKeys.self)
         switch storage {
+        case .text(let value): try container.encode(value, forKey: .titleKey)
         case .verbatim(let value): try container.encode(value, forKey: .title)
-        case .anyTextStorage(let value): try container.encode(value.key.encodeValue, forKey: .titleKey)
+        default: fatalError("Not Supported")
         }
         try container.encode(text, forKey: .text)
         try container.encodeAction(onCommit, forKey: .onCommit)

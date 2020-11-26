@@ -17,7 +17,7 @@ extension ZStack: IAnyView, DynaCodable where Content : View, Content : DynaCoda
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let root = (try? container.decodeIfPresent(_ZStackLayout.self, forKey: .root)) ?? _ZStackLayout(alignment: .center)
         let content = try container.decode(Content.self, forKey: .content, dynaType: dynaType[0])
-        self.init(alignment: root.alignment) { content }
+        self.init(alignment: root.alignment, content: { content })
     }
     public func encode(to encoder: Encoder) throws {
         Mirror.assert(self, name: "ZStack", keys: ["_tree"])
@@ -33,7 +33,6 @@ extension ZStack: IAnyView, DynaCodable where Content : View, Content : DynaCoda
     }
 }
 
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension Alignment: Codable {
     //: Codable
     public init(from decoder: Decoder) throws {
@@ -68,11 +67,10 @@ extension Alignment: Codable {
     }
 }
 
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension _ZStackLayout: Codable {
     //: Codable
     enum CodingKeys: CodingKey {
-        case spacing, alignment
+        case alignment
     }
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
