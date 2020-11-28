@@ -9,9 +9,7 @@ import SwiftUI
 
 extension _FrameLayout: JsonViewModifier, Codable {
     //: JsonViewModifier
-    public func body(content: AnyView) -> AnyView {
-        AnyView(content.modifier(self))
-    }
+    public func body(content: AnyView) -> AnyView { AnyView(content.modifier(self)) }
     //: Codable
     enum CodingKeys: CodingKey {
         case width, height, alignment

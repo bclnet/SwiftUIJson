@@ -95,48 +95,4 @@ extension Stepper: IAnyView, DynaCodable where Label : View, Label : DynaCodable
             try container.encodeIfPresent(accessibilityValue, forKey: .accessibilityValue)
         }
     }
-    
-    struct AccessibilityAdjustmentMethod: ConvertibleCodable {
-        init(any: Any) {
-            Mirror.assert(any, name: "AccessibilityAdjustmentMethod", keys: [])
-        }
-//        static func stepper() {
-//            fatalError()
-//        }
-        //: Codable
-        public init(from decoder: Decoder) throws {}
-        public func encode(to encoder: Encoder) throws {}
-    }
-    struct AccessibilityAdjustableNumericValue: ConvertibleCodable {
-        var value: Double
-        let minValue: Double?
-        let maxValue: Double?
-        let adjustmentMethod: AccessibilityAdjustmentMethod?
-        init(any: Any) {
-            Mirror.assert(any, name: "AccessibilityAdjustableNumericValue", keys: ["value", "minValue", "maxValue", "adjustmentMethod"])
-            let m = Mirror.children(reflecting: any)
-            value = m["value"]! as! Double
-            minValue = m["minValue"]! as? Double
-            maxValue = m["maxValue"]! as? Double
-            adjustmentMethod = Mirror.optionalAny(AccessibilityAdjustmentMethod.self, any: m["adjustmentMethod"]!)
-        }
-        //: Codable
-        enum CodingKeys: CodingKey {
-            case value, minValue, maxValue, adjustmentMethod
-        }
-        public init(from decoder: Decoder) throws {
-            let container = try decoder.container(keyedBy: CodingKeys.self)
-            value = try container.decode(Double.self, forKey: .value)
-            minValue = try? container.decodeIfPresent(Double.self, forKey: .minValue)
-            maxValue = try? container.decodeIfPresent(Double.self, forKey: .maxValue)
-            adjustmentMethod = try? container.decodeIfPresent(AccessibilityAdjustmentMethod.self, forKey: .adjustmentMethod)
-        }
-        public func encode(to encoder: Encoder) throws {
-            var container = encoder.container(keyedBy: CodingKeys.self)
-            try container.encode(value, forKey: .value)
-            try container.encodeIfPresent(minValue, forKey: .minValue)
-            try container.encodeIfPresent(maxValue, forKey: .maxValue)
-            try container.encodeIfPresent(adjustmentMethod, forKey: .adjustmentMethod)
-        }
-    }
 }

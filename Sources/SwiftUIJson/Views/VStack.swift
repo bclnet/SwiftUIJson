@@ -17,7 +17,7 @@ extension VStack: IAnyView, DynaCodable where Content : View, Content : DynaCoda
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let root = (try? container.decodeIfPresent(_VStackLayout.self, forKey: .root)) ?? _VStackLayout(alignment: .center, spacing: nil)
         let content = try container.decode(Content.self, forKey: .content, dynaType: dynaType[0])
-        self.init(alignment: root.alignment, spacing: root.spacing) { content }
+        self.init(alignment: root.alignment, spacing: root.spacing, content: { content })
     }
     public func encode(to encoder: Encoder) throws {
         Mirror.assert(self, name: "VStack", keys: ["_tree"])
@@ -32,7 +32,6 @@ extension VStack: IAnyView, DynaCodable where Content : View, Content : DynaCoda
     }
 }
 
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension HorizontalAlignment: Codable {
     //: Codable
     public init(from decoder: Decoder) throws {
@@ -55,7 +54,6 @@ extension HorizontalAlignment: Codable {
     }
 }
 
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension _VStackLayout: Codable {
     //: Codable
     enum CodingKeys: CodingKey {

@@ -9,9 +9,7 @@ import SwiftUI
 
 extension _IdentifiedModifier: JsonViewModifier, DynaCodable where Identifier : Codable {
     //: JsonViewModifier
-    public func body(content: AnyView) -> AnyView {
-        AnyView(content.modifier(self))
-    }
+    public func body(content: AnyView) -> AnyView { AnyView(content.modifier(self)) }
     //: Codable
     enum CodingKeys: CodingKey {
         case identifier

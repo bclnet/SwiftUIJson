@@ -1,5 +1,5 @@
 //
-//  JsonCodeable.swift
+//  JsonCodable.swift
 //  SwiftUIJson
 //
 //  Created by Sky Morey on 9/10/20.

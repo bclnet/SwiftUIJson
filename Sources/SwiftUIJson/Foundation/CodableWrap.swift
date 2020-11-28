@@ -8,14 +8,14 @@
 
 import SwiftUI
 
-public protocol WrapableCodeable {
+public protocol WrapableCodable {
     associatedtype Value
     var wrapValue: Value { get }
     static func decode(from decoder: Decoder) throws -> Self
     func encode(to encoder: Encoder) throws
 }
 
-public struct CodableWrap<Wrap>: Codable where Wrap : WrapableCodeable {
+public struct CodableWrap<Wrap>: Codable where Wrap : WrapableCodable {
     public let wrap: Wrap
     public var wrapValue: Wrap.Value { wrap.wrapValue }
     public init(_ wrap: Wrap) {

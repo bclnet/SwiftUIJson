@@ -18,24 +18,13 @@ import SwiftUI
 //    }
 //}
 
-//public protocol OptionalType: ExpressibleByNilLiteral {
-//    associatedtype WrappedType
-//    var asOptional: WrappedType? { get }
-//}
-//
-//extension Optional: OptionalType {
-//    public var asOptional: Wrapped? {
-//        return self
-//    }
-//}
-
 extension Mirror {
     enum KeyMatch {
         case all, any, single
     }
     static func assert(_ any: Any, name: String, keys: [String]? = nil, keyMatch: KeyMatch = .all) {
         let m = Mirror(reflecting: any)
-        let anyName = String("\(type(of: any))".split(separator: "<")[0])
+        let anyName = String(String(describing: type(of: any)).split(separator: "<")[0])
         Swift.assert(name == anyName)
         var matchKeys = Set(m.children.map { $0.label! })
         if case .single = keyMatch { Swift.assert(matchKeys.count == 1) }
@@ -86,11 +75,3 @@ extension Mirror {
     }
 }
 
-extension Dictionary where Key == String, Value:Any {
-    func child(named: String) -> Mirror.Child {
-        Mirror(reflecting: self[named]!).children.first!
-    }
-//    func children(named: String) -> Mirror.Children {
-//        Mirror(reflecting: self[named]!).children
-//    }
-}

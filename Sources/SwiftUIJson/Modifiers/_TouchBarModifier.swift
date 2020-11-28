@@ -13,9 +13,7 @@ import SwiftUI
 @available(watchOS, unavailable)
 extension _TouchBarModifier: JsonViewModifier, DynaCodable where Content : DynaCodable {
     //: JsonViewModifier
-    public func body(content: AnyView) -> AnyView {
-        AnyView(content.modifier(self))
-    }
+    public func body(content: AnyView) -> AnyView { AnyView(content.modifier(self)) }
     //: Codable
     enum CodingKeys: CodingKey {
         case content

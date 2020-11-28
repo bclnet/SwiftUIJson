@@ -9,9 +9,7 @@ import SwiftUI
 
 extension _OverlayModifier: JsonViewModifier, DynaCodable where Overlay : DynaCodable {
     //: JsonViewModifier
-    public func body(content: AnyView) -> AnyView {
-        AnyView(content.modifier(self))
-    }
+    public func body(content: AnyView) -> AnyView { AnyView(content.modifier(self)) }
     //: Codable
     enum CodingKeys: CodingKey {
         case overlay, alignment

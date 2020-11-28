@@ -10,9 +10,7 @@ import SwiftUI
 @available(iOS 13.0, macOS 11, tvOS 13.0, watchOS 6.0, *)
 extension _AccessibilityIgnoresInvertColorsViewModifier: JsonViewModifier, Codable {
     //: JsonViewModifier
-    public func body(content: AnyView) -> AnyView {
-        AnyView(content.modifier(self))
-    }
+    public func body(content: AnyView) -> AnyView { AnyView(content.modifier(self)) }
     //: Codable
     enum CodingKeys: CodingKey {
         case active

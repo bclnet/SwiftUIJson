@@ -14,9 +14,7 @@ struct StyleContextWriter<Context>: JsonViewModifier, ConvertibleCodable where C
         Mirror.assert(any, name: "StyleContextWriter", keys: [])
     }
     //: JsonViewModifier
-    public func body(content: AnyView) -> AnyView {
-        AnyView(content)
-    }
+    public func body(content: AnyView) -> AnyView { AnyView(content) }
     //: Codable
     public init(from decoder: Decoder) throws {}
     public func encode(to encoder: Encoder) throws {}

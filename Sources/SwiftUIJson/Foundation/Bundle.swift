@@ -8,7 +8,7 @@
 
 import Foundation
 
-extension Bundle: WrapableCodeable {
+extension Bundle: WrapableCodable {
     public var wrapValue: Bundle { self }
     //: Codable
     enum CodingKeys: CodingKey {

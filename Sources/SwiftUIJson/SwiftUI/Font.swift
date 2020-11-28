@@ -348,7 +348,7 @@ extension Font: Codable {
         case let unrecognized:
             let defaultFunc = {
                 let provider = Mirror(reflecting: self).descendant("provider", "base")!
-                switch "\(type(of: provider))" {
+                switch String(describing: type(of: provider)) {
                 case "SystemProvider": try container.encode(SystemProvider(any: provider, provider: "system"))
                 case "TextStyleProvider": try container.encode(TextStyleProvider(any: provider, provider: "textStyle"))
                 case "NamedProvider": try container.encode(NamedProvider(any: provider, provider: "named"))

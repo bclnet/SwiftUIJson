@@ -7,8 +7,7 @@
 
 import SwiftUI
 
-@available(OSX 10.15, *)
-@available(iOS, unavailable)
+@available(iOS 14.0, macOS 10.15, *)
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
 extension GroupBox: IAnyView, DynaCodable where Label : View, Label : DynaCodable, Content : View, Content : DynaCodable {

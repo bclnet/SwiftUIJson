@@ -295,7 +295,7 @@ extension Color: FullyCodable {
         default:
             let defaultFunc = {
                 let provider = Mirror(reflecting: self).descendant("provider", "base")!
-                switch "\(type(of: provider))" {
+                switch String(describing: type(of: provider)) {
                 case "__NSCFType":
                     if #available(iOS 14.0, macOS 11, tvOS 14.0, watchOS 7.0, *) {
                         try container.encode(__NSCFType(any: provider, provider: "system"))

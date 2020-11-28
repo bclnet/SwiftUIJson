@@ -19,9 +19,7 @@ struct _EnvironmentKeyWritingModifier<Value>: JsonViewModifier, ConvertibleCodab
         action = EnvironmentValues.find(keyPath: keyPath)!
     }
     //: JsonViewModifier
-    func body(content: AnyView) -> AnyView {
-        AnyView(content.environment(keyPath, value))
-    }
+    func body(content: AnyView) -> AnyView { AnyView(content.environment(keyPath, value)) }
     //: Codable
     enum CodingKeys: CodingKey {
         case action, value, keyPath
@@ -41,7 +39,6 @@ struct _EnvironmentKeyWritingModifier<Value>: JsonViewModifier, ConvertibleCodab
     }
     //: Register
     static func register() {
-        // MARK: - Autocorrection:17266
         DynaType.register(_EnvironmentKeyWritingModifier<Bool?>.self, any: [Bool?.self], namespace: "SwiftUI")
         DynaType.register(_EnvironmentKeyWritingModifier<Color?>.self, any: [Color?.self], namespace: "SwiftUI")
     }

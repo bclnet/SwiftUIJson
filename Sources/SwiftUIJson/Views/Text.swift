@@ -29,6 +29,7 @@ extension Text {
         }
     }
     
+    @available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *)
     class AttachmentTextStorage: AnyTextStorage {
         let image: Image
         init(any: Any, provider: String) {
@@ -88,6 +89,7 @@ extension Text {
         }
     }
     
+    @available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *)
     class FormatterTextStorage: AnyTextStorage {
         let object: NSObject
         let formatter: Formatter
@@ -117,6 +119,7 @@ extension Text {
         }
     }
 
+    @available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *)
     class DateTextStorage: AnyTextStorage {
         let storage: Storage
         init(any: Any, provider: String) {
@@ -125,37 +128,62 @@ extension Text {
             storage = Storage(any: m["storage"]!)
             super.init(provider: provider)
         }
-//        public override func apply() -> Text { Text(object, formatter: formatter) }
-        //: Codable
-        enum CodingKeys: CodingKey {
-            case object, formatter
+        public override func apply() -> Text {
+            switch storage {
+            case .absolute(let date, let style): return Text(date, style: style)
+            case .interval(let interval): return Text(interval)
+            }
         }
+        //: Codable
         public required init(from decoder: Decoder) throws {
-//            let container = try decoder.container(keyedBy: CodingKeys.self)
-//            object = try container.decode(NSObjectWrap<NSObject>.self, forKey: .object).wrapValue
-//            formatter = try container.decode(NSObjectWrap<Formatter>.self, forKey: .formatter).wrapValue
-//            try super.init(from: decoder)
-            fatalError()
+            storage = try Storage.init(from: decoder)
+            try super.init(from: decoder)
         }
         public override func encode(to encoder: Encoder) throws {
-            var container = encoder.container(keyedBy: CodingKeys.self)
-//            try container.encode(NSObjectWrap(object), forKey: .object)
-//            try container.encode(NSObjectWrap(formatter), forKey: .formatter)
-//            try super.encode(to: encoder)
+            try storage.encode(to: encoder)
+            try super.encode(to: encoder)
         }
         
-        struct Storage {
-            let active: Bool
-            let color: Color?
-            init(active: Bool, color: Color?) {
-                self.active = active
-                self.color = color
-            }
+        enum Storage: Codable {
+            case absolute(date: Date, style: Text.DateStyle)
+            case interval(DateInterval)
             init(any: Any) {
-                Mirror.assert(any, name: "Storage", keys: ["active", "color"])
-                let m = Mirror.children(reflecting: any)
-                active = m["active"]! as! Bool
-                color = m["color"]! as? Color
+                Mirror.assert(any, name: "Storage", keys: ["absolute", "interval", ""], keyMatch: .single)
+                let m = Mirror.children(reflecting: any).first!
+                switch m.key {
+                case "absolute": let v = m.value as! (date: Date, style: Text.DateStyle); self = .absolute(date: v.date, style: v.style)
+                case "interval": self = .interval(m.value as! DateInterval)
+                case let unrecognized: fatalError(unrecognized)
+                }
+            }
+            //: Codable
+            enum CodingKeys: CodingKey {
+                case value, date, style, interval
+            }
+            init(from decoder: Decoder) throws {
+                let container = try decoder.container(keyedBy: CodingKeys.self)
+                switch try container.decode(String.self, forKey: .value) {
+                case "absolute":
+                    let date = try container.decode(Date.self, forKey: .date)
+                    let style = try container.decode(Text.DateStyle.self, forKey: .style)
+                    self = .absolute(date: date, style: style)
+                case "interval":
+                    let interval = try container.decode(DateInterval.self, forKey: .interval)
+                    self = .interval(interval)
+                case let unrecognized: fatalError(unrecognized)
+                }
+            }
+            func encode(to encoder: Encoder) throws {
+                var container = encoder.container(keyedBy: CodingKeys.self)
+                switch self {
+                case .absolute(let date, let style):
+                    try container.encode(date, forKey: .date)
+                    try container.encode(style, forKey: .style)
+                    try container.encode("absolute", forKey: .value)
+                case .interval(let interval):
+                    try container.encode(interval, forKey: .interval)
+                    try container.encode("interval", forKey: .value)
+                }
             }
         }
     }
@@ -281,7 +309,7 @@ extension Text {
         init(any: Any) {
             Mirror.assert(any, name: "Storage", keys: ["verbatim", "anyTextStorage"], keyMatch: .single)
             let m = Mirror(reflecting: any).children.first!
-            if "\(type(of: m.value))" == "LocalizedTextStorage" {
+            if String(describing: type(of: m.value)) == "LocalizedTextStorage" {
                 let localized = LocalizedTextStorage(any: m.value, provider: "localized")
                 if localized.table == nil && localized.bundle == nil {
                     self = .text(localized.key.encodeValue)
@@ -365,7 +393,7 @@ extension Text {
             case .tracking(let value): try container.encode(value, forKey: .tracking)
             case .baseline(let value): try container.encode(value, forKey: .baseline)
             case .anyTextModifier(let value):
-                switch "\(type(of: value))" {
+                switch String(describing: type(of: value)) {
                 case "BoldTextModifier": try container.encode(BoldTextModifier(any: value, provider: "bold"), forKey: .any)
                 case "StrikethroughTextModifier": try container.encode(StrikethroughTextModifier(any: value, provider: "strikethrough"), forKey: .any)
                 case "UnderlineTextModifier": try container.encode(UnderlineTextModifier(any: value, provider: "underline"), forKey: .any)
@@ -392,11 +420,17 @@ extension Text: IAnyView, FullyCodable {
         else if container.contains(.verbatim) { self = Text(verbatim: try container.decode(String.self, forKey: .verbatim, forContext: context)) }
         else if container.contains(.any) {
             switch try container.decode(AnyTextStorage.self, forKey: .any).provider {
-            case "attachment": self = try container.decode(AttachmentTextStorage.self, forKey: .any).apply()
             case "localized": self = try container.decode(LocalizedTextStorage.self, forKey: .any).apply()
-            case "formatter": self = try container.decode(FormatterTextStorage.self, forKey: .any).apply()
-            case "date": self = try container.decode(DateTextStorage.self, forKey: .any).apply()
-            case let unrecognized: fatalError(unrecognized)
+            case let unrecognized:
+                if #available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *) {
+                    switch unrecognized {
+                    case "attachment": self = try container.decode(AttachmentTextStorage.self, forKey: .any).apply()
+                    case "formatter": self = try container.decode(FormatterTextStorage.self, forKey: .any).apply()
+                    case "date": self = try container.decode(DateTextStorage.self, forKey: .any).apply()
+                    case let unrecognized: fatalError(unrecognized)
+                    }
+                }
+                else { fatalError(unrecognized) }
             }
         }
         else { fatalError() }
@@ -421,12 +455,18 @@ extension Text: IAnyView, FullyCodable {
         case .text(let value): try container.encode(value, forKey: .text)
         case .verbatim(let value): try container.encode(value, forKey: .verbatim)
         case .anyTextStorage(let value):
-            switch "\(type(of: value))" {
-            case "AttachmentTextStorage": try container.encode(AttachmentTextStorage(any: value, provider: "attachment"), forKey: .any)
+            switch String(describing: type(of: value)) {
             case "LocalizedTextStorage": try container.encode(LocalizedTextStorage(any: value, provider: "localized"), forKey: .any)
-            case "FormatterTextStorage": try container.encode(FormatterTextStorage(any: value, provider: "formatter"), forKey: .any)
-            case "DateTextStorage": try container.encode(DateTextStorage(any: value, provider: "date"), forKey: .any)
-            case let unrecognized: fatalError(unrecognized)
+            case let unrecognized:
+                if #available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *) {
+                    switch unrecognized {
+                    case "AttachmentTextStorage": try container.encode(AttachmentTextStorage(any: value, provider: "attachment"), forKey: .any)
+                    case "FormatterTextStorage": try container.encode(FormatterTextStorage(any: value, provider: "formatter"), forKey: .any)
+                    case "DateTextStorage": try container.encode(DateTextStorage(any: value, provider: "date"), forKey: .any)
+                    case let unrecognized: fatalError(unrecognized)
+                    }
+                }
+                else { fatalError(unrecognized) }
             }
         }
         if !modifiers.isEmpty { try container.encode(modifiers, forKey: .modifiers) }
@@ -434,6 +474,7 @@ extension Text: IAnyView, FullyCodable {
     //: Register
     static func register() {
         DynaType.register(Text.self)
+        DynaType.register(Text.TruncationMode.self)
     }
 }
 

@@ -44,7 +44,7 @@ extension AnyView: DynaCodable {
         DynaType.register(AnyView.self)
     }
     
-    internal class AnyViewStorage {
+    class AnyViewStorage {
         let view: Any
         init(any: Any) {
             Mirror.assert(any, name: "AnyViewStorage", keys: ["view"])

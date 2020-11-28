@@ -9,9 +9,7 @@ import SwiftUI
 
 extension _BackgroundModifier: JsonViewModifier, DynaCodable where Background : DynaCodable {
     //: JsonViewModifier
-    public func body(content: AnyView) -> AnyView {
-        AnyView(content.modifier(self))
-    }
+    public func body(content: AnyView) -> AnyView { AnyView(content.modifier(self)) }
     //: Codable
     enum CodingKeys: CodingKey {
         case background, alignment

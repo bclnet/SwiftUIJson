@@ -18,12 +18,10 @@ struct _TraitWritingModifier<TraitKey>: JsonViewModifier, ConvertibleCodable whe
         value = Mirror(reflecting: any).descendant("value")!
     }
     //: JsonViewModifier
-    public func body(content: AnyView) -> AnyView {
-        (value as! AnyTraitKey).body(content: content)
-    }
+    public func body(content: AnyView) -> AnyView { (value as! AnyTraitKey).body(content: content) }
     //: Codable
     enum CodingKeys: CodingKey {
-        case isDeleteDisabled, isMoveDisabled, itemProvider, previewLayout
+        case isDeleteDisabled, isMoveDisabled, itemProvider, previewLayout, zIndex
     }
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -34,6 +32,7 @@ struct _TraitWritingModifier<TraitKey>: JsonViewModifier, ConvertibleCodable whe
             case .isMoveDisabled: traitKey = try container.decode(IsMoveDisabledTraitKey.self, forKey: key)
             case .itemProvider: traitKey = try container.decode(ItemProviderTraitKey.self, forKey: key)
             case .previewLayout: traitKey = try container.decode(PreviewLayoutTraitKey.self, forKey: key)
+            case .zIndex: traitKey = try container.decode(ZIndexTraitKey.self, forKey: key)
             }
         }
         valueKey = ""
@@ -46,6 +45,7 @@ struct _TraitWritingModifier<TraitKey>: JsonViewModifier, ConvertibleCodable whe
         case ":_TraitWritingModifier<:IsMoveDisabledTraitKey>": try container.encode(IsMoveDisabledTraitKey(any: value), forKey: .isMoveDisabled)
         case ":_TraitWritingModifier<:ItemProviderTraitKey>": try container.encode(ItemProviderTraitKey(any: value), forKey: .itemProvider)
         case ":_TraitWritingModifier<:PreviewLayoutTraitKey>": try container.encode(PreviewLayoutTraitKey(any: value), forKey: .previewLayout)
+        case ":_TraitWritingModifier<:ZIndexTraitKey>": try container.encode(ZIndexTraitKey(any: value), forKey: .zIndex)
         case let unrecognized: fatalError(unrecognized)
         }
     }
@@ -56,17 +56,16 @@ struct _TraitWritingModifier<TraitKey>: JsonViewModifier, ConvertibleCodable whe
         DynaType.register(IsMoveDisabledTraitKey.self, namespace: "SwiftUI")
         DynaType.register(ItemProviderTraitKey.self, namespace: "SwiftUI")
         DynaType.register(PreviewLayoutTraitKey.self, namespace: "SwiftUI")
+        DynaType.register(ZIndexTraitKey.self, namespace: "SwiftUI")
     }
 }
 
 struct IsDeleteDisabledTraitKey: AnyTraitKey, Codable {
     let value: Bool
-    init(any s: Any) {
-        value = s as! Bool
+    init(any: Any) {
+        value = any as! Bool
     }
-    func body(content: AnyView) -> AnyView {
-        AnyView(content.deleteDisabled(value))
-    }
+    func body(content: AnyView) -> AnyView { AnyView(content.deleteDisabled(value)) }
     //: Codable
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
@@ -80,12 +79,10 @@ struct IsDeleteDisabledTraitKey: AnyTraitKey, Codable {
 
 struct IsMoveDisabledTraitKey: AnyTraitKey, Codable {
     let value: Bool
-    init(any s: Any) {
-        value = s as! Bool
+    init(any: Any) {
+        value = any as! Bool
     }
-    func body(content: AnyView) -> AnyView {
-        AnyView(content.moveDisabled(value))
-    }
+    func body(content: AnyView) -> AnyView { AnyView(content.moveDisabled(value)) }
     //: Codable
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
@@ -99,12 +96,10 @@ struct IsMoveDisabledTraitKey: AnyTraitKey, Codable {
 
 struct ItemProviderTraitKey: AnyTraitKey, Codable {
     let value: (() -> NSItemProvider?)
-    init(any s: Any) {
-        value = s as! (() -> NSItemProvider?)
+    init(any: Any) {
+        value = any as! (() -> NSItemProvider?)
     }
-    func body(content: AnyView) -> AnyView {
-        AnyView(content.itemProvider(value))
-    }
+    func body(content: AnyView) -> AnyView { AnyView(content.itemProvider(value)) }
     //: Codable
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
@@ -128,16 +123,31 @@ struct ItemProviderTraitKey: AnyTraitKey, Codable {
 
 struct PreviewLayoutTraitKey: AnyTraitKey, Codable {
     let value: PreviewLayout
-    init(any s: Any) {
-        value = s as! PreviewLayout
+    init(any: Any) {
+        value = any as! PreviewLayout
     }
-    func body(content: AnyView) -> AnyView {
-        AnyView(content.previewLayout(value))
-    }
+    func body(content: AnyView) -> AnyView { AnyView(content.previewLayout(value)) }
     //: Codable
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         value = try container.decode(PreviewLayout.self)
+    }
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(value)
+    }
+}
+
+struct ZIndexTraitKey: AnyTraitKey, Codable {
+    let value: Double
+    init(any: Any) {
+        value = any as! Double
+    }
+    func body(content: AnyView) -> AnyView { AnyView(content.zIndex(value)) }
+    //: Codable
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        value = try container.decode(Double.self)
     }
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()

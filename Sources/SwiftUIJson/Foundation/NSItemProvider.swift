@@ -8,10 +8,11 @@
 
 import Foundation
 
-extension NSItemProvider: WrapableCodeable {
+extension NSItemProvider: WrapableCodable {
     enum ItemProviderError: Error {
         case error(description: String)
     }
+    //: Codable
     public var wrapValue: NSItemProvider { self }
     public static func decode(from decoder: Decoder) throws -> Self {
         let itemProvider = NSItemProvider()
@@ -127,7 +128,7 @@ extension NSItemProvider: WrapableCodeable {
      let m = try! PropertyListSerialization.propertyList(from: data, options: [], format: nil) as! [Any]
      let obj = (url: m[0] as! CFString, file: m[1] as! CFString, unk2: m[2] as! [AnyHashable:Any])
      print(obj)
-     case let unrecognized: fatalError("\(type(of: data))")
+     case let unrecognized: fatalError(String(describing: type(of: data)))
      }
      break
      // text

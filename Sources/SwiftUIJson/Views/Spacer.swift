@@ -20,7 +20,7 @@ extension Spacer: IAnyView, DynaCodable {
     }
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        let minLength = Mirror(reflecting: self).descendant("minLength") as? CGFloat
+        let minLength = Mirror(reflecting: self).descendant("minLength")! as? CGFloat
         try container.encodeIfPresent(minLength, forKey: .minLength)
     }
     //: Register

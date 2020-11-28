@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Combine
 
 public enum DynaTypeError: Error {
     case typeNotFound(named: String)
@@ -76,7 +77,7 @@ public enum DynaType: RawRepresentable {
     static var convertTypes = [String:Convertible.Type]()
     static var actionTypes = [String:[String:Any]]()
     
-    public static func register<T>(_ type: T.Type, any: [Any.Type?]? = nil, namespace: String? = nil, actions: [String:Any]? = nil) {
+    public static func register<T>(_ type: T.Type, any: [Any.Type?]? = nil, namespace: String? = nil, actions: [String:Any]? = nil, alias: String? = nil) {
         let key = typeKey(for: type, namespace: namespace)
         if knownTypes[key] == nil {
             // register
@@ -86,6 +87,7 @@ public enum DynaType: RawRepresentable {
             let baseKey = genericIdx == nil ? key : String(key[..<genericIdx!])
             knownTypes[key] = .type(type, key)
             knownTypes[keyOptional] = .type(typeOptional, keyOptional)
+            if alias != nil { knownTypes[alias!] = .type(type, key) }
             optionalTypes[ObjectIdentifier(typeOptional)] = type
             // generic
             if genericIdx != nil {
@@ -143,7 +145,7 @@ public enum DynaType: RawRepresentable {
         typeKey(for: String(reflecting: value), namespace: namespace)
     }
     public static func typeKey(for value: String, namespace: String? = nil) -> String {
-        let key = value.split(separator: ":").last!
+        let key = typeKey(removeExtension: value)
             .replacingOccurrences(of: " ", with: "")
             .replacingOccurrences(of: "Swift.Optional", with: "!")
             .replacingOccurrences(of: "Swift.", with: "#")
@@ -154,6 +156,15 @@ public enum DynaType: RawRepresentable {
         let baseKey = String(genericIdx == nil ? key[keyIdx...] : key[keyIdx..<genericIdx!])
         let newBaseKey = typeKey(for: "\(namespace)\(baseKey[baseKey.firstIndex(of: ".")!...])")
         return key.replacingOccurrences(of: baseKey, with: newBaseKey)
+    }
+    
+   static func typeKey(removeExtension key: String) -> String {
+        var newKey = key
+        while true {
+            guard let idx = newKey.range(of: "(extension", options: .backwards)?.lowerBound else { return newKey }
+            let idx2 = newKey[idx...].range(of: "):")!.upperBound
+            newKey.removeSubrange(idx..<idx2)
+        }
     }
     
     public static func typeName(for value: String) -> String {
@@ -315,8 +326,15 @@ public enum DynaType: RawRepresentable {
         register(Int.self)
         register(Bool.self)
         register(Range<Int>.self)
-        register(NSDate.self)
+        //: nsobject
+        register(NSDate.self, alias: "__NSTaggedDate")
+        register(NSURL.self)
+        register(Timer.TimerPublisher.self, alias: "Timer.TimerPublisher")
         register(DateFormatter.self)
+        //: combine
+        register(AnyPublisher<Any, Never>.self)
+        register(PassthroughSubject<Any, Never>.self)
+        register(CurrentValueSubject<Any, Never>.self)
         return true
     }
 }

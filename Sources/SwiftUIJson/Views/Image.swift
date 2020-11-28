@@ -13,35 +13,13 @@ public typealias UXImage = NSImage
 public typealias UXImage = UIImage
 #endif
 
-// MARK: - Preamble
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension Image {
-    internal class AnyImageBox: Codable {
-        public func apply() -> Image {
-            fatalError()
-        }
+    
+    class AnyImageBox: Codable {
+        public func apply() -> Image { fatalError("Not Supported")  }
     }
-}
 
-// MARK: - First
-extension Image {
-    
-    internal struct Location {
-        let system: Bool
-        let bundle: Bundle?
-        init(system: Bool, bundle: Bundle?) {
-            self.system = system
-            self.bundle = bundle
-        }
-        init(any: Any) {
-            Mirror.assert(any, name: "Location", keys: ["bundle"])
-            system = String(reflecting: any) == "SwiftUI.Image.Location.system"
-            let m = Mirror.children(reflecting: any)
-            bundle = m["bundle"] as? Bundle
-        }
-    }
-    
-    internal class NamedImageProvider: AnyImageBox {
+    class NamedImageProvider: AnyImageBox {
         let label: Text?
         let location: Location
         let name: String
@@ -90,7 +68,7 @@ extension Image {
         }
     }
 
-    internal class RenderingModeProvider: AnyImageBox {
+    class RenderingModeProvider: AnyImageBox {
         let base: Image
         let renderingMode: TemplateRenderingMode
         init(any: Any) {
@@ -100,9 +78,7 @@ extension Image {
             renderingMode = m["renderingMode"]! as! TemplateRenderingMode
             super.init()
         }
-        public override func apply() -> Image {
-            base.renderingMode(renderingMode)
-        }
+        public override func apply() -> Image { base.renderingMode(renderingMode) }
         //: Codable
         enum CodingKeys: CodingKey {
             case base, mode
@@ -120,7 +96,7 @@ extension Image {
         }
     }
     
-    internal class InterpolationProvider: AnyImageBox {
+    class InterpolationProvider: AnyImageBox {
         let base: Image
         let interpolation: Interpolation
         init(any: Any) {
@@ -130,9 +106,7 @@ extension Image {
             interpolation = m["interpolation"]! as! Interpolation
             super.init()
         }
-        public override func apply() -> Image {
-            base.interpolation(interpolation)
-        }
+        public override func apply() -> Image { base.interpolation(interpolation) }
         //: Codable
         enum CodingKeys: CodingKey {
             case base, interpolation
@@ -150,7 +124,7 @@ extension Image {
         }
     }
     
-    internal class AntialiasedProvider: AnyImageBox {
+    class AntialiasedProvider: AnyImageBox {
         let base: Image
         let isAntialiased: Bool
         init(any: Any) {
@@ -160,9 +134,7 @@ extension Image {
             isAntialiased = m["isAntialiased"]! as! Bool
             super.init()
         }
-        public override func apply() -> Image {
-            base.antialiased(isAntialiased)
-        }
+        public override func apply() -> Image { base.antialiased(isAntialiased) }
         //: Codable
         enum CodingKeys: CodingKey {
             case base, antialiased
@@ -180,7 +152,7 @@ extension Image {
         }
     }
     
-    internal class CGImageProvider: AnyImageBox {
+    class CGImageProvider: AnyImageBox {
         let image: CGImage
         let label: Text?
         let decorative: Bool
@@ -226,7 +198,7 @@ extension Image {
         }
     }
     
-    internal class PlatformProvider: AnyImageBox {
+    class PlatformProvider: AnyImageBox {
         let image: UXImage
         init(any: Any) {
             #if os(macOS)
@@ -254,7 +226,7 @@ extension Image {
         }
     }
     
-    internal class ResizableProvider: AnyImageBox {
+    class ResizableProvider: AnyImageBox {
         let base: Image
         let resizingMode: ResizingMode
         let capInsets: EdgeInsets
@@ -266,9 +238,7 @@ extension Image {
             resizingMode = m["resizingMode"]! as! ResizingMode
             super.init()
         }
-        public override func apply() -> Image {
-            base.resizable(capInsets: capInsets, resizingMode: resizingMode)
-        }
+        public override func apply() -> Image { base.resizable(capInsets: capInsets, resizingMode: resizingMode) }
         //: Codable
         enum CodingKeys: CodingKey {
             case base, capInsets, resizingMode
@@ -287,9 +257,24 @@ extension Image {
             if resizingMode != .stretch { try container.encode(resizingMode, forKey: .resizingMode) }
         }
     }
+    
+    struct Location {
+        let system: Bool
+        let bundle: Bundle?
+        init(system: Bool, bundle: Bundle?) {
+            self.system = system
+            self.bundle = bundle
+        }
+        init(any: Any) {
+            Mirror.assert(any, name: "Location", keys: ["bundle"])
+            system = String(reflecting: any) == "SwiftUI.Image.Location.system"
+            let m = Mirror.children(reflecting: any)
+            bundle = m["bundle"] as? Bundle
+        }
+    }
+    
 }
 
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension Image: IAnyView, FullyCodable {
     public var anyView: AnyView { AnyView(self) }
     //: Codable
@@ -317,7 +302,7 @@ extension Image: IAnyView, FullyCodable {
         Mirror.assert(self, name: "Image", keys: ["provider.base"])
         var container = encoder.container(keyedBy: CodingKeys.self)
         let provider = Mirror(reflecting: self).descendant("provider", "base")!
-        switch "\(type(of: provider))" {
+        switch String(describing: type(of: provider)) {
         case "NamedImageProvider": try container.encode(NamedImageProvider(any: provider), forKey: .named)
         case "RenderingModeProvider": try container.encode(RenderingModeProvider(any: provider), forKey: .mode)
         case "InterpolationProvider": try container.encode(InterpolationProvider(any: provider), forKey: .interpolation)
@@ -334,7 +319,6 @@ extension Image: IAnyView, FullyCodable {
     }
 }
 
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension Image.Orientation: Codable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
@@ -365,7 +349,6 @@ extension Image.Orientation: Codable {
     }
 }
 
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension Image.TemplateRenderingMode: Codable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
@@ -385,29 +368,28 @@ extension Image.TemplateRenderingMode: Codable {
     }
 }
 
-//@available(macOS 11.0, *)
-//extension Image.Scale: Codable {
-//    public init(from decoder: Decoder) throws {
-//        let container = try decoder.singleValueContainer()
-//        switch try container.decode(String.self) {
-//        case "small": self = .small
-//        case "medium": self = .medium
-//        case "large": self = .large
-//        case let unrecognized: fatalError(unrecognized)
-//        }
-//    }
-//    public func encode(to encoder: Encoder) throws {
-//        var container = encoder.singleValueContainer()
-//        switch self {
-//        case .small: try container.encode("small")
-//        case .medium: try container.encode("medium")
-//        case .large: try container.encode("large")
-//        case let unrecognized: fatalError("\unrecognized\")
-//        }
-//    }
-//}
+@available(macOS 11.0, *)
+extension Image.Scale: Codable {
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        switch try container.decode(String.self) {
+        case "small": self = .small
+        case "medium": self = .medium
+        case "large": self = .large
+        case let unrecognized: fatalError(unrecognized)
+        }
+    }
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        switch self {
+        case .small: try container.encode("small")
+        case .medium: try container.encode("medium")
+        case .large: try container.encode("large")
+        case let unrecognized: fatalError("\(unrecognized)")
+        }
+    }
+}
 
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension Image.Interpolation: Codable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
@@ -431,7 +413,6 @@ extension Image.Interpolation: Codable {
     }
 }
 
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension Image.ResizingMode: Codable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()

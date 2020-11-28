@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension HStack: IAnyView, DynaCodable where Content : View, Content : DynaCodable {
     public var anyView: AnyView { AnyView(self) }
     //: Codable
@@ -22,7 +21,8 @@ extension HStack: IAnyView, DynaCodable where Content : View, Content : DynaCoda
     }
     public func encode(to encoder: Encoder) throws {
         Mirror.assert(self, name: "HStack", keys: ["_tree"])
-        let tree = Mirror(reflecting: self).descendant("_tree") as! _VariadicView.Tree<_HStackLayout, Content>, root = tree.root
+        let tree = Mirror(reflecting: self).descendant("_tree") as! _VariadicView.Tree<_HStackLayout, Content>
+        let root = tree.root
         var container = encoder.container(keyedBy: CodingKeys.self)
         if root.alignment != .center || root.spacing != nil { try container.encode(root, forKey: .root) }
         try container.encode(tree.content, forKey: .content)
@@ -33,7 +33,6 @@ extension HStack: IAnyView, DynaCodable where Content : View, Content : DynaCoda
     }
 }
 
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension VerticalAlignment: Codable {
     //: Codable
     public init(from decoder: Decoder) throws {
@@ -60,7 +59,6 @@ extension VerticalAlignment: Codable {
     }
 }
 
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension _HStackLayout: Codable {
     //: Codable
     enum CodingKeys: CodingKey {

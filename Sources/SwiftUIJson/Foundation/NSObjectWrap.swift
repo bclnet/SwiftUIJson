@@ -34,7 +34,7 @@ struct NSObjectWrap<Base>: Codable where Base : NSObject {
     }
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        let dynaType = try DynaType.type(for: Self.lookup(type(of: wrapValue).self))
+        let dynaType = try DynaType.type(for: type(of: wrapValue).self)
         try container.encode(dynaType, forKey: .type)
         switch wrapValue {
         case let value as NSSecureCoding:
@@ -46,13 +46,6 @@ struct NSObjectWrap<Base>: Codable where Base : NSObject {
             value.encode(with: coder)
             try container.encode(coder.encodedData, forKey: .value)
         case let unrecognized: fatalError("\(unrecognized)")
-        }
-    }
-    
-    static func lookup<Metatype>(_ type: Any.Type) -> Metatype {
-        switch "\(type)" {
-        case "__NSTaggedDate": return NSDate.self as! Metatype
-        default: return type as! Metatype
         }
     }
 }

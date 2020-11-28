@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import Combine
 
 public struct JsonUI: Codable {
     public let body: Any
@@ -14,9 +15,7 @@ public struct JsonUI: Codable {
     
     public init<Content>(view: Content) throws where Content : View {
         let _ = JsonUI.registered
-        if Content.Body.self == Never.self {
-            fatalError("NEVER")
-        }
+        if Content.Body.self == Never.self { fatalError("NEVER") }
         guard let value = view as? Encodable else {
             guard let value2 = view.body as? Encodable else {
                 throw DynaTypeError.typeNotCodable("JsonUI", key: DynaType.typeKey(for: view.body))
@@ -34,8 +33,14 @@ public struct JsonUI: Codable {
     public init(from decoder: Decoder) throws {
         guard let json = decoder.userInfo[.json] as? Data else { fatalError(".json") }
         guard decoder.userInfo[.jsonContext] as? JsonContext != nil else {
-            let container = try decoder.container(keyedBy: CodingKeys.self)
-            let nextContext = try container.decode(JsonContext.self, forKey: ._ui)
+            let nextContext: JsonContext
+            do {
+                var container = try decoder.unkeyedContainer()
+                nextContext = try container.decode(JsonContext.self)
+            } catch {
+                let container = try decoder.container(keyedBy: CodingKeys.self)
+                nextContext = try container.decode(JsonContext.self, forKey: ._ui)
+            }
             let nextDecoder = JSONDecoder()
             nextDecoder.userInfo[.json] = json
             nextDecoder.userInfo[.jsonContext] = nextContext
@@ -48,8 +53,13 @@ public struct JsonUI: Codable {
     }
     public func encode(to encoder: Encoder) throws {
         guard let context = encoder.userInfo[.jsonContext] as? JsonContext else { fatalError(".jsonContext") }
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(context, forKey: ._ui)
+        if body is DynaUnkeyedContainer {
+            var container = encoder.unkeyedContainer()
+            try container.encode(context)
+        } else {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(context, forKey: ._ui)
+        }
         try context.encodeDynaSuper(body, to: encoder)
     }
     
@@ -83,15 +93,16 @@ public struct JsonUI: Codable {
         ToggleStyleModifier<NeverCodable>.register()
         
         // modifiers:system
+        __DesignTimeSelectionIdentifier.register()
         _StateWrapper<AnyView>.register()
         AnyViewModifier.register()
         EnvironmentValues.register()
         
         // modifiers
-        __DesignTimeSelectionIdentifier.register()
         if #available(iOS 13.0, macOS 11.0, tvOS 13.0, watchOS 6.0, *) {
             _AccessibilityIgnoresInvertColorsViewModifier.register()
         }
+        _AlignmentWritingModifier.register()
         _AllowsHitTestingModifier.register()
         _AppearanceActionModifier.register()
         _BackgroundModifier<AnyView>.register()
@@ -104,6 +115,7 @@ public struct JsonUI: Codable {
         _OffsetEffect.register()
         _OverlayModifier<AnyView>.register()
         _PaddingLayout.register()
+        _PositionLayout.register()
         _RotationEffect.register()
         _SafeAreaIgnoringLayout.register()
         _ShadowEffect.register()
@@ -111,9 +123,10 @@ public struct JsonUI: Codable {
         _TouchBarModifier<AnyView>.register()
         #endif
         _TraitWritingModifier<NeverCodable>.register()
+        _TransformEffect.register()
         AccessibilityAttachmentModifier.register()
+        AddGestureModifier<Any>.register()
         ModifiedContent<AnyView, AnyViewModifier>.register()
-        ModifierGesture<Any, Any>.register()
         
         // swiftui:shapestyles
         AngularGradient.register()
@@ -130,6 +143,7 @@ public struct JsonUI: Codable {
         #endif
         // swiftui
         Color.register()
+        ModifierGesture<Any, Any>.register()
         
         // views:shapes
         _ShapeView<AnyShape, AngularGradient>.register()
@@ -159,8 +173,12 @@ public struct JsonUI: Codable {
         
         // views
         Button<AnyView>.register()
+        #if !os(tvOS)
         ContextMenu<AnyView>.register()
+        #endif
+        #if !os(tvOS) && !os(watchOS)
         DatePicker<AnyView>.register()
+        #endif
         Divider.register()
         #if os(iOS)
         EditButton.register()
@@ -171,8 +189,12 @@ public struct JsonUI: Codable {
         Form<AnyView>.register()
         GeometryReader<AnyView>.register()
 //        Group<AnyView>.register()
+        #if !os(tvOS) && !os(watchOS)
+        if #available(iOS 14.0, macOS 10.15, *) {
+            GroupBox<AnyView, AnyView>.register()
+        }
+        #endif
         #if os(macOS)
-        GroupBox<AnyView, AnyView>.register()
         HSplitView<AnyView>.register()
         #endif
         HStack<AnyView>.register()
@@ -203,7 +225,7 @@ public struct JsonUI: Codable {
         #if !os(tvOS) && !os(watchOS)
         Stepper<AnyView>.register()
         #endif
-//      SubscriptionView<AnyPublisherType, AnyView>.register()
+        SubscriptionView<PassthroughSubject<Any, Never>, AnyView>.register()
         #if !os(watchOS)
         TabView<AnyHashable, AnyView>.register()
         #endif

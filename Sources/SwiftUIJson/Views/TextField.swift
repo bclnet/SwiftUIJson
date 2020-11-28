@@ -38,7 +38,7 @@ extension TextField: IAnyView, DynaCodable where Label == Text {
         let onEditingChanged = m["onEditingChanged"]! as! ((Bool) -> Void)
         Mirror.assert(label, name: "Text", keys: ["storage", "modifiers"])
         let m2 = Mirror.children(reflecting: label)
-        let storage = Text.Storage(any: m2.child(named: "storage"))
+        let storage = Text.Storage(any: m2["storage"]!)
         var container = encoder.container(keyedBy: CodingKeys.self)
         switch storage {
         case .text(let value): try container.encode(value, forKey: .titleKey)

@@ -1,5 +1,5 @@
 //
-//  _DraggingModifier.swift (Incomplete)
+//  _DraggingModifier.swift
 //
 //  Created by Sky Morey on 8/22/20.
 //  Copyright © 2020 Sky Morey. All rights reserved.
@@ -7,40 +7,17 @@
 
 import SwiftUI
 
-struct DraggingItem {
-    
-}
-
-//func anyFunc<T:Sequence>(_ closure: () -> T) {
-//    let result: T = closure()
-//    for i in result {
-//        print(i)
-//    }
-//}
-
 struct _DraggingModifier: JsonViewModifier, ConvertibleCodable {
     let itemsForDragHandler: Any
     public init(any: Any) {
         Mirror.assert(any, name: "_DraggingModifier", keys: ["itemsForDragHandler"])
-        itemsForDragHandler = Mirror(reflecting: any).descendant("itemsForDragHandler")!// as! () -> [DraggingItem]
-//        anyFunc(itemsForDragHandler)
+        itemsForDragHandler = Mirror(reflecting: any).descendant("itemsForDragHandler")!
     }
     //: JsonViewModifier
-    func body(content: AnyView) -> AnyView {
-        fatalError()
-//        AnyView(content.onDrag(itemsForDragHandler))
-    }
+    func body(content: AnyView) -> AnyView { fatalError("Not Supported") }
     //: Codable
-    enum CodingKeys: CodingKey {
-        case items
-    }
-    public init(from decoder: Decoder) throws {
-//        var container = encoder.container(keyedBy: CodingKeys.self)
-        fatalError()
-    }
-    public func encode(to encoder: Encoder) throws {
-//        var container = encoder.container(keyedBy: CodingKeys.self)
-    }
+    public init(from decoder: Decoder) throws { fatalError("Not Supported") }
+    public func encode(to encoder: Encoder) throws { fatalError("Not Supported") }
     //: Register
     static func register() {
         DynaType.register(_DraggingModifier.self, namespace: "SwiftUI")

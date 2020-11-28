@@ -7,38 +7,6 @@
 
 import SwiftUI
 
-struct AddGestureModifier<Gesture>: JsonViewModifier, ConvertibleDynaCodable {
-    let gestureMask: GestureMask
-    let gesture: Gesture
-    let action: ((AnyView, GestureMask, Any) -> AnyView)!
-    public init(any: Any) {
-        Mirror.assert(any, name: "AddGestureModifier", keys: ["gestureMask", "gesture"])
-        let m = Mirror.children(reflecting: any)
-        gestureMask = m["gestureMask"]! as! GestureMask
-        gesture = m["gesture"]! as! Gesture
-        action = nil
-    }
-    //: JsonViewModifier
-    public func body(content: AnyView) -> AnyView {
-        action(AnyView(content), gestureMask, gesture)
-    }
-    //: Codable
-    enum CodingKeys: CodingKey {
-        case gestureMask, gesture
-    }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        gestureMask = try container.decode(GestureMask.self, forKey: .gestureMask)
-        gesture = try container.decodeAny(Gesture.self, forKey: .gesture, dynaType: dynaType[0])
-        action = DynaType.find(action: "longPressGesture", forKey: dynaType.underlyingAny)
-    }
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(gestureMask, forKey: .gestureMask)
-        try container.encodeAny(gesture, forKey: .gesture)
-    }
-}
-
 struct ModifierGesture<Modifier, Content>: ConvertibleDynaCodable {
     let modifier: Modifier
     let content: Content
@@ -64,7 +32,6 @@ struct ModifierGesture<Modifier, Content>: ConvertibleDynaCodable {
     }
     //: Register
     static func register() {
-        // MARK: - Gesture:17256
         DynaType.register(CallbacksGesture<Any>.self, any: [Any.self], namespace: "SwiftUI")
         DynaType.register(PressableGestureCallbacks<Any>.self, any: [Any.self], namespace: "SwiftUI")
         DynaType.register(LongPressGesture.self)
@@ -124,7 +91,6 @@ struct PressableGestureCallbacks<Gesture>: ConvertibleCodable {
     }
 }
 
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension GestureMask: Codable {
     public static let allCases: [Self] = [.all, .none, .gesture, .subviews]
     //: Codable
