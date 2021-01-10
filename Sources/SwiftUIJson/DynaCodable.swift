@@ -30,16 +30,6 @@ extension DynaTypeWithNil: Codable {
     }
 }
 
-extension DynaType: Codable {
-    //: Codable
-    public init(from decoder: Decoder) throws {
-        self.init(rawValue: try decoder.singleValueContainer().decode(String.self))!
-    }
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        try container.encode(rawValue)
-    }
-}
 
 extension Encoder {
     public func encodeDynaSuper(_ value: Any) throws {

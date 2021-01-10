@@ -43,7 +43,7 @@ public struct DynaTypeWithNil: RawRepresentable {
     }
 }
 
-public enum DynaType: RawRepresentable {
+public enum DynaType: RawRepresentable, Codable {
     case type(_ type: Any.Type, _ key: String)
     case tuple(_ type: Any.Type, _ key: String, _ components: [Self])
     case generic(_ type: Any.Type, _ key: String, _ any: String, _ components: [Self])
@@ -61,6 +61,14 @@ public enum DynaType: RawRepresentable {
         switch self {
         case .type: return self
         case .tuple(_, _, let componets), .generic(_, _, _, let componets): return componets[index] }
+    }
+    //: Codable
+    public init(from decoder: Decoder) throws {
+        self.init(rawValue: try decoder.singleValueContainer().decode(String.self))!
+    }
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(rawValue)
     }
     //: RawRepresentable
     public init?(rawValue: String) {

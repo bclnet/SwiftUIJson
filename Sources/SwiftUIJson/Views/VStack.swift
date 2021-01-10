@@ -21,7 +21,8 @@ extension VStack: IAnyView, DynaCodable where Content : View, Content : DynaCoda
     }
     public func encode(to encoder: Encoder) throws {
         Mirror.assert(self, name: "VStack", keys: ["_tree"])
-        let tree = Mirror(reflecting: self).descendant("_tree") as! _VariadicView.Tree<_VStackLayout, Content>, root = tree.root
+        let tree = Mirror(reflecting: self).descendant("_tree") as! _VariadicView.Tree<_VStackLayout, Content>
+        let root = tree.root
         var container = encoder.container(keyedBy: CodingKeys.self)
         if root.alignment != .center || root.spacing != nil { try container.encode(root, forKey: .root) }
         try container.encode(tree.content, forKey: .content)
@@ -32,42 +33,20 @@ extension VStack: IAnyView, DynaCodable where Content : View, Content : DynaCoda
     }
 }
 
-extension HorizontalAlignment: Codable {
-    //: Codable
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        switch try container.decode(String.self) {
-        case "leading": self = .leading
-        case "center": self = .center
-        case "trailing": self = .trailing
-        case let unrecognized: fatalError(unrecognized)
-        }
-    }
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        switch self {
-        case .leading: try container.encode("leading")
-        case .center: try container.encode("center")
-        case .trailing: try container.encode("trailing")
-        case let unrecognized: fatalError("\(unrecognized)")
-        }
-    }
-}
-
 extension _VStackLayout: Codable {
     //: Codable
     enum CodingKeys: CodingKey {
-        case spacing, alignment
+        case alignment, spacing
     }
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let spacing = try? container.decodeIfPresent(CGFloat.self, forKey: .spacing)
         let alignment = try container.decode(HorizontalAlignment.self, forKey: .alignment)
+        let spacing = try? container.decodeIfPresent(CGFloat.self, forKey: .spacing)
         self.init(alignment: alignment, spacing: spacing)
     }
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encodeIfPresent(spacing, forKey: .spacing)
         try container.encode(alignment, forKey: .alignment)
+        try container.encodeIfPresent(spacing, forKey: .spacing)
     }
 }
