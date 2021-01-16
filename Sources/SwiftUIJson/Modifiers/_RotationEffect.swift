@@ -28,6 +28,6 @@ extension _RotationEffect: JsonViewModifier, Codable {
     }
     //: Register
     static func register() {
-        DynaType.register(_RotationEffect.self)
+        PType.register(_RotationEffect.self)
     }
 }

@@ -26,6 +26,6 @@ extension _AlignmentWritingModifier: JsonViewModifier, Codable {
     }
     //: Register
     static func register() {
-        DynaType.register(_AlignmentWritingModifier.self)
+        PType.register(_AlignmentWritingModifier.self)
     }
 }

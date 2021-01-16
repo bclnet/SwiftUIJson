@@ -13,11 +13,11 @@ extension ScrollView: IAnyView, DynaCodable where Content : View, Content : Dyna
     enum CodingKeys: CodingKey {
         case axes, showsIndicators, content
     }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+    public init(from decoder: Decoder, for ptype: PType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let axes = (try? container.decodeIfPresent(Axis.Set.self, forKey: .axes)) ?? .vertical
         let showsIndicators = (try? container.decodeIfPresent(Bool.self, forKey: .showsIndicators)) ?? true
-        let content = try container.decode(Content.self, forKey: .content, dynaType: dynaType[0])
+        let content = try container.decode(Content.self, forKey: .content, ptype: ptype[0])
         self.init(axes, showsIndicators: showsIndicators, content: { content })
     }
     public func encode(to encoder: Encoder) throws {
@@ -32,7 +32,7 @@ extension ScrollView: IAnyView, DynaCodable where Content : View, Content : Dyna
     }
     //: Register
     static func register() {
-        DynaType.register(ScrollView<AnyView>.self)
+        PType.register(ScrollView<AnyView>.self)
     }
     
     struct ScrollViewConfiguration {

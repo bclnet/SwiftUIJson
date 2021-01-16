@@ -14,7 +14,7 @@ extension LinearGradient: IAnyView, FullyCodable {
     enum CodingKeys: CodingKey {
         case gradient, startPoint, endPoint
     }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws { try self.init(from: decoder) }
+    public init(from decoder: Decoder, for ptype: PType) throws { try self.init(from: decoder) }
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let gradient = try container.decode(Gradient.self, forKey: .gradient)
@@ -32,6 +32,6 @@ extension LinearGradient: IAnyView, FullyCodable {
     }
     //: Register
     static func register() {
-        DynaType.register(LinearGradient.self)
+        PType.register(LinearGradient.self)
     }
 }

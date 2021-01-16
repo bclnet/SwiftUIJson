@@ -22,18 +22,19 @@ public struct JsonPreview<Content>: View where Content: View {
     public init(@ViewBuilder content: () -> Content) {
         self.content = content()
         
-        // data
         let view = self.content
         let context = JsonContext[view]
         defer {
             JsonContext.remove(view)
         }
+
+        // data
         do {
             let encoder = JSONEncoder()
             encoder.userInfo[.jsonContext] = context
             encoder.outputFormatting = .prettyPrinted
             data = try encoder.encode(JsonUI(view: view))
-        } catch DynaTypeError.typeNotCodable(let mode, let named) {
+        } catch PTypeError.typeNotCodable(let mode, let named) {
             data = "typeNotCodable mode: \(mode) named: \(named)".data(using: .utf8)!
             content2 = AnyView(Text("ERROR"))
             return
@@ -49,18 +50,17 @@ public struct JsonPreview<Content>: View where Content: View {
             decoder.userInfo[.json] = data
             let jsonUI = try decoder.decode(JsonUI.self, from: data)
             content2 = jsonUI.anyView ?? AnyView(Text("ERROR:notAnyView"))
-        } catch DynaTypeError.typeNotFound {
+        } catch PTypeError.typeNotFound {
             content2 = AnyView(Text("ERROR:typeNotFound"))
-        } catch DynaTypeError.typeParseError {
+        } catch PTypeError.typeParseError {
             content2 = AnyView(Text("ERROR:typeParseError"))
-        } catch DynaTypeError.typeNameError(let actual, let expected) {
+        } catch PTypeError.typeNameError(let actual, let expected) {
             content2 = AnyView(Text("ERROR:typeNameError actual: \(actual) expected: \(expected)"))
-        } catch DynaTypeError.typeNotCodable(let mode, let key) {
+        } catch PTypeError.typeNotCodable(let mode, let key) {
             content2 = AnyView(Text("ERROR:typeNotCodable mode: \(mode) named: \(key)"))
         } catch {
             content2 = AnyView(Text("ERROR:\(error)" as String))
             //data = "\(error)\n".data(using: .utf8)! + data
-            return
         }
     }
             

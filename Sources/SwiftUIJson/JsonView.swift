@@ -15,7 +15,7 @@ public protocol JsonView: DynaCodable {
 public struct BaseView  {
     public let anyView: (Any) -> AnyView
     public init<Content>(_ type: Content.Type) where Content : View {
-        DynaType.register(type)
+        PType.register(type)
         anyView = { view in AnyView(view as! Content) }
     }
 }

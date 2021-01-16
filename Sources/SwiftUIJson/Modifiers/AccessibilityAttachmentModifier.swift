@@ -32,6 +32,6 @@ extension AccessibilityAttachmentModifier: JsonViewModifier, Codable {
     }
     //: Register
     static func register() {
-        DynaType.register(AccessibilityAttachmentModifier.self)
+        PType.register(AccessibilityAttachmentModifier.self)
     }
 }

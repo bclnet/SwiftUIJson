@@ -26,29 +26,29 @@ struct ButtonStyleModifier<Style>: JsonViewModifier, ConvertibleCodable where St
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let styleKey = try container.decode(String.self, forKey: .style)
-        (action, style) = try DynaType.find(actionAndType: "style", forKey: styleKey)
+        (action, style) = try PType.find(actionAndType: "style", forKey: styleKey)
     }
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        let styleKey = DynaType.typeKey(type: style)
+        let styleKey = PType.typeKey(type: style)
         try container.encode(styleKey, forKey: .style)
     }
     //: Register
     static func register() {
-        DynaType.register(ButtonStyleModifier<NeverCodable>.self, any: [NeverCodable.self], namespace: "SwiftUI")
+        PType.register(ButtonStyleModifier<NeverCodable>.self, any: [NeverCodable.self], namespace: "SwiftUI")
         #if !os(iOS) &&  !os(watchOS)
-        DynaType.register(BorderlessButtonStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.buttonStyle(BorderlessButtonStyle())) }])
+        PType.register(BorderlessButtonStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.buttonStyle(BorderlessButtonStyle())) }])
         #endif
-        DynaType.register(DefaultButtonStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.buttonStyle(DefaultButtonStyle())) }])
-        DynaType.register(PlainButtonStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.buttonStyle(PlainButtonStyle())) }])
+        PType.register(DefaultButtonStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.buttonStyle(DefaultButtonStyle())) }])
+        PType.register(PlainButtonStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.buttonStyle(PlainButtonStyle())) }])
         #if !os(iOS)
         if #available(macOS 10.15, tvOS 13.0, watchOS 7.0, *) {
-            DynaType.register(BorderedButtonStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.buttonStyle(BorderedButtonStyle())) }])
+            PType.register(BorderedButtonStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.buttonStyle(BorderedButtonStyle())) }])
         }
-        DynaType.register(LinkButtonStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.buttonStyle(LinkButtonStyle())) }])
+        PType.register(LinkButtonStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.buttonStyle(LinkButtonStyle())) }])
         #endif
         #if os(tvOS)
-        DynaType.register(CardButtonStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.buttonStyle(CardButtonStyle())) }])
+        PType.register(CardButtonStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.buttonStyle(CardButtonStyle())) }])
         #endif
     }
 }

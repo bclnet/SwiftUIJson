@@ -20,6 +20,6 @@ struct _DraggingModifier: JsonViewModifier, ConvertibleCodable {
     public func encode(to encoder: Encoder) throws { fatalError("Not Supported") }
     //: Register
     static func register() {
-        DynaType.register(_DraggingModifier.self, namespace: "SwiftUI")
+        PType.register(_DraggingModifier.self, namespace: "SwiftUI")
     }
 }

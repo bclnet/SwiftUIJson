@@ -18,9 +18,9 @@ extension _TouchBarModifier: JsonViewModifier, DynaCodable where Content : DynaC
     enum CodingKeys: CodingKey {
         case content
     }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+    public init(from decoder: Decoder, for ptype: PType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let content = try container.decode(TouchBar<Content>.self, forKey: .content, dynaType: dynaType[0])
+        let content = try container.decode(TouchBar<Content>.self, forKey: .content, ptype: ptype[0])
         self = (Capsule().touchBar(content) as! ModifiedContent<Capsule, _TouchBarModifier<Content>>).modifier
     }
     public func encode(to encoder: Encoder) throws {
@@ -31,6 +31,6 @@ extension _TouchBarModifier: JsonViewModifier, DynaCodable where Content : DynaC
     }
     //: Register
     static func register() {
-        DynaType.register(_TouchBarModifier<AnyView>.self, any: [AnyView.self])
+        PType.register(_TouchBarModifier<AnyView>.self, any: [AnyView.self])
     }
 }

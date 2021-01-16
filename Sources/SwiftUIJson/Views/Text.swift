@@ -411,7 +411,7 @@ extension Text: IAnyView, FullyCodable {
     enum CodingKeys: CodingKey {
         case text, verbatim, any, modifiers
     }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws { try self.init(from: decoder) }
+    public init(from decoder: Decoder, for ptype: PType) throws { try self.init(from: decoder) }
     public init(from decoder: Decoder) throws {
         let context = decoder.userInfo[.jsonContext] as! JsonContext
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -473,8 +473,8 @@ extension Text: IAnyView, FullyCodable {
     }
     //: Register
     static func register() {
-        DynaType.register(Text.self)
-        DynaType.register(Text.TruncationMode.self)
+        PType.register(Text.self)
+        PType.register(Text.TruncationMode.self)
     }
 }
 

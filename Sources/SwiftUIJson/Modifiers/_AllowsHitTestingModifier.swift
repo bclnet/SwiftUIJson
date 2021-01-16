@@ -25,6 +25,6 @@ extension _AllowsHitTestingModifier: JsonViewModifier, Codable {
     }
     //: Register
     static func register() {
-        DynaType.register(_AllowsHitTestingModifier.self)
+        PType.register(_AllowsHitTestingModifier.self)
     }
 }

@@ -30,6 +30,6 @@ extension _ShadowEffect: JsonViewModifier, Codable {
     }
     //: Register
     static func register() {
-        DynaType.register(_ShadowEffect.self)
+        PType.register(_ShadowEffect.self)
     }
 }

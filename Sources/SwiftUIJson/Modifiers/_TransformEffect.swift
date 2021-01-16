@@ -31,6 +31,6 @@ extension _TransformEffect: JsonViewModifier, Codable {
     }
     //: Register
     static func register() {
-        DynaType.register(_TransformEffect.self)
+        PType.register(_TransformEffect.self)
     }
 }

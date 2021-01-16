@@ -13,11 +13,11 @@ extension Section: IAnyView, DynaCodable where Parent : View, Parent : DynaCodab
     enum CodingKeys: CodingKey {
         case header, footer, content
     }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+    public init(from decoder: Decoder, for ptype: PType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let header = (try? container.decodeIfPresent(Parent.self, forKey: .header, dynaType: dynaType[0])) ?? AnyView(EmptyView()) as! Parent
-        let footer = (try? container.decodeIfPresent(Footer.self, forKey: .footer, dynaType: dynaType[2])) ?? AnyView(EmptyView()) as! Footer
-        let content = try container.decode(Content.self, forKey: .content, dynaType: dynaType[1])
+        let header = (try? container.decodeIfPresent(Parent.self, forKey: .header, ptype: ptype[0])) ?? AnyView(EmptyView()) as! Parent
+        let footer = (try? container.decodeIfPresent(Footer.self, forKey: .footer, ptype: ptype[2])) ?? AnyView(EmptyView()) as! Footer
+        let content = try container.decode(Content.self, forKey: .content, ptype: ptype[1])
         self.init(header: header, footer: footer, content: { content })
     }
     public func encode(to encoder: Encoder) throws {
@@ -33,6 +33,6 @@ extension Section: IAnyView, DynaCodable where Parent : View, Parent : DynaCodab
     }
     //: Register
     static func register() {
-        DynaType.register(Section<AnyView, AnyView, AnyView>.self)
+        PType.register(Section<AnyView, AnyView, AnyView>.self)
     }
 }

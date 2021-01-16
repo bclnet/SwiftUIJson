@@ -32,6 +32,6 @@ extension _FrameLayout: JsonViewModifier, Codable {
     }
     //: Register
     static func register() {
-        DynaType.register(_FrameLayout.self)
+        PType.register(_FrameLayout.self)
     }
 }

@@ -81,80 +81,80 @@ extension EnvironmentValues {
     //: Register
     // MARK: - Style:5387
     static func register() {
-        DynaType.register(EnvironmentValues.self)
+        PType.register(EnvironmentValues.self)
         // MARK: - Style:5437
         #if !os(watchOS)
-        DynaType.register(WritableKeyPath<EnvironmentValues, Bool?>.self, actions: ["disableAutocorrection": { () -> WritableKeyPath<EnvironmentValues, Bool?> in \.disableAutocorrection }])
+        PType.register(WritableKeyPath<EnvironmentValues, Bool?>.self, actions: ["disableAutocorrection": { () -> WritableKeyPath<EnvironmentValues, Bool?> in \.disableAutocorrection }])
         #endif
         // MARK: - Style:5449
-        DynaType.register(WritableKeyPath<EnvironmentValues, ContentSizeCategory>.self, actions: ["sizeCategory": { () -> WritableKeyPath<EnvironmentValues, ContentSizeCategory> in \.sizeCategory }])
+        PType.register(WritableKeyPath<EnvironmentValues, ContentSizeCategory>.self, actions: ["sizeCategory": { () -> WritableKeyPath<EnvironmentValues, ContentSizeCategory> in \.sizeCategory }])
         // MARK: - Style:5458
-        DynaType.register(WritableKeyPath<EnvironmentValues, NSManagedObjectContext>.self, actions: ["managedObjectContext": { () -> WritableKeyPath<EnvironmentValues, NSManagedObjectContext> in \.managedObjectContext }])
+        PType.register(WritableKeyPath<EnvironmentValues, NSManagedObjectContext>.self, actions: ["managedObjectContext": { () -> WritableKeyPath<EnvironmentValues, NSManagedObjectContext> in \.managedObjectContext }])
         // MARK: - Style:5464
-        DynaType.register(KeyPath<EnvironmentValues, UndoManager?>.self, actions: ["undoManager": { () -> KeyPath<EnvironmentValues, UndoManager?> in \.undoManager }])
+        PType.register(KeyPath<EnvironmentValues, UndoManager?>.self, actions: ["undoManager": { () -> KeyPath<EnvironmentValues, UndoManager?> in \.undoManager }])
         // MARK: - Style:5475
-        DynaType.register(WritableKeyPath<EnvironmentValues, LayoutDirection>.self, actions: ["layoutDirection": { () -> WritableKeyPath<EnvironmentValues, LayoutDirection> in \.layoutDirection }])
+        PType.register(WritableKeyPath<EnvironmentValues, LayoutDirection>.self, actions: ["layoutDirection": { () -> WritableKeyPath<EnvironmentValues, LayoutDirection> in \.layoutDirection }])
         // MARK: - Style:6605
-        DynaType.register(WritableKeyPath<EnvironmentValues, CGFloat>.self, actions: ["defaultMinListRowHeight": { () -> WritableKeyPath<EnvironmentValues, CGFloat> in \.defaultMinListRowHeight }])
-        DynaType.register(WritableKeyPath<EnvironmentValues, CGFloat?>.self, actions: ["defaultMinListHeaderHeight": { () -> WritableKeyPath<EnvironmentValues, CGFloat?> in \.defaultMinListHeaderHeight }])
+        PType.register(WritableKeyPath<EnvironmentValues, CGFloat>.self, actions: ["defaultMinListRowHeight": { () -> WritableKeyPath<EnvironmentValues, CGFloat> in \.defaultMinListRowHeight }])
+        PType.register(WritableKeyPath<EnvironmentValues, CGFloat?>.self, actions: ["defaultMinListHeaderHeight": { () -> WritableKeyPath<EnvironmentValues, CGFloat?> in \.defaultMinListHeaderHeight }])
         // MARK: - Style:5517
-        DynaType.register(WritableKeyPath<EnvironmentValues, Bool>.self, actions: ["isEnabled": { () -> WritableKeyPath<EnvironmentValues, Bool> in \.isEnabled }])
+        PType.register(WritableKeyPath<EnvironmentValues, Bool>.self, actions: ["isEnabled": { () -> WritableKeyPath<EnvironmentValues, Bool> in \.isEnabled }])
         // MARK: - Style:5536
-        DynaType.register(WritableKeyPath<EnvironmentValues, Font?>.self, actions: ["font": { () -> WritableKeyPath<EnvironmentValues, Font?> in \.font }])
-        DynaType.register(WritableKeyPath<EnvironmentValues, CGFloat>.self, actions: ["displayScale": { () -> WritableKeyPath<EnvironmentValues, CGFloat> in \.displayScale }])
-        DynaType.register(WritableKeyPath<EnvironmentValues, CGFloat>.self, actions: ["pixelLength": { () -> KeyPath<EnvironmentValues, CGFloat> in \.pixelLength }])
-        DynaType.register(WritableKeyPath<EnvironmentValues, LegibilityWeight?>.self, actions: ["legibilityWeight": { () -> WritableKeyPath<EnvironmentValues, LegibilityWeight?> in \.legibilityWeight }])
-        DynaType.register(WritableKeyPath<EnvironmentValues, Locale>.self, actions: ["locale": { () -> WritableKeyPath<EnvironmentValues, Locale> in \.locale }])
-        DynaType.register(WritableKeyPath<EnvironmentValues, Calendar>.self, actions: ["calendar": { () -> WritableKeyPath<EnvironmentValues, Calendar> in \.calendar }])
-        DynaType.register(WritableKeyPath<EnvironmentValues, TimeZone>.self, actions: ["timeZone": { () -> WritableKeyPath<EnvironmentValues, TimeZone> in \.timeZone }])
-        DynaType.register(WritableKeyPath<EnvironmentValues, ColorScheme>.self, actions: ["colorScheme": { () -> WritableKeyPath<EnvironmentValues, ColorScheme> in \.colorScheme }])
-        DynaType.register(KeyPath<EnvironmentValues, ColorSchemeContrast>.self, actions: ["colorSchemeContrast": { () -> KeyPath<EnvironmentValues, ColorSchemeContrast> in \.colorSchemeContrast }])
+        PType.register(WritableKeyPath<EnvironmentValues, Font?>.self, actions: ["font": { () -> WritableKeyPath<EnvironmentValues, Font?> in \.font }])
+        PType.register(WritableKeyPath<EnvironmentValues, CGFloat>.self, actions: ["displayScale": { () -> WritableKeyPath<EnvironmentValues, CGFloat> in \.displayScale }])
+        PType.register(WritableKeyPath<EnvironmentValues, CGFloat>.self, actions: ["pixelLength": { () -> KeyPath<EnvironmentValues, CGFloat> in \.pixelLength }])
+        PType.register(WritableKeyPath<EnvironmentValues, LegibilityWeight?>.self, actions: ["legibilityWeight": { () -> WritableKeyPath<EnvironmentValues, LegibilityWeight?> in \.legibilityWeight }])
+        PType.register(WritableKeyPath<EnvironmentValues, Locale>.self, actions: ["locale": { () -> WritableKeyPath<EnvironmentValues, Locale> in \.locale }])
+        PType.register(WritableKeyPath<EnvironmentValues, Calendar>.self, actions: ["calendar": { () -> WritableKeyPath<EnvironmentValues, Calendar> in \.calendar }])
+        PType.register(WritableKeyPath<EnvironmentValues, TimeZone>.self, actions: ["timeZone": { () -> WritableKeyPath<EnvironmentValues, TimeZone> in \.timeZone }])
+        PType.register(WritableKeyPath<EnvironmentValues, ColorScheme>.self, actions: ["colorScheme": { () -> WritableKeyPath<EnvironmentValues, ColorScheme> in \.colorScheme }])
+        PType.register(KeyPath<EnvironmentValues, ColorSchemeContrast>.self, actions: ["colorSchemeContrast": { () -> KeyPath<EnvironmentValues, ColorSchemeContrast> in \.colorSchemeContrast }])
         // MARK: - Style:5595
         #if os(iOS)
-        DynaType.register(WritableKeyPath<EnvironmentValues, UserInterfaceSizeClass?>.self, actions: [
+        PType.register(WritableKeyPath<EnvironmentValues, UserInterfaceSizeClass?>.self, actions: [
             "horizontalSizeClass": { () -> WritableKeyPath<EnvironmentValues, UserInterfaceSizeClass?> in \.horizontalSizeClass },
             "verticalSizeClass": { () -> WritableKeyPath<EnvironmentValues, UserInterfaceSizeClass?> in \.verticalSizeClass }
         ])
         #endif
         // MARK: - Style:5614
-        DynaType.register(WritableKeyPath<EnvironmentValues, Bool>.self, actions: ["accessibilityEnabled": { () -> WritableKeyPath<EnvironmentValues, Bool> in \.accessibilityEnabled }])
+        PType.register(WritableKeyPath<EnvironmentValues, Bool>.self, actions: ["accessibilityEnabled": { () -> WritableKeyPath<EnvironmentValues, Bool> in \.accessibilityEnabled }])
         // MARK: - Style:5622
-        DynaType.register(KeyPath<EnvironmentValues, Bool>.self, actions: [
+        PType.register(KeyPath<EnvironmentValues, Bool>.self, actions: [
             "accessibilityDifferentiateWithoutColor": { () -> KeyPath<EnvironmentValues, Bool> in \.accessibilityDifferentiateWithoutColor },
             "accessibilityReduceTransparency": { () -> KeyPath<EnvironmentValues, Bool> in \.accessibilityReduceTransparency },
             "accessibilityReduceMotion": { () -> KeyPath<EnvironmentValues, Bool> in \.accessibilityReduceMotion },
             "accessibilityInvertColors": { () -> KeyPath<EnvironmentValues, Bool> in \.accessibilityInvertColors }
         ])
         // MARK: - Style:5665
-        DynaType.register(WritableKeyPath<EnvironmentValues, TextAlignment>.self, actions: ["multilineTextAlignment": { () -> WritableKeyPath<EnvironmentValues, TextAlignment> in \.multilineTextAlignment }])
-        DynaType.register(WritableKeyPath<EnvironmentValues, Text.TruncationMode>.self, actions: ["truncationMode": { () -> WritableKeyPath<EnvironmentValues, Text.TruncationMode> in \.truncationMode }])
-        DynaType.register(WritableKeyPath<EnvironmentValues, CGFloat>.self, actions: ["lineSpacing": { () -> WritableKeyPath<EnvironmentValues, CGFloat> in \.lineSpacing }])
-        DynaType.register(WritableKeyPath<EnvironmentValues, Bool>.self, actions: ["allowsTightening": { () -> WritableKeyPath<EnvironmentValues, Bool> in \.allowsTightening }])
-        DynaType.register(WritableKeyPath<EnvironmentValues, Int?>.self, actions: ["lineLimit": { () -> WritableKeyPath<EnvironmentValues, Int?> in \.lineLimit }])
-        DynaType.register(WritableKeyPath<EnvironmentValues, CGFloat>.self, actions: ["minimumScaleFactor": { () -> WritableKeyPath<EnvironmentValues, CGFloat> in \.minimumScaleFactor }])
+        PType.register(WritableKeyPath<EnvironmentValues, TextAlignment>.self, actions: ["multilineTextAlignment": { () -> WritableKeyPath<EnvironmentValues, TextAlignment> in \.multilineTextAlignment }])
+        PType.register(WritableKeyPath<EnvironmentValues, Text.TruncationMode>.self, actions: ["truncationMode": { () -> WritableKeyPath<EnvironmentValues, Text.TruncationMode> in \.truncationMode }])
+        PType.register(WritableKeyPath<EnvironmentValues, CGFloat>.self, actions: ["lineSpacing": { () -> WritableKeyPath<EnvironmentValues, CGFloat> in \.lineSpacing }])
+        PType.register(WritableKeyPath<EnvironmentValues, Bool>.self, actions: ["allowsTightening": { () -> WritableKeyPath<EnvironmentValues, Bool> in \.allowsTightening }])
+        PType.register(WritableKeyPath<EnvironmentValues, Int?>.self, actions: ["lineLimit": { () -> WritableKeyPath<EnvironmentValues, Int?> in \.lineLimit }])
+        PType.register(WritableKeyPath<EnvironmentValues, CGFloat>.self, actions: ["minimumScaleFactor": { () -> WritableKeyPath<EnvironmentValues, CGFloat> in \.minimumScaleFactor }])
         // MARK: - Style:5738
         #if !os(macOS) && !os(watchOS)
-        DynaType.register(WritableKeyPath<EnvironmentValues, Binding<EditMode>?>.self, actions: ["editMode": { () -> WritableKeyPath<EnvironmentValues, Binding<EditMode>?> in \.editMode }])
+        PType.register(WritableKeyPath<EnvironmentValues, Binding<EditMode>?>.self, actions: ["editMode": { () -> WritableKeyPath<EnvironmentValues, Binding<EditMode>?> in \.editMode }])
         #endif
         // MARK: - Style:5750
-        DynaType.register(KeyPath<EnvironmentValues, Binding<PresentationMode>>.self, actions: ["presentationMode": { () -> KeyPath<EnvironmentValues, Binding<PresentationMode>> in \.presentationMode }])
+        PType.register(KeyPath<EnvironmentValues, Binding<PresentationMode>>.self, actions: ["presentationMode": { () -> KeyPath<EnvironmentValues, Binding<PresentationMode>> in \.presentationMode }])
         if #available(iOS 13.0, macOS 11.0, tvOS 13.0, watchOS 6.0, *) {
             // MARK: - Style:5536
-            DynaType.register(WritableKeyPath<EnvironmentValues, Image.Scale>.self, actions: ["imageScale": { () -> WritableKeyPath<EnvironmentValues, Image.Scale> in \.imageScale }])
+            PType.register(WritableKeyPath<EnvironmentValues, Image.Scale>.self, actions: ["imageScale": { () -> WritableKeyPath<EnvironmentValues, Image.Scale> in \.imageScale }])
         }
         if #available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *) {
             // MARK: - Style:5485
-            DynaType.register(WritableKeyPath<EnvironmentValues, RedactionReasons>.self, actions: ["redactionReasons": { () -> WritableKeyPath<EnvironmentValues, RedactionReasons> in \.redactionReasons }])
+            PType.register(WritableKeyPath<EnvironmentValues, RedactionReasons>.self, actions: ["redactionReasons": { () -> WritableKeyPath<EnvironmentValues, RedactionReasons> in \.redactionReasons }])
             // MARK: - Style:5492
-            DynaType.register(WritableKeyPath<EnvironmentValues, ScenePhase>.self, actions: ["scenePhase": { () -> WritableKeyPath<EnvironmentValues, ScenePhase> in \.scenePhase }])
+            PType.register(WritableKeyPath<EnvironmentValues, ScenePhase>.self, actions: ["scenePhase": { () -> WritableKeyPath<EnvironmentValues, ScenePhase> in \.scenePhase }])
             // MARK: - Style:5527
-            DynaType.register(KeyPath<EnvironmentValues, Bool>.self, actions: ["isFocused": { () -> KeyPath<EnvironmentValues, Bool> in \.isFocused }])
+            PType.register(KeyPath<EnvironmentValues, Bool>.self, actions: ["isFocused": { () -> KeyPath<EnvironmentValues, Bool> in \.isFocused }])
             // MARK: - Style:5622
-            DynaType.register(KeyPath<EnvironmentValues, Bool>.self, actions: ["accessibilityShowButtonShapes": { () -> KeyPath<EnvironmentValues, Bool> in \.accessibilityShowButtonShapes }])
+            PType.register(KeyPath<EnvironmentValues, Bool>.self, actions: ["accessibilityShowButtonShapes": { () -> KeyPath<EnvironmentValues, Bool> in \.accessibilityShowButtonShapes }])
             // MARK: - Style:5658
-            DynaType.register(KeyPath<EnvironmentValues, OpenURLAction>.self, actions: ["openURL": { () -> KeyPath<EnvironmentValues, OpenURLAction> in \.openURL }])
+            PType.register(KeyPath<EnvironmentValues, OpenURLAction>.self, actions: ["openURL": { () -> KeyPath<EnvironmentValues, OpenURLAction> in \.openURL }])
             // MARK: - Style:5665
-            DynaType.register(WritableKeyPath<EnvironmentValues, Text.Case?>.self, actions: ["textCase": { () -> WritableKeyPath<EnvironmentValues, Text.Case?> in \.textCase }])
+            PType.register(WritableKeyPath<EnvironmentValues, Text.Case?>.self, actions: ["textCase": { () -> WritableKeyPath<EnvironmentValues, Text.Case?> in \.textCase }])
         }
     }
 }

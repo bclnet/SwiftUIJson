@@ -60,10 +60,10 @@ struct _ContextMenuContainer: ConvertibleCodable {
         enum CodingKeys: CodingKey {
             case contextMenu, content
         }
-        public init(from decoder: Decoder, for dynaType: DynaType) throws {
+        public init(from decoder: Decoder, for ptype: PType) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             contextMenu = try? container.decodeIfPresent(ContextMenu.self, forKey: .contextMenu)
-            content = try container.decode(Content.self, forKey: .content, dynaType: dynaType[0])
+            content = try container.decode(Content.self, forKey: .content, ptype: ptype[0])
         }
         public func encode(to encoder: Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
@@ -74,8 +74,8 @@ struct _ContextMenuContainer: ConvertibleCodable {
     
     //: Register
     static func register() {
-        DynaType.register(StyleContextWriter<NeverCodable>.self, any: [NeverCodable.self], namespace: "SwiftUI")
-        DynaType.register(MenuContext.self, namespace: "SwiftUI")
-        DynaType.register(Container<AnyView>.self, any: [AnyView.self], namespace: "SwiftUI")
+        PType.register(StyleContextWriter<NeverCodable>.self, any: [NeverCodable.self], namespace: "SwiftUI")
+        PType.register(MenuContext.self, namespace: "SwiftUI")
+        PType.register(Container<AnyView>.self, any: [AnyView.self], namespace: "SwiftUI")
     }
 }

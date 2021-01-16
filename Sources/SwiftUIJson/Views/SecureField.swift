@@ -13,7 +13,7 @@ extension SecureField: IAnyView, DynaCodable where Label == Text {
     enum CodingKeys: CodingKey {
         case title, titleKey, text, onCommit
     }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+    public init(from decoder: Decoder, for ptype: PType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let text = try container.decode(Binding<String>.self, forKey: .text)
         let onCommit = try container.decodeAction(forKey: .onCommit)
@@ -47,6 +47,6 @@ extension SecureField: IAnyView, DynaCodable where Label == Text {
     }
     //: Register
     static func register() {
-        DynaType.register(SecureField<Text>.self)
+        PType.register(SecureField<Text>.self)
     }
 }

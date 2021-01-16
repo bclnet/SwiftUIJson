@@ -13,9 +13,9 @@ extension _SizedShape: DynaCodable where S : DynaCodable {
     enum CodingKeys: CodingKey {
         case shape, size
     }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+    public init(from decoder: Decoder, for ptype: PType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let shape = try container.decode(S.self, forKey: .shape, dynaType: dynaType[0])
+        let shape = try container.decode(S.self, forKey: .shape, ptype: ptype[0])
         let size = try container.decode(CGSize.self, forKey: .size)
         self.init(shape: shape, size: size)
     }
@@ -27,6 +27,6 @@ extension _SizedShape: DynaCodable where S : DynaCodable {
     }
     //: Register
     static func register() {
-        DynaType.register(_SizedShape<AnyShape>.self, any: [AnyShape.self])
+        PType.register(_SizedShape<AnyShape>.self, any: [AnyShape.self])
     }
 }

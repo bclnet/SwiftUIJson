@@ -17,7 +17,7 @@ extension SelectionShapeStyle: FullyCodable {
     enum CodingKeys: CodingKey {
         case image, sourceRect, scale
     }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws { try self.init(from: decoder) }
+    public init(from decoder: Decoder, for ptype: PType) throws { try self.init(from: decoder) }
     public init(from decoder: Decoder) throws {
 //        let container = try decoder.container(keyedBy: CodingKeys.self)
         fatalError()
@@ -27,6 +27,6 @@ extension SelectionShapeStyle: FullyCodable {
     }
     //: Register
     static func register() {
-        DynaType.register(SelectionShapeStyle.self)
+        PType.register(SelectionShapeStyle.self)
     }
 }

@@ -14,10 +14,10 @@ extension ModifiedContent: IAnyView, DynaCodable where Content : View, Content :
     enum CodingKeys: CodingKey {
         case content, modifier
     }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+    public init(from decoder: Decoder, for ptype: PType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let content = try container.decode(Content.self, forKey: .content, dynaType: dynaType[0])
-        let modifier = try container.decode(AnyViewModifier.self, forKey: .modifier, dynaType: dynaType[1]) as! Modifier
+        let content = try container.decode(Content.self, forKey: .content, ptype: ptype[0])
+        let modifier = try container.decode(AnyViewModifier.self, forKey: .modifier, ptype: ptype[1]) as! Modifier
         self.init(content: content, modifier: modifier)
     }
     public func encode(to encoder: Encoder) throws {
@@ -27,7 +27,7 @@ extension ModifiedContent: IAnyView, DynaCodable where Content : View, Content :
     }
     //: Register
     static func register() {
-        DynaType.register(ModifiedContent<AnyView, AnyViewModifier>.self)
+        PType.register(ModifiedContent<AnyView, AnyViewModifier>.self)
     }
 }
 

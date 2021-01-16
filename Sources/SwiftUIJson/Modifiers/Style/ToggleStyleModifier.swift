@@ -26,22 +26,22 @@ struct ToggleStyleModifier<Style>: JsonViewModifier, ConvertibleCodable where St
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let styleKey = try container.decode(String.self, forKey: .style)
-        (action, style) = try DynaType.find(actionAndType: "style", forKey: styleKey)
+        (action, style) = try PType.find(actionAndType: "style", forKey: styleKey)
     }
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        let styleKey = DynaType.typeKey(type: style)
+        let styleKey = PType.typeKey(type: style)
         try container.encode(styleKey, forKey: .style)
     }
     //: Register
     static func register() {
-        DynaType.register(ToggleStyleModifier<NeverCodable>.self, any: [NeverCodable.self], namespace: "SwiftUI")
-        DynaType.register(DefaultToggleStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.toggleStyle(DefaultToggleStyle())) }])
+        PType.register(ToggleStyleModifier<NeverCodable>.self, any: [NeverCodable.self], namespace: "SwiftUI")
+        PType.register(DefaultToggleStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.toggleStyle(DefaultToggleStyle())) }])
         #if !os(tvOS)
-        DynaType.register(SwitchToggleStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.toggleStyle(SwitchToggleStyle())) }])
+        PType.register(SwitchToggleStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.toggleStyle(SwitchToggleStyle())) }])
         #endif
         #if os(macOS)
-        DynaType.register(CheckboxToggleStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.toggleStyle(CheckboxToggleStyle())) }])
+        PType.register(CheckboxToggleStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.toggleStyle(CheckboxToggleStyle())) }])
         #endif
     }
 }

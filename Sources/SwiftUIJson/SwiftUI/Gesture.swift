@@ -20,10 +20,10 @@ struct ModifierGesture<Modifier, Content>: ConvertibleDynaCodable {
     enum CodingKeys: CodingKey {
         case modifier, content
     }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+    public init(from decoder: Decoder, for ptype: PType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        modifier = try container.decodeAny(Modifier.self, forKey: .modifier, dynaType: dynaType[0])
-        content = try container.decodeAny(Content.self, forKey: .content, dynaType: dynaType[1])
+        modifier = try container.decodeAny(Modifier.self, forKey: .modifier, ptype: ptype[0])
+        content = try container.decodeAny(Content.self, forKey: .content, ptype: ptype[1])
     }
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
@@ -32,11 +32,11 @@ struct ModifierGesture<Modifier, Content>: ConvertibleDynaCodable {
     }
     //: Register
     static func register() {
-        DynaType.register(CallbacksGesture<Any>.self, any: [Any.self], namespace: "SwiftUI")
-        DynaType.register(PressableGestureCallbacks<Any>.self, any: [Any.self], namespace: "SwiftUI")
-        DynaType.register(LongPressGesture.self)
-        DynaType.register(ModifierGesture<Any, Any>.self, any: [Any.self, Any.self], namespace: "SwiftUI")
-        DynaType.register(AddGestureModifier<Any>.self, any: [Any.self], namespace: "SwiftUI", actions: [
+        PType.register(CallbacksGesture<Any>.self, any: [Any.self], namespace: "SwiftUI")
+        PType.register(PressableGestureCallbacks<Any>.self, any: [Any.self], namespace: "SwiftUI")
+        PType.register(LongPressGesture.self)
+        PType.register(ModifierGesture<Any, Any>.self, any: [Any.self, Any.self], namespace: "SwiftUI")
+        PType.register(AddGestureModifier<Any>.self, any: [Any.self], namespace: "SwiftUI", actions: [
                             "longPressGesture": { (view: AnyView, mask: GestureMask, gesture: Any) -> AnyView in
                                 let g = gesture as! ModifierGesture<Any, Any>
                                 let modifier = g.modifier as! CallbacksGesture<Any>
@@ -56,9 +56,9 @@ struct CallbacksGesture<Callbacks>: ConvertibleDynaCodable {
         callbacks = Mirror(reflecting: any).descendant("callbacks")! as! Callbacks
     }
     //: Codable
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+    public init(from decoder: Decoder, for ptype: PType) throws {
         var container = try decoder.unkeyedContainer()
-        callbacks = try container.decodeAny(Callbacks.self, dynaType: dynaType[0])
+        callbacks = try container.decodeAny(Callbacks.self, ptype: ptype[0])
     }
     public func encode(to encoder: Encoder) throws {
         var container = encoder.unkeyedContainer()

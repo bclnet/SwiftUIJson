@@ -25,9 +25,9 @@ extension _SafeAreaIgnoringLayout: JsonViewModifier, Codable {
     }
     //: Register
     static func register() {
-        DynaType.register(_SafeAreaIgnoringLayout.self)
+        PType.register(_SafeAreaIgnoringLayout.self)
         if #available(OSX 11.0, *) {
-            DynaType.register(_SafeAreaRegionsIgnoringLayout.self)
+            PType.register(_SafeAreaRegionsIgnoringLayout.self)
         }
     }
 }

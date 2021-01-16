@@ -14,9 +14,9 @@ extension _BackgroundModifier: JsonViewModifier, DynaCodable where Background : 
     enum CodingKeys: CodingKey {
         case background, alignment
     }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+    public init(from decoder: Decoder, for ptype: PType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let background = try container.decode(Background.self, forKey: .background, dynaType: dynaType[0])
+        let background = try container.decode(Background.self, forKey: .background, ptype: ptype[0])
         let alignment = try container.decode(Alignment.self, forKey: .alignment)
         self.init(background: background, alignment: alignment)
     }
@@ -28,6 +28,6 @@ extension _BackgroundModifier: JsonViewModifier, DynaCodable where Background : 
     }
     //: Register
     static func register() {
-        DynaType.register(_BackgroundModifier<AnyView>.self, any: [AnyView.self])
+        PType.register(_BackgroundModifier<AnyView>.self, any: [AnyView.self])
     }
 }

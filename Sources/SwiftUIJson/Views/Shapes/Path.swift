@@ -15,7 +15,7 @@ extension Path: IAnyShape, DynaCodable {
     enum CodingKeys: CodingKey {
         case path
     }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+    public init(from decoder: Decoder, for ptype: PType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let description = (try? container.decodeIfPresent(String.self, forKey: .path)) ?? ""
         self = Path(description) ?? Path()
@@ -27,7 +27,7 @@ extension Path: IAnyShape, DynaCodable {
     }
     //: Register
     static func register() {
-        DynaType.register(Path.self)
+        PType.register(Path.self)
     }
 }
 
@@ -39,7 +39,7 @@ extension Path: IAnyShape, DynaCodable {
     enum CodingKeys: CodingKey {
         case empty, path, rect, roundedRect, ellipse
     }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+    public init(from decoder: Decoder, for ptype: PType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         switch container.allKeys.first {
         case .empty: self.init()
@@ -67,7 +67,7 @@ extension Path: IAnyShape, DynaCodable {
     }
     //: Register
     static func register() {
-        DynaType.register(Path.self)
+        PType.register(Path.self)
     }
     
     internal enum Storage {

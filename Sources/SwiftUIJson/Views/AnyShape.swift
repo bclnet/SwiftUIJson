@@ -20,9 +20,9 @@ public struct AnyShape: Shape, DynaCodable {
         storage = AnyShapeStorage(shape: shape, view: AnyView(shape), path: shape.path)
     }
     //: Codable
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+    public init(from decoder: Decoder, for ptype: PType) throws {
         guard let context = decoder.userInfo[.jsonContext] as? JsonContext else { fatalError(".jsonContext") }
-        let shape = try context.dynaSuperInit(from: decoder, for: dynaType) as! IAnyShape
+        let shape = try context.dynaSuperInit(from: decoder, for: ptype) as! IAnyShape
         self = shape.anyShape
     }
     public func encode(to encoder: Encoder) throws {
@@ -31,7 +31,7 @@ public struct AnyShape: Shape, DynaCodable {
     }
     //: Register
     static func register() {
-        DynaType.register(AnyShape.self)
+        PType.register(AnyShape.self)
     }
 
     internal class AnyShapeStorage {

@@ -10,10 +10,10 @@ import SwiftUI
 extension Divider: IAnyView, DynaCodable {
     public var anyView: AnyView { AnyView(self) }
     //: Codable
-    public init(from decoder: Decoder, for dynaType: DynaType) throws { self.init() }
+    public init(from decoder: Decoder, for ptype: PType) throws { self.init() }
     public func encode(to encoder: Encoder) throws {}
     //: Register
     static func register() {
-        DynaType.register(Divider.self)
+        PType.register(Divider.self)
     }
 }

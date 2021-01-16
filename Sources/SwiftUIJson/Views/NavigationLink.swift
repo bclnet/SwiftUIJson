@@ -13,11 +13,11 @@ extension NavigationLink: IAnyView, DynaCodable where Label : View, Label : Dyna
     enum CodingKeys: CodingKey {
         case destination, isActive, label, isDetailLink
     }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+    public init(from decoder: Decoder, for ptype: PType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let destination = try container.decode(Destination.self, forKey: .destination, dynaType: dynaType[1])
+        let destination = try container.decode(Destination.self, forKey: .destination, ptype: ptype[1])
         let isActive = try container.decode(Binding<Bool>.self, forKey: .isActive)
-        let label = try container.decode(Label.self, forKey: .label, dynaType: dynaType[0])
+        let label = try container.decode(Label.self, forKey: .label, ptype: ptype[0])
         let s = NavigationLink(destination: destination, isActive: isActive, label: { label })
         #if os(iOS)
         let isDetailLink = (try? container.decodeIfPresent(Bool.self, forKey: .isDetailLink)) ?? true
@@ -43,6 +43,6 @@ extension NavigationLink: IAnyView, DynaCodable where Label : View, Label : Dyna
     }
     //: Register
     static func register() {
-        DynaType.register(NavigationLink<AnyView, AnyView>.self)
+        PType.register(NavigationLink<AnyView, AnyView>.self)
     }
 }

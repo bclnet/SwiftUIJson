@@ -15,6 +15,6 @@ extension ContextMenu: Codable where MenuItems : View {
     public func encode(to encoder: Encoder) throws {}
     //: Register
     static func register() {
-        DynaType.register(ContextMenu<AnyView>.self)
+        PType.register(ContextMenu<AnyView>.self)
     }
 }

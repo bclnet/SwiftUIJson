@@ -14,7 +14,7 @@ extension ScaledShape: IAnyShape, IAnyView, ConvertibleDynaCodable where Content
     public init(any: Any) {
         Mirror.assert(any, name: "ScaledShape", keys: ["shape", "scale", "anchor"])
         let m = Mirror.children(reflecting: any)
-        let newValue = try! DynaType.convert(value: m["shape"]!)
+        let newValue = try! PType.convert(value: m["shape"]!)
         let shape = (newValue as! IAnyShape).anyShape as! Content
         let scale = m["scale"]! as! CGSize
         let anchor = m["anchor"]! as! UnitPoint
@@ -24,9 +24,9 @@ extension ScaledShape: IAnyShape, IAnyView, ConvertibleDynaCodable where Content
     enum CodingKeys: CodingKey {
         case shape, scale, anchor
     }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+    public init(from decoder: Decoder, for ptype: PType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let shape = try container.decode(Content.self, forKey: .shape, dynaType: dynaType[0])
+        let shape = try container.decode(Content.self, forKey: .shape, ptype: ptype[0])
         let scale = try container.decode(CGSize.self, forKey: .scale)
         let anchor = (try? container.decodeIfPresent(UnitPoint.self, forKey: .anchor)) ?? .center
         self.init(shape: shape, scale: scale, anchor: anchor)
@@ -39,6 +39,6 @@ extension ScaledShape: IAnyShape, IAnyView, ConvertibleDynaCodable where Content
     }
     //: Register
     static func register() {
-        DynaType.register(ScaledShape<AnyShape>.self, any: [AnyShape.self])
+        PType.register(ScaledShape<AnyShape>.self, any: [AnyShape.self])
     }
 }

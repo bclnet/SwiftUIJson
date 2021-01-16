@@ -14,9 +14,9 @@ extension _OverlayModifier: JsonViewModifier, DynaCodable where Overlay : DynaCo
     enum CodingKeys: CodingKey {
         case overlay, alignment
     }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+    public init(from decoder: Decoder, for ptype: PType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let overlay = try container.decode(Overlay.self, forKey: .overlay, dynaType: dynaType[0])
+        let overlay = try container.decode(Overlay.self, forKey: .overlay, ptype: ptype[0])
         let alignment = try container.decode(Alignment.self, forKey: .alignment)
         self.init(overlay: overlay, alignment: alignment)
     }
@@ -28,6 +28,6 @@ extension _OverlayModifier: JsonViewModifier, DynaCodable where Overlay : DynaCo
     }
     //: Register
     static func register() {
-        DynaType.register(_OverlayModifier<AnyView>.self, any: [AnyView.self])
+        PType.register(_OverlayModifier<AnyView>.self, any: [AnyView.self])
     }
 }

@@ -13,9 +13,9 @@ extension Button: IAnyView, DynaCodable where Label : View, Label : DynaCodable 
     enum CodingKeys: CodingKey {
         case label, action
     }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+    public init(from decoder: Decoder, for ptype: PType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let label = try container.decode(Label.self, forKey: .label, dynaType: dynaType[0])
+        let label = try container.decode(Label.self, forKey: .label, ptype: ptype[0])
         let action = try container.decodeAction(forKey: .action)
         self.init(action: action, label: { label })
     }
@@ -30,6 +30,6 @@ extension Button: IAnyView, DynaCodable where Label : View, Label : DynaCodable 
     }
     //: Register
     static func register() {
-        DynaType.register(Button<AnyView>.self)
+        PType.register(Button<AnyView>.self)
     }
 }

@@ -23,14 +23,14 @@ public struct AnyViewModifier: ViewModifier, DynaCodable {
         }
     }
     //: Codable
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
-        modifier = try decoder.dynaSuperInit(for: dynaType)
+    public init(from decoder: Decoder, for ptype: PType) throws {
+        modifier = try decoder.dynaSuperInit(for: ptype)
     }
     public func encode(to encoder: Encoder) throws {
         try encoder.encodeDynaSuper(modifier)
     }
     //: Register
     static func register() {
-        DynaType.register(AnyViewModifier.self)
+        PType.register(AnyViewModifier.self)
     }
 }

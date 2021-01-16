@@ -13,7 +13,7 @@ extension TextField: IAnyView, DynaCodable where Label == Text {
     enum CodingKeys: CodingKey {
         case title, titleKey, text, onEditingChanged, onCommit
     }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+    public init(from decoder: Decoder, for ptype: PType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let text = try container.decode(Binding<String>.self, forKey: .text)
         let onEditingChanged = try container.decodeAction(Bool.self, forKey: .onEditingChanged)
@@ -51,7 +51,7 @@ extension TextField: IAnyView, DynaCodable where Label == Text {
     }
     //: Register
     static func register() {
-        DynaType.register(TextField<Text>.self)
+        PType.register(TextField<Text>.self)
     }
 }
 

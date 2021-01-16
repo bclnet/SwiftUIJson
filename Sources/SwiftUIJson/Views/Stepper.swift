@@ -22,9 +22,9 @@ extension Stepper: IAnyView, DynaCodable where Label : View, Label : DynaCodable
     enum CodingKeys: CodingKey {
         case label, configuration, step
     }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+    public init(from decoder: Decoder, for ptype: PType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let label = try container.decode(Label.self, forKey: .label, dynaType: dynaType[0])
+        let label = try container.decode(Label.self, forKey: .label, ptype: ptype[0])
         let configuration = try container.decode(StepperStyleConfiguration.self, forKey: .configuration)
         let step = try? container.decodeIfPresent(Double.self, forKey: .step)
         guard var accessibilityValue = configuration.accessibilityValue else {
@@ -59,8 +59,8 @@ extension Stepper: IAnyView, DynaCodable where Label : View, Label : DynaCodable
     }
     //: Register
     static func register() {
-        DynaType.register(Stepper<EmptyView>.self)
-        DynaType.register(Stepper<AnyView>.self)
+        PType.register(Stepper<EmptyView>.self)
+        PType.register(Stepper<AnyView>.self)
     }
         
     struct StepperStyleConfiguration: Codable {

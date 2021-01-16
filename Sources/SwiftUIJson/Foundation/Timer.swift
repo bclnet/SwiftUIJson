@@ -13,7 +13,7 @@ extension Timer.TimerPublisher: FullyCodable {
     enum CodingKeys: CodingKey {
         case interval, tolerance, runLoop, mode, options
     }
-    public convenience init(from decoder: Decoder, for dynaType: DynaType) throws { try self.init(from: decoder) }
+    public convenience init(from decoder: Decoder, for ptype: PType) throws { try self.init(from: decoder) }
     public convenience init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let interval = try container.decode(TimeInterval.self, forKey: .interval)

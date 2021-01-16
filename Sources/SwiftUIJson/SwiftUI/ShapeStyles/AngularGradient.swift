@@ -14,7 +14,7 @@ extension AngularGradient: IAnyView, FullyCodable {
     enum CodingKeys: CodingKey {
         case gradient, center, startAngle, endAngle
     }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws { try self.init(from: decoder) }
+    public init(from decoder: Decoder, for ptype: PType) throws { try self.init(from: decoder) }
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let gradient = try container.decode(Gradient.self, forKey: .gradient)
@@ -36,6 +36,6 @@ extension AngularGradient: IAnyView, FullyCodable {
     }
     //: Register
     static func register() {
-        DynaType.register(AngularGradient.self)
+        PType.register(AngularGradient.self)
     }
 }

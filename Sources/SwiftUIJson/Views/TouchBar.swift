@@ -16,9 +16,9 @@ extension TouchBar: DynaCodable where Content : View, Content : DynaCodable {
     enum CodingKeys: CodingKey {
         case content, id
     }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+    public init(from decoder: Decoder, for ptype: PType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let content = try container.decode(Content.self, forKey: .content, dynaType: dynaType[0])
+        let content = try container.decode(Content.self, forKey: .content, ptype: ptype[0])
         let id = try container.decodeIfPresent(String.self, forKey: .id)
         if id == nil { self.init(content: { content }) }
         else { self.init(id: id!, content: { content }) }
@@ -34,7 +34,7 @@ extension TouchBar: DynaCodable where Content : View, Content : DynaCodable {
     }
     //: Register
     static func register() {
-        DynaType.register(TouchBar<AnyView>.self)
+        PType.register(TouchBar<AnyView>.self)
     }
 }
 

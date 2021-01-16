@@ -29,20 +29,20 @@ struct MenuStyleModifier<Style>: JsonViewModifier, ConvertibleCodable where Styl
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let styleKey = try container.decode(String.self, forKey: .style)
-        (action, style) = try DynaType.find(actionAndType: "style", forKey: styleKey)
+        (action, style) = try PType.find(actionAndType: "style", forKey: styleKey)
     }
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        let styleKey = DynaType.typeKey(type: style)
+        let styleKey = PType.typeKey(type: style)
         try container.encode(styleKey, forKey: .style)
     }
     //: Register
     static func register() {
-        DynaType.register(MenuStyleModifier<NeverCodable>.self, any: [NeverCodable.self], namespace: "SwiftUI")
-        DynaType.register(BorderlessButtonMenuStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.menuStyle(BorderlessButtonMenuStyle())) }])
-        DynaType.register(DefaultMenuStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.menuStyle(DefaultMenuStyle())) }])
+        PType.register(MenuStyleModifier<NeverCodable>.self, any: [NeverCodable.self], namespace: "SwiftUI")
+        PType.register(BorderlessButtonMenuStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.menuStyle(BorderlessButtonMenuStyle())) }])
+        PType.register(DefaultMenuStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.menuStyle(DefaultMenuStyle())) }])
         #if !os(iOS)
-        DynaType.register(BorderedButtonMenuStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.menuStyle(BorderedButtonMenuStyle())) }])
+        PType.register(BorderedButtonMenuStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.menuStyle(BorderedButtonMenuStyle())) }])
         #endif
     }
 }

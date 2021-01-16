@@ -18,6 +18,6 @@ public struct _StateWrapper<Content> : View, _AnyStateWrapper where Content : Vi
     public let state: [AnyHashable:Any]
     //: Register
     static func register() {
-        DynaType.register(_StateWrapper<AnyView>.self)
+        PType.register(_StateWrapper<AnyView>.self)
     }
 }

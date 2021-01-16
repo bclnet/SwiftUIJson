@@ -14,7 +14,7 @@ extension TransformedShape: IAnyShape, IAnyView, ConvertibleDynaCodable where Co
     public init(any: Any) {
         Mirror.assert(any, name: "TransformedShape", keys: ["shape", "transform"])
         let m = Mirror.children(reflecting: any)
-        let newValue = try! DynaType.convert(value: m["shape"]!)
+        let newValue = try! PType.convert(value: m["shape"]!)
         let shape = (newValue as! IAnyShape).anyShape as! Content
         let transform = m["transform"]! as! CGAffineTransform
         self.init(shape: shape, transform: transform)
@@ -23,9 +23,9 @@ extension TransformedShape: IAnyShape, IAnyView, ConvertibleDynaCodable where Co
     enum CodingKeys: CodingKey {
         case shape, transform
     }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+    public init(from decoder: Decoder, for ptype: PType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let shape = try container.decode(Content.self, forKey: .shape, dynaType: dynaType[0])
+        let shape = try container.decode(Content.self, forKey: .shape, ptype: ptype[0])
         let transform = try container.decode(CGAffineTransform.self, forKey: .transform)
         self.init(shape: shape, transform: transform)
     }
@@ -36,6 +36,6 @@ extension TransformedShape: IAnyShape, IAnyView, ConvertibleDynaCodable where Co
     }
     //: Register
     static func register() {
-        DynaType.register(TransformedShape<AnyShape>.self, any: [AnyShape.self])
+        PType.register(TransformedShape<AnyShape>.self, any: [AnyShape.self])
     }
 }

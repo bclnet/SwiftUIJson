@@ -13,12 +13,12 @@ extension ContainerRelativeShape: IAnyShape, DynaCodable {
     public var anyShape: AnyShape { AnyShape(self) }
     public var anyView: AnyView { AnyView(self) }
     //: Codable
-    public init(from decoder: Decoder, for dynaType: DynaType) throws { self.init() }
+    public init(from decoder: Decoder, for ptype: PType) throws { self.init() }
     public func encode(to encoder: Encoder) throws {}
     //: Register
     static func register() {
-        DynaType.register(ContainerRelativeShape.self)
-        DynaType.register(ContainerRelativeShape._Inset.self)
+        PType.register(ContainerRelativeShape.self)
+        PType.register(ContainerRelativeShape._Inset.self)
     }
     
     struct _Inset: IAnyShape, IAnyView, ConvertibleDynaCodable {
@@ -33,7 +33,7 @@ extension ContainerRelativeShape: IAnyShape, DynaCodable {
         enum CodingKeys: CodingKey {
             case amount
         }
-        public init(from decoder: Decoder, for dynaType: DynaType) throws {
+        public init(from decoder: Decoder, for ptype: PType) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             amount = try container.decode(CGFloat.self, forKey: .amount)
         }

@@ -39,6 +39,33 @@ public class JsonContext: Codable {
         return context
     }
         
+    // MARK: - Slot
+    struct Slot: Codable {
+        public let type: PType
+        public let value: Any
+        //: Codable
+        enum CodingKeys: CodingKey {
+            case type, `default`
+        }
+        public init<T>(_ type: T.Type, value: Any) {
+            self.type = try! PType.type(for: type)
+            self.value = value
+        }
+        public init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            type = try container.decode(PType.self, forKey: .type)
+            let baseDecoder = try container.superDecoder(forKey: .default)
+            value = try baseDecoder.dynaSuperInit(for: type)
+        }
+        public func encode(to encoder: Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(type, forKey: .type)
+            guard let value = value as? Encodable else { fatalError() }
+            let baseEncoder = container.superEncoder(forKey: .default)
+            try value.encode(to: baseEncoder)
+        }
+    }
+
     // MARK: - Instance
     private var state: [AnyHashable:[AnyHashable:Any]] = [AnyHashable:[AnyHashable:Any]]()
     var slots: [String:Slot]
@@ -66,8 +93,8 @@ public class JsonContext: Codable {
         }
         try encoder.encodeDynaSuper(anyState.content)
     }
-    public func dynaSuperInit(from decoder: Decoder, for dynaType: DynaType) throws -> Any {
-        try decoder.dynaSuperInit(for: dynaType)
+    public func dynaSuperInit(from decoder: Decoder, for ptype: PType) throws -> Any {
+        try decoder.dynaSuperInit(for: ptype)
     }
     public func decodeDynaSuper(from decoder: Decoder) throws -> Any {
         try decoder.decodeDynaSuper()
@@ -95,9 +122,13 @@ public class JsonContext: Codable {
     }
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: _CodingKey.self)
-        if !slots.isEmpty { try container.encode(slots, forKey: _CodingKey(stringValue: "slots")!) }
-        for context in contexts {
-            try container.encode(context.value, forKey: _CodingKey(stringValue: context.key)!)
+        if !slots.isEmpty {
+            try container.encode(slots, forKey: _CodingKey(stringValue: "slots")!)
+        }
+        if !contexts.isEmpty { 
+            for context in contexts {
+                try container.encode(context.value, forKey: _CodingKey(stringValue: context.key)!)
+            }
         }
     }
 }

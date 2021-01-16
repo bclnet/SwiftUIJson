@@ -14,9 +14,9 @@ extension _ClipEffect: JsonViewModifier, DynaCodable where ClipShape : DynaCodab
     enum CodingKeys: CodingKey {
         case shape, style
     }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+    public init(from decoder: Decoder, for ptype: PType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let shape = try container.decode(ClipShape.self, forKey: .shape, dynaType: dynaType[0])
+        let shape = try container.decode(ClipShape.self, forKey: .shape, ptype: ptype[0])
         let style = try container.decode(FillStyle.self, forKey: .style)
         self.init(shape: shape, style: style)
     }
@@ -28,6 +28,6 @@ extension _ClipEffect: JsonViewModifier, DynaCodable where ClipShape : DynaCodab
     }
     //: Register
     static func register() {
-        DynaType.register(_ClipEffect<AnyShape>.self, any: [AnyShape.self])
+        PType.register(_ClipEffect<AnyShape>.self, any: [AnyShape.self])
     }
 }

@@ -9,7 +9,7 @@
 import SwiftUI
 
 public struct NeverCodable: FullyCodable {
-    public init(from decoder: Decoder, for dynaType: DynaType) throws { fatalError("Never") }
+    public init(from decoder: Decoder, for ptype: PType) throws { fatalError("Never") }
     public init(from decoder: Decoder) throws { fatalError("Never") }
     public func encode(to encoder: Encoder) throws { fatalError("Never") }
 }

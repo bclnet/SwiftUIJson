@@ -13,7 +13,7 @@ extension GeometryReader: IAnyView, DynaCodable where Content : View {
     enum CodingKeys: CodingKey {
         case content
     }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+    public init(from decoder: Decoder, for ptype: PType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let content = try container.decodeFunc(GeometryProxy.self, Content.self, forKey: .content)
         self.init(content: content)
@@ -24,6 +24,6 @@ extension GeometryReader: IAnyView, DynaCodable where Content : View {
     }
     //: Register
     static func register() {
-        DynaType.register(GeometryReader<AnyView>.self)
+        PType.register(GeometryReader<AnyView>.self)
     }
 }

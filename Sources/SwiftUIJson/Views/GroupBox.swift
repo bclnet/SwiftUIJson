@@ -16,10 +16,10 @@ extension GroupBox: IAnyView, DynaCodable where Label : View, Label : DynaCodabl
     enum CodingKeys: CodingKey {
         case label, content
     }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+    public init(from decoder: Decoder, for ptype: PType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let label = (try container.decodeIfPresent(Label.self, forKey: .label, dynaType: dynaType[0])) ?? (AnyView(EmptyView()) as! Label)
-        let content = try container.decode(Content.self, forKey: .content, dynaType: dynaType[1])
+        let label = (try container.decodeIfPresent(Label.self, forKey: .label, ptype: ptype[0])) ?? (AnyView(EmptyView()) as! Label)
+        let content = try container.decode(Content.self, forKey: .content, ptype: ptype[1])
         self.init(label: label, content: { content })
     }
     public func encode(to encoder: Encoder) throws {
@@ -33,6 +33,6 @@ extension GroupBox: IAnyView, DynaCodable where Label : View, Label : DynaCodabl
     }
     //: Register
     static func register() {
-        DynaType.register(GroupBox<AnyView, AnyView>.self)
+        PType.register(GroupBox<AnyView, AnyView>.self)
     }
 }

@@ -15,9 +15,9 @@ extension _StrokedShape: IAnyShape, DynaCodable {
     enum CodingKeys: CodingKey {
         case shape, style
     }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+    public init(from decoder: Decoder, for ptype: PType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let shape = try container.decodeAny(IAnyShape.self, forKey: .shape, dynaType: dynaType[0]).anyShape as! S
+        let shape = try container.decodeAny(IAnyShape.self, forKey: .shape, ptype: ptype[0]).anyShape as! S
         let style = try container.decode(StrokeStyle.self, forKey: .style)
         self.init(shape: shape, style: style)
     }
@@ -28,7 +28,7 @@ extension _StrokedShape: IAnyShape, DynaCodable {
     }
     //: Register
     static func register() {
-        DynaType.register(_StrokedShape<AnyShape>.self, any: [AnyShape.self])
+        PType.register(_StrokedShape<AnyShape>.self, any: [AnyShape.self])
     }
 }
 

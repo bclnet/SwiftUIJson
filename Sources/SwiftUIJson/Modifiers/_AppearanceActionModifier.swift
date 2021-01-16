@@ -27,6 +27,6 @@ extension _AppearanceActionModifier: JsonViewModifier, Codable {
     }
     //: Register
     static func register() {
-        DynaType.register(_AppearanceActionModifier.self)
+        PType.register(_AppearanceActionModifier.self)
     }
 }

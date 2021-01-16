@@ -11,7 +11,7 @@ import SwiftUI
 extension TupleView: IAnyView, DynaCodable, DynaUnkeyedContainer {
     public var anyView: AnyView { AnyView(self) }
     //: Codable
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+    public init(from decoder: Decoder, for ptype: PType) throws {
         guard let context = decoder.userInfo[.jsonContext] as? JsonContext else { fatalError(".jsonContext") }
         var container = try decoder.unkeyedContainer()
         //let sk = try container.decode(String.self) // eat type
@@ -21,7 +21,7 @@ extension TupleView: IAnyView, DynaCodable, DynaUnkeyedContainer {
             let value = try context.decodeDynaSuper(from: baseDecoder)
             items.append(AnyView.any(value))
         }
-        let value = DynaType.buildType(tuple: dynaType[0], for: items) as! T
+        let value = PType.buildType(tuple: ptype[0], for: items) as! T
         self.init(value)
     }
     public func encode(to encoder: Encoder) throws {
@@ -34,16 +34,16 @@ extension TupleView: IAnyView, DynaCodable, DynaUnkeyedContainer {
     }
     //: Register
     static func register() {
-        DynaType.register(TupleView<(AnyView)>.self)
-        DynaType.register(TupleView<(AnyView, AnyView)>.self)
-        DynaType.register(TupleView<(AnyView, AnyView, AnyView)>.self)
-        DynaType.register(TupleView<(AnyView, AnyView, AnyView, AnyView)>.self)
-        DynaType.register(TupleView<(AnyView, AnyView, AnyView, AnyView, AnyView)>.self)
-        DynaType.register(TupleView<(AnyView, AnyView, AnyView, AnyView, AnyView, AnyView)>.self)
-        DynaType.register(TupleView<(AnyView, AnyView, AnyView, AnyView, AnyView, AnyView, AnyView)>.self)
-        DynaType.register(TupleView<(AnyView, AnyView, AnyView, AnyView, AnyView, AnyView, AnyView, AnyView)>.self)
-        DynaType.register(TupleView<(AnyView, AnyView, AnyView, AnyView, AnyView, AnyView, AnyView, AnyView, AnyView)>.self)
-        DynaType.register(TupleView<(AnyView, AnyView, AnyView, AnyView, AnyView, AnyView, AnyView, AnyView, AnyView, AnyView)>.self)
+        PType.register(TupleView<(AnyView)>.self)
+        PType.register(TupleView<(AnyView, AnyView)>.self)
+        PType.register(TupleView<(AnyView, AnyView, AnyView)>.self)
+        PType.register(TupleView<(AnyView, AnyView, AnyView, AnyView)>.self)
+        PType.register(TupleView<(AnyView, AnyView, AnyView, AnyView, AnyView)>.self)
+        PType.register(TupleView<(AnyView, AnyView, AnyView, AnyView, AnyView, AnyView)>.self)
+        PType.register(TupleView<(AnyView, AnyView, AnyView, AnyView, AnyView, AnyView, AnyView)>.self)
+        PType.register(TupleView<(AnyView, AnyView, AnyView, AnyView, AnyView, AnyView, AnyView, AnyView)>.self)
+        PType.register(TupleView<(AnyView, AnyView, AnyView, AnyView, AnyView, AnyView, AnyView, AnyView, AnyView)>.self)
+        PType.register(TupleView<(AnyView, AnyView, AnyView, AnyView, AnyView, AnyView, AnyView, AnyView, AnyView, AnyView)>.self)
     }
 }
 
@@ -63,7 +63,7 @@ extension TupleView: IAnyView, DynaCodable, DynaUnkeyedContainer {
 //                    items.append(value)
 //                }
 //            }
-//            let value = DynaType.typeBuildTuple(dynaType[0], for: items) as! T
+//            let value = PType.typeBuildTuple(ptype[0], for: items) as! T
 //            self.init(value)
 
 //            // Keyed with Ints

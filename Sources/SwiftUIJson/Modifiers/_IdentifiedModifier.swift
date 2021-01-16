@@ -14,7 +14,7 @@ extension _IdentifiedModifier: JsonViewModifier, DynaCodable where Identifier : 
     enum CodingKeys: CodingKey {
         case identifier
     }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+    public init(from decoder: Decoder, for ptype: PType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let identifier = try container.decode(Identifier.self, forKey: .identifier)
         self.init(identifier: identifier)
@@ -25,6 +25,6 @@ extension _IdentifiedModifier: JsonViewModifier, DynaCodable where Identifier : 
     }
     //: Register
     static func register() {
-        DynaType.register(_IdentifiedModifier<__DesignTimeSelectionIdentifier>.self)
+        PType.register(_IdentifiedModifier<__DesignTimeSelectionIdentifier>.self)
     }
 }

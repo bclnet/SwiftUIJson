@@ -281,7 +281,7 @@ extension Image: IAnyView, FullyCodable {
     enum CodingKeys: CodingKey {
         case named, mode, interpolation, antialiased, cgimage, platform, resizable
     }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws { try self.init(from: decoder) }
+    public init(from decoder: Decoder, for ptype: PType) throws { try self.init(from: decoder) }
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         var provider: AnyImageBox!
@@ -315,7 +315,7 @@ extension Image: IAnyView, FullyCodable {
     }
     //: Register
     static func register() {
-        DynaType.register(Image.self)
+        PType.register(Image.self)
     }
 }
 

@@ -13,11 +13,11 @@ extension Picker: IAnyView, DynaCodable where Label : View, Label : DynaCodable,
     enum CodingKeys: CodingKey {
         case selection, label, content
     }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+    public init(from decoder: Decoder, for ptype: PType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let selection = try container.decode(Binding<SelectionValue>.self, forKey: .selection, dynaType: dynaType[1])
-        let label = try container.decode(Label.self, forKey: .label, dynaType: dynaType[0])
-        let content = try container.decode(Content.self, forKey: .content, dynaType: dynaType[2])
+        let selection = try container.decode(Binding<SelectionValue>.self, forKey: .selection, ptype: ptype[1])
+        let label = try container.decode(Label.self, forKey: .label, ptype: ptype[0])
+        let content = try container.decode(Content.self, forKey: .content, ptype: ptype[2])
         self.init(selection: selection, label: label, content: { content })
     }
     public func encode(to encoder: Encoder) throws {
@@ -33,6 +33,6 @@ extension Picker: IAnyView, DynaCodable where Label : View, Label : DynaCodable,
     }
     //: Register
     static func register() {
-        DynaType.register(Picker<AnyView, AnyHashable, AnyView>.self)
+        PType.register(Picker<AnyView, AnyHashable, AnyView>.self)
     }
 }

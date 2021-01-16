@@ -39,6 +39,6 @@ extension _PaddingLayout: JsonViewModifier, Codable {
     }
     //: Register
     static func register() {
-        DynaType.register(_PaddingLayout.self)
+        PType.register(_PaddingLayout.self)
     }
 }

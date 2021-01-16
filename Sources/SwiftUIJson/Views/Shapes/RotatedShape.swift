@@ -14,7 +14,7 @@ extension RotatedShape: IAnyShape, IAnyView, ConvertibleDynaCodable where Conten
     public init(any: Any) {
         Mirror.assert(any, name: "RotatedShape", keys: ["shape", "angle", "anchor"])
         let m = Mirror.children(reflecting: any)
-        let newValue = try! DynaType.convert(value: m["shape"]!)
+        let newValue = try! PType.convert(value: m["shape"]!)
         let shape = (newValue as! IAnyShape).anyShape as! Content
         let angle = m["angle"]! as! Angle
         let anchor = m["anchor"]! as! UnitPoint
@@ -24,9 +24,9 @@ extension RotatedShape: IAnyShape, IAnyView, ConvertibleDynaCodable where Conten
     enum CodingKeys: CodingKey {
         case shape, angle, anchor
     }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+    public init(from decoder: Decoder, for ptype: PType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let shape = try container.decode(Content.self, forKey: .shape, dynaType: dynaType[0])
+        let shape = try container.decode(Content.self, forKey: .shape, ptype: ptype[0])
         let angle = try container.decode(Angle.self, forKey: .angle)
         let anchor = (try? container.decodeIfPresent(UnitPoint.self, forKey: .anchor)) ?? .center
         self.init(shape: shape, angle: angle, anchor: anchor)
@@ -39,6 +39,6 @@ extension RotatedShape: IAnyShape, IAnyView, ConvertibleDynaCodable where Conten
     }
     //: Register
     static func register() {
-        DynaType.register(RotatedShape<AnyShape>.self, any: [AnyShape.self])
+        PType.register(RotatedShape<AnyShape>.self, any: [AnyShape.self])
     }
 }

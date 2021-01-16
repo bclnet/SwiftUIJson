@@ -36,6 +36,6 @@ extension _PositionLayout: JsonViewModifier, Codable {
     }
     //: Register
     static func register() {
-        DynaType.register(_PositionLayout.self)
+        PType.register(_PositionLayout.self)
     }
 }

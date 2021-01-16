@@ -13,9 +13,9 @@ extension Toggle: IAnyView, DynaCodable where Label : View, Label : DynaCodable 
     enum CodingKeys: CodingKey {
         case label, isOn
     }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+    public init(from decoder: Decoder, for ptype: PType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let label = try container.decode(Label.self, forKey: .label, dynaType: dynaType[0])
+        let label = try container.decode(Label.self, forKey: .label, ptype: ptype[0])
         let isOn = try container.decode(Binding<Bool>.self, forKey: .isOn)
         self.init(isOn: isOn, label: { label })
     }
@@ -30,6 +30,6 @@ extension Toggle: IAnyView, DynaCodable where Label : View, Label : DynaCodable 
     }
     //: Register
     static func register() {
-        DynaType.register(Toggle<AnyView>.self)
+        PType.register(Toggle<AnyView>.self)
     }
 }

@@ -14,9 +14,9 @@ import Foundation
 //    enum CodingKeys: CodingKey {
 //        case value
 //    }
-//    public init(from decoder: Decoder, for dynaType: DynaType) throws {
-//        let value = try decoder.dynaSuperInit(for: dynaType[0])
-//        switch dynaType.underlyingKey {
+//    public init(from decoder: Decoder, for ptype: PType) throws {
+//        let value = try decoder.dynaSuperInit(for: ptype[0])
+//        switch ptype.underlyingKey {
 //        case "__C.NSTimer.TimerPublisher" where AnyPublisher.Output == Timer.TimerPublisher.Output && AnyPublisher.Failure == Timer.TimerPublisher.Failure:
 //            let abc = value as! Timer.TimerPublisher
 //            let xyz = abc.eraseToAnyPublisher()
@@ -38,7 +38,7 @@ extension PassthroughSubject: DynaCodable {
     enum CodingKeys: CodingKey {
         case value
     }
-    public convenience init(from decoder: Decoder, for dynaType: DynaType) throws {
+    public convenience init(from decoder: Decoder, for ptype: PType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let _ = try container.decode(Bool.self, forKey: .value)
         self.init()
@@ -54,7 +54,7 @@ extension CurrentValueSubject: DynaCodable where Output : Codable {
     enum CodingKeys: CodingKey {
         case value
     }
-    public convenience init(from decoder: Decoder, for dynaType: DynaType) throws {
+    public convenience init(from decoder: Decoder, for ptype: PType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let value = try container.decode(Output.self, forKey: .value)
         self.init(value)

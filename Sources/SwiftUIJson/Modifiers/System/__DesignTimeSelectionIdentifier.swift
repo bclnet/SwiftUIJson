@@ -23,6 +23,6 @@ extension __DesignTimeSelectionIdentifier: Codable {
     }
     //: Register
     static func register() {
-        DynaType.register(__DesignTimeSelectionIdentifier.self)
+        PType.register(__DesignTimeSelectionIdentifier.self)
     }
 }

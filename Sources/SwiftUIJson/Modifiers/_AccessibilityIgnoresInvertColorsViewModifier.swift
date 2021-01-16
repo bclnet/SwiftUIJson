@@ -26,6 +26,6 @@ extension _AccessibilityIgnoresInvertColorsViewModifier: JsonViewModifier, Codab
     }
     //: Register
     static func register() {
-        DynaType.register(_AccessibilityIgnoresInvertColorsViewModifier.self)
+        PType.register(_AccessibilityIgnoresInvertColorsViewModifier.self)
     }
 }

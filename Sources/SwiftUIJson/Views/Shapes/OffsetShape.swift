@@ -14,7 +14,7 @@ extension OffsetShape: IAnyShape, IAnyView, ConvertibleDynaCodable where Content
     public init(any: Any) {
         Mirror.assert(any, name: "OffsetShape", keys: ["shape", "offset"])
         let m = Mirror.children(reflecting: any)
-        let newValue = try! DynaType.convert(value: m["shape"]!)
+        let newValue = try! PType.convert(value: m["shape"]!)
         let shape = (newValue as! IAnyShape).anyShape as! Content
         let offset = m["offset"]! as! CGSize
         self.init(shape: shape, offset: offset)
@@ -23,9 +23,9 @@ extension OffsetShape: IAnyShape, IAnyView, ConvertibleDynaCodable where Content
     enum CodingKeys: CodingKey {
         case shape, offset
     }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+    public init(from decoder: Decoder, for ptype: PType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let shape = try container.decode(Content.self, forKey: .shape, dynaType: dynaType[0])
+        let shape = try container.decode(Content.self, forKey: .shape, ptype: ptype[0])
         let offset = try container.decode(CGSize.self, forKey: .offset)
         self.init(shape: shape, offset: offset)
     }
@@ -36,6 +36,6 @@ extension OffsetShape: IAnyShape, IAnyView, ConvertibleDynaCodable where Content
     }
     //: Register
     static func register() {
-        DynaType.register(OffsetShape<AnyShape>.self, any: [AnyShape.self])
+        PType.register(OffsetShape<AnyShape>.self, any: [AnyShape.self])
     }
 }

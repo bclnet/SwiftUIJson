@@ -15,7 +15,7 @@ extension Capsule: IAnyShape, DynaCodable {
     enum CodingKeys: CodingKey {
         case style
     }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+    public init(from decoder: Decoder, for ptype: PType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let style = (try? container.decodeIfPresent(RoundedCornerStyle.self, forKey: .style)) ?? .circular
         self.init(style: style)
@@ -26,8 +26,8 @@ extension Capsule: IAnyShape, DynaCodable {
     }
     //: Register
     static func register() {
-        DynaType.register(Capsule.self)
-        DynaType.register(Capsule._Inset.self)
+        PType.register(Capsule.self)
+        PType.register(Capsule._Inset.self)
     }
     
     struct _Inset: IAnyShape, IAnyView, ConvertibleDynaCodable {
@@ -42,7 +42,7 @@ extension Capsule: IAnyShape, DynaCodable {
         enum CodingKeys: CodingKey {
             case amount
         }
-        public init(from decoder: Decoder, for dynaType: DynaType) throws {
+        public init(from decoder: Decoder, for ptype: PType) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             amount = try container.decode(CGFloat.self, forKey: .amount)
         }

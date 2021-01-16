@@ -12,12 +12,12 @@ extension Circle: IAnyShape, DynaCodable {
     public var anyShape: AnyShape { AnyShape(self) }
     public var anyView: AnyView { AnyView(self) }
     //: Codable
-    public init(from decoder: Decoder, for dynaType: DynaType) throws { self.init() }
+    public init(from decoder: Decoder, for ptype: PType) throws { self.init() }
     public func encode(to encoder: Encoder) throws {}
     //: Register
     static func register() {
-        DynaType.register(Circle.self)
-        DynaType.register(Circle._Inset.self)
+        PType.register(Circle.self)
+        PType.register(Circle._Inset.self)
     }
     
     struct _Inset: IAnyShape, IAnyView, ConvertibleDynaCodable {
@@ -32,7 +32,7 @@ extension Circle: IAnyShape, DynaCodable {
         enum CodingKeys: CodingKey {
             case amount
         }
-        public init(from decoder: Decoder, for dynaType: DynaType) throws {
+        public init(from decoder: Decoder, for ptype: PType) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             amount = try container.decode(CGFloat.self, forKey: .amount)
         }

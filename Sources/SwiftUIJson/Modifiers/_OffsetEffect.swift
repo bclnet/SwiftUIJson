@@ -26,6 +26,6 @@ extension _OffsetEffect: JsonViewModifier, Codable {
     }
     //: Register
     static func register() {
-        DynaType.register(_OffsetEffect.self)
+        PType.register(_OffsetEffect.self)
     }
 }

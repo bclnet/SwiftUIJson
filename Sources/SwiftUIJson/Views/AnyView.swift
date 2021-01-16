@@ -24,13 +24,13 @@ extension AnyView: DynaCodable {
         case let view as AnyView: return view
         case let view as IAnyView: return AnyView(view.anyView)
         case let view as JsonView: return AnyView(view.base.anyView(view))
-        default: fatalError("AnyView: \(DynaType.typeKey(for: value))")
+        default: fatalError("AnyView: \(PType.typeKey(for: value))")
         }
     }
     //: Codable
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+    public init(from decoder: Decoder, for ptype: PType) throws {
         guard let context = decoder.userInfo[.jsonContext] as? JsonContext else { fatalError(".jsonContext") }
-        let value = try context.dynaSuperInit(from: decoder, for: dynaType)
+        let value = try context.dynaSuperInit(from: decoder, for: ptype)
         self = Self.any(value)
     }
     public func encode(to encoder: Encoder) throws {
@@ -41,7 +41,7 @@ extension AnyView: DynaCodable {
     }
     //: Register
     static func register() {
-        DynaType.register(AnyView.self)
+        PType.register(AnyView.self)
     }
     
     class AnyViewStorage {

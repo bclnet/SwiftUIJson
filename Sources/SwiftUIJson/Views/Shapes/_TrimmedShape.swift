@@ -13,9 +13,9 @@ extension _TrimmedShape: IAnyView, DynaCodable where S : DynaCodable {
     enum CodingKeys: CodingKey {
         case shape, startFraction, endFraction
     }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+    public init(from decoder: Decoder, for ptype: PType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let shape = try container.decode(S.self, forKey: .shape, dynaType: dynaType[0])
+        let shape = try container.decode(S.self, forKey: .shape, ptype: ptype[0])
         let startFraction = try container.decode(CGFloat.self, forKey: .startFraction)
         let endFraction = try container.decode(CGFloat.self, forKey: .endFraction)
         self.init(shape: shape, startFraction: startFraction, endFraction: endFraction)
@@ -29,6 +29,6 @@ extension _TrimmedShape: IAnyView, DynaCodable where S : DynaCodable {
     }
     //: Register
     static func register() {
-        DynaType.register(_TrimmedShape<AnyShape>.self, any: [AnyShape.self])
+        PType.register(_TrimmedShape<AnyShape>.self, any: [AnyShape.self])
     }
 }

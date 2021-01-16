@@ -14,10 +14,10 @@ extension SubscriptionView: IAnyView, DynaCodable where PublisherType : Combine.
     enum CodingKeys: CodingKey {
         case content, publisher, action
     }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+    public init(from decoder: Decoder, for ptype: PType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let content = try container.decode(Content.self, forKey: .content, dynaType: dynaType[1])
-        let publisher = try container.decode(PublisherType.self, forKey: .publisher, dynaType: dynaType[0])
+        let content = try container.decode(Content.self, forKey: .content, ptype: ptype[1])
+        let publisher = try container.decode(PublisherType.self, forKey: .publisher, ptype: ptype[0])
         let action = try container.decodeAction(PublisherType.Output.self, forKey: .action)
         self.init(content: content, publisher: publisher, action: action)
     }
@@ -34,9 +34,9 @@ extension SubscriptionView: IAnyView, DynaCodable where PublisherType : Combine.
     }
     //: Register
     static func register() {
-//        DynaType.register(SubscriptionView<AnyPublisher<Any, Never>, AnyView>.self, any: [AnyPublisher<Any, Never>.self, AnyView.self])
-        DynaType.register(SubscriptionView<PassthroughSubject<Any, Never>, AnyView>.self)
-        DynaType.register(SubscriptionView<CurrentValueSubject<Any, Never>, AnyView>.self)
-        DynaType.register(SubscriptionView<Timer.TimerPublisher, AnyView>.self)
+//        PType.register(SubscriptionView<AnyPublisher<Any, Never>, AnyView>.self, any: [AnyPublisher<Any, Never>.self, AnyView.self])
+        PType.register(SubscriptionView<PassthroughSubject<Any, Never>, AnyView>.self)
+        PType.register(SubscriptionView<CurrentValueSubject<Any, Never>, AnyView>.self)
+        PType.register(SubscriptionView<Timer.TimerPublisher, AnyView>.self)
     }
 }

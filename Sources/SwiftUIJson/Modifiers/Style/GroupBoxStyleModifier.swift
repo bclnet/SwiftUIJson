@@ -26,19 +26,19 @@ struct GroupBoxStyleModifier<Style>: JsonViewModifier, ConvertibleCodable where 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let styleKey = try container.decode(String.self, forKey: .style)
-        (action, style) = try DynaType.find(actionAndType: "style", forKey: styleKey)
+        (action, style) = try PType.find(actionAndType: "style", forKey: styleKey)
     }
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        let styleKey = DynaType.typeKey(type: style)
+        let styleKey = PType.typeKey(type: style)
         try container.encode(styleKey, forKey: .style)
     }
     //: Register
     static func register() {
-        DynaType.register(GroupBoxStyleModifier<NeverCodable>.self, any: [NeverCodable.self], namespace: "SwiftUI")
+        PType.register(GroupBoxStyleModifier<NeverCodable>.self, any: [NeverCodable.self], namespace: "SwiftUI")
         #if !os(tvOS) && !os(watchOS)
         if #available(iOS 14.0, macOS 11.0, *) {
-            DynaType.register(DefaultGroupBoxStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.groupBoxStyle(DefaultGroupBoxStyle())) }])
+            PType.register(DefaultGroupBoxStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.groupBoxStyle(DefaultGroupBoxStyle())) }])
         }
         #endif
     }

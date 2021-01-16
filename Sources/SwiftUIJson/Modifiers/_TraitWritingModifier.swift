@@ -14,7 +14,7 @@ struct _TraitWritingModifier<TraitKey>: JsonViewModifier, ConvertibleCodable whe
     let value: Any
     public init(any: Any) {
         Mirror.assert(any, name: "_TraitWritingModifier", keys: ["value"])
-        valueKey = DynaType.typeKey(type: any)
+        valueKey = PType.typeKey(type: any)
         value = Mirror(reflecting: any).descendant("value")!
     }
     //: JsonViewModifier
@@ -51,12 +51,12 @@ struct _TraitWritingModifier<TraitKey>: JsonViewModifier, ConvertibleCodable whe
     }
     //: Register
     static func register() {
-        DynaType.register(_TraitWritingModifier<NeverCodable>.self, any: [NeverCodable.self], namespace: "SwiftUI")
-        DynaType.register(IsDeleteDisabledTraitKey.self, namespace: "SwiftUI")
-        DynaType.register(IsMoveDisabledTraitKey.self, namespace: "SwiftUI")
-        DynaType.register(ItemProviderTraitKey.self, namespace: "SwiftUI")
-        DynaType.register(PreviewLayoutTraitKey.self, namespace: "SwiftUI")
-        DynaType.register(ZIndexTraitKey.self, namespace: "SwiftUI")
+        PType.register(_TraitWritingModifier<NeverCodable>.self, any: [NeverCodable.self], namespace: "SwiftUI")
+        PType.register(IsDeleteDisabledTraitKey.self, namespace: "SwiftUI")
+        PType.register(IsMoveDisabledTraitKey.self, namespace: "SwiftUI")
+        PType.register(ItemProviderTraitKey.self, namespace: "SwiftUI")
+        PType.register(PreviewLayoutTraitKey.self, namespace: "SwiftUI")
+        PType.register(ZIndexTraitKey.self, namespace: "SwiftUI")
     }
 }
 

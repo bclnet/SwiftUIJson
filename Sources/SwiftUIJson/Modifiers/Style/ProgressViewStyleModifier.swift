@@ -27,18 +27,18 @@ struct ProgressViewStyleModifier<Style>: JsonViewModifier, ConvertibleCodable wh
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let styleKey = try container.decode(String.self, forKey: .style)
-        (action, style) = try DynaType.find(actionAndType: "style", forKey: styleKey)
+        (action, style) = try PType.find(actionAndType: "style", forKey: styleKey)
     }
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        let styleKey = DynaType.typeKey(type: style)
+        let styleKey = PType.typeKey(type: style)
         try container.encode(styleKey, forKey: .style)
     }
     //: Register
     static func register() {
-        DynaType.register(ProgressViewStyleModifier<NeverCodable>.self, any: [NeverCodable.self], namespace: "SwiftUI")
-        DynaType.register(CircularProgressViewStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.progressViewStyle(CircularProgressViewStyle())) }])
-        DynaType.register(DefaultProgressViewStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.progressViewStyle(DefaultProgressViewStyle())) }])
-        DynaType.register(LinearProgressViewStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.progressViewStyle(LinearProgressViewStyle())) }])
+        PType.register(ProgressViewStyleModifier<NeverCodable>.self, any: [NeverCodable.self], namespace: "SwiftUI")
+        PType.register(CircularProgressViewStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.progressViewStyle(CircularProgressViewStyle())) }])
+        PType.register(DefaultProgressViewStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.progressViewStyle(DefaultProgressViewStyle())) }])
+        PType.register(LinearProgressViewStyle.self, actions: ["style": { (content: AnyView) in AnyView(content.progressViewStyle(LinearProgressViewStyle())) }])
     }
 }

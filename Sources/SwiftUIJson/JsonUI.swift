@@ -18,7 +18,7 @@ public struct JsonUI: Codable {
         if Content.Body.self == Never.self { fatalError("NEVER") }
         guard let value = view as? Encodable else {
             guard let value2 = view.body as? Encodable else {
-                throw DynaTypeError.typeNotCodable("JsonUI", key: DynaType.typeKey(for: view.body))
+                throw PTypeError.typeNotCodable("JsonUI", key: PType.typeKey(for: view.body))
             }
             body = value2
             return
@@ -32,7 +32,8 @@ public struct JsonUI: Codable {
     }
     public init(from decoder: Decoder) throws {
         guard let json = decoder.userInfo[.json] as? Data else { fatalError(".json") }
-        guard decoder.userInfo[.jsonContext] as? JsonContext != nil else {
+        let context = decoder.userInfo[.jsonContext] as? JsonContext
+        guard context != nil else {
             let nextContext: JsonContext
             do {
                 var container = try decoder.unkeyedContainer()
@@ -47,7 +48,6 @@ public struct JsonUI: Codable {
             body = try nextDecoder.decode(JsonUI.self, from: json).body
             return
         }
-        guard let context = decoder.userInfo[.jsonContext] as? JsonContext else { fatalError(".jsonContext") }
         let value = try context.decodeDynaSuper(from: decoder)
         body = AnyView.any(value)
     }
@@ -169,7 +169,6 @@ public struct JsonUI: Codable {
         _VariadicView.register()
         AnyView.register()
         //:tree
-        TupleView<(AnyView)>.register()
         
         // views
         Button<AnyView>.register()
@@ -234,6 +233,9 @@ public struct JsonUI: Codable {
         Toggle<AnyView>.register()
         #if os(macOS)
         TouchBar<AnyView>.register()
+        #endif
+        TupleView<(AnyView)>.register()
+        #if os(macOS)
         VSplitView<AnyView>.register()
         #endif
         VStack<AnyView>.register()
