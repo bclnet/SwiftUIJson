@@ -60,7 +60,7 @@ extension DatePickerComponents: Codable {
             switch try container.decode(String.self) {
             case "hourAndMinute": elements.insert(.hourAndMinute)
             case "date": elements.insert(.date)
-            case let unrecognized: self.init(rawValue: RawValue(unrecognized)!); return
+            case let value: self.init(rawValue: RawValue(value)!); return
             }
         }
         self = elements
@@ -72,7 +72,7 @@ extension DatePickerComponents: Codable {
                 switch element {
                 case .hourAndMinute: try container.encode("hourAndMinute")
                 case .date: try container.encode("date")
-                case let unrecognized: fatalError("\(unrecognized)")
+                case let value: fatalError("\(value)")
 //                default: try container.encode(String(rawValue)); return
                 }
             }

@@ -10,7 +10,16 @@ import SwiftUI
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension TupleView: IAnyView, DynaCodable, DynaUnkeyedContainer {
     public var anyView: AnyView { AnyView(self) }
+    
     //: Codable
+    public func encode(to encoder: Encoder) throws {
+        guard let context = encoder.userInfo[.jsonContext] as? JsonContext else { fatalError(".jsonContext") }
+        var container = encoder.unkeyedContainer()
+        for value in Mirror.values(reflecting: value) {
+            let baseEncoder = container.superEncoder()
+            try context.encodeDynaSuper(value, to: baseEncoder)
+        }
+    }
     public init(from decoder: Decoder, for ptype: PType) throws {
         guard let context = decoder.userInfo[.jsonContext] as? JsonContext else { fatalError(".jsonContext") }
         var container = try decoder.unkeyedContainer()
@@ -24,14 +33,7 @@ extension TupleView: IAnyView, DynaCodable, DynaUnkeyedContainer {
         let value = PType.buildType(tuple: ptype[0], for: items) as! T
         self.init(value)
     }
-    public func encode(to encoder: Encoder) throws {
-        guard let context = encoder.userInfo[.jsonContext] as? JsonContext else { fatalError(".jsonContext") }
-        var container = encoder.unkeyedContainer()
-        for value in Mirror.values(reflecting: value) {
-            let baseEncoder = container.superEncoder()
-            try context.encodeDynaSuper(value, to: baseEncoder)
-        }
-    }
+
     //: Register
     static func register() {
         PType.register(TupleView<(AnyView)>.self)

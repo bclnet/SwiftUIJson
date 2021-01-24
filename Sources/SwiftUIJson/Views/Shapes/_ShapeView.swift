@@ -50,15 +50,15 @@ extension FillStyle: Codable {
     enum CodingKeys: CodingKey {
         case eoFill, antialiased
     }
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        if isEOFilled { try container.encode(isEOFilled, forKey: .eoFill) }
+        if isAntialiased { try container.encode(isAntialiased, forKey: .antialiased) }
+    }
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let eoFill = (try? container.decodeIfPresent(Bool.self, forKey: .eoFill)) ?? true
         let antialiased = (try? container.decodeIfPresent(Bool.self, forKey: .antialiased)) ?? true
         self.init(eoFill: eoFill, antialiased: antialiased)
-    }
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        if isEOFilled { try container.encode(isEOFilled, forKey: .eoFill) }
-        if isAntialiased { try container.encode(isAntialiased, forKey: .antialiased) }
     }
 }

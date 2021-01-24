@@ -8,24 +8,15 @@
 import SwiftUI
 
 extension _PaddingLayout: JsonViewModifier, Codable {
-    //: JsonViewModifier
     public func body(content: AnyView) -> AnyView {
         insets == nil ? AnyView(content.padding(edges, nil))
             : insets!.isEqual ? AnyView(content.padding(edges, insets!.top == 0 ? nil : insets!.top))
             : AnyView(content.padding(insets!))
     }
+
     //: Codable
     enum CodingKeys: CodingKey {
         case edges, length, insets
-    }
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        let edges = (try? container.decodeIfPresent(Edge.Set.self, forKey: .edges)) ?? .all
-        let length = try? container.decodeIfPresent(CGFloat.self, forKey: .length)
-        let insets = length != nil
-            ? EdgeInsets(top: length!, leading: length!, bottom: length!, trailing: length!)
-            : try? container.decodeIfPresent(EdgeInsets.self, forKey: .insets)
-        self.init(edges: edges, insets: insets)
     }
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
@@ -37,6 +28,16 @@ extension _PaddingLayout: JsonViewModifier, Codable {
         }
         try container.encode(insets, forKey: .insets)
     }
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let edges = (try? container.decodeIfPresent(Edge.Set.self, forKey: .edges)) ?? .all
+        let length = try? container.decodeIfPresent(CGFloat.self, forKey: .length)
+        let insets = length != nil
+            ? EdgeInsets(top: length!, leading: length!, bottom: length!, trailing: length!)
+            : try? container.decodeIfPresent(EdgeInsets.self, forKey: .insets)
+        self.init(edges: edges, insets: insets)
+    }
+
     //: Register
     static func register() {
         PType.register(_PaddingLayout.self)

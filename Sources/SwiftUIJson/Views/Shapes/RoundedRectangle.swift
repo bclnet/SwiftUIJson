@@ -83,7 +83,7 @@ extension RoundedCornerStyle: Codable {
         switch try container.decode(String.self) {
         case "circular": self = .circular
         case "continuous": self = .continuous
-        case let unrecognized: fatalError(unrecognized)
+        case let value: fatalError(value)
         }
     }
     public func encode(to encoder: Encoder) throws {
@@ -91,7 +91,7 @@ extension RoundedCornerStyle: Codable {
         switch self {
         case .circular: try container.encode("circular")
         case .continuous: try container.encode("continuous")
-        case let unrecognized: fatalError("\(unrecognized)")
+        case let value: fatalError("\(value)")
         }
     }
 }

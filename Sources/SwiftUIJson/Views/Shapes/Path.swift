@@ -85,7 +85,7 @@ extension Path: IAnyShape, DynaCodable {
             case "SwiftUI.Path.Storage.rect": self = .rect(m["rect"]! as! CGRect)
             case "SwiftUI.Path.Storage.roundedRect": self = .roundedRect(FixedRoundedRect(any: m["roundedRect"]!))
             case "SwiftUI.Path.Storage.ellipse": self = .ellipse(m["ellipse"]! as! CGRect)
-            case let unrecognized: fatalError(unrecognized)
+            case let value: fatalError(value)
             }
         }
     }
@@ -127,7 +127,7 @@ extension CGMutablePath {
             case "addQuadCurve": path.addQuadCurve(to: points[0], control: points[1])
             case "addCurve": path.addCurve(to: points[0], control1: points[1], control2: points[2])
             case "close": path.closeSubpath()
-            case let unrecognized: fatalError(unrecognized!)
+            case let value: fatalError(value!)
             }
         }
         return path
@@ -159,7 +159,7 @@ extension CGMutablePath {
             case .closeSubpath:
                 var baseContainer = container.nestedUnkeyedContainer()
                 try! baseContainer.encode("close")
-            case let unrecognized: fatalError("\(unrecognized)")
+            case let value: fatalError("\(value)")
             }
         }
     }

@@ -8,11 +8,15 @@
 import SwiftUI
 
 extension _AlignmentWritingModifier: JsonViewModifier, Codable {
-    //: JsonViewModifier
     public func body(content: AnyView) -> AnyView { AnyView(content.modifier(self)) }
+
     //: Codable
     enum CodingKeys: CodingKey {
         case active
+    }
+    public func encode(to encoder: Encoder) throws {
+//        var container = encoder.container(keyedBy: CodingKeys.self)
+//        try container.encode(active, forKey: .active)
     }
     public init(from decoder: Decoder) throws {
 //        let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -20,10 +24,7 @@ extension _AlignmentWritingModifier: JsonViewModifier, Codable {
 //        self.init(active: active)
         fatalError()
     }
-    public func encode(to encoder: Encoder) throws {
-//        var container = encoder.container(keyedBy: CodingKeys.self)
-//        try container.encode(active, forKey: .active)
-    }
+
     //: Register
     static func register() {
         PType.register(_AlignmentWritingModifier.self)

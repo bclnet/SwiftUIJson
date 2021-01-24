@@ -18,11 +18,18 @@ struct AddGestureModifier<Gesture>: JsonViewModifier, ConvertibleDynaCodable {
         gesture = m["gesture"]! as! Gesture
         action = nil
     }
+    
     //: JsonViewModifier
     public func body(content: AnyView) -> AnyView { action(AnyView(content), gestureMask, gesture) }
+
     //: Codable
     enum CodingKeys: CodingKey {
         case gestureMask, gesture
+    }
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(gestureMask, forKey: .gestureMask)
+        try container.encodeAny(gesture, forKey: .gesture)
     }
     public init(from decoder: Decoder, for ptype: PType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -30,11 +37,7 @@ struct AddGestureModifier<Gesture>: JsonViewModifier, ConvertibleDynaCodable {
         gesture = try container.decodeAny(Gesture.self, forKey: .gesture, ptype: ptype[0])
         action = PType.find(action: "longPressGesture", forKey: ptype.underlyingAny)
     }
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(gestureMask, forKey: .gestureMask)
-        try container.encodeAny(gesture, forKey: .gesture)
-    }
+
     //: Register
     static func register() {
         PType.register(AddGestureModifier<Any>.self, any: [Any.self], namespace: "SwiftUI", actions: [

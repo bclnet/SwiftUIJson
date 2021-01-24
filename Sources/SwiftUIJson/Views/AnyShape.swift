@@ -11,7 +11,6 @@ public protocol IAnyShape: IAnyView {
     var anyShape: AnyShape { get }
 }
 
-
 public struct AnyShape: Shape, DynaCodable {
     public func path(in rect: CGRect) -> Path { storage.path(rect) }
     public var body: AnyView { storage.view }

@@ -10,9 +10,17 @@ import SwiftUI
 extension _TransformEffect: JsonViewModifier, Codable {
     //: JsonViewModifier
     public func body(content: AnyView) -> AnyView { AnyView(content.modifier(self)) }
+    
     //: Codable
     enum CodingKeys: CodingKey {
         case color, radius, offset
+    }
+    public func encode(to encoder: Encoder) throws {
+//        Mirror.assert(self, name: "_ShadowEffect", keys: ["color", "radius", "offset"])
+//        var container = encoder.container(keyedBy: CodingKeys.self)
+//        try container.encode(color, forKey: .color)
+//        try container.encode(radius, forKey: .radius)
+//        try container.encode(offset, forKey: .offset)
     }
     public init(from decoder: Decoder) throws {
 //        let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -22,13 +30,7 @@ extension _TransformEffect: JsonViewModifier, Codable {
 //        self.init(color: color, radius: radius, offset: offset)
         fatalError()
     }
-    public func encode(to encoder: Encoder) throws {
-//        Mirror.assert(self, name: "_ShadowEffect", keys: ["color", "radius", "offset"])
-//        var container = encoder.container(keyedBy: CodingKeys.self)
-//        try container.encode(color, forKey: .color)
-//        try container.encode(radius, forKey: .radius)
-//        try container.encode(offset, forKey: .offset)
-    }
+
     //: Register
     static func register() {
         PType.register(_TransformEffect.self)

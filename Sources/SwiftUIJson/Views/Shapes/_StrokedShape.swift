@@ -66,7 +66,7 @@ extension CGLineCap: Codable {
         case "butt": self = .butt
         case "round": self = .round
         case "square": self = .square
-        case let unrecognized: fatalError(unrecognized)
+        case let value: fatalError(value)
         }
     }
     public func encode(to encoder: Encoder) throws {
@@ -75,7 +75,7 @@ extension CGLineCap: Codable {
         case .butt: try container.encode("butt")
         case .round: try container.encode("round")
         case .square: try container.encode("square")
-        case let unrecognized: fatalError("\(unrecognized)")
+        case let value: fatalError("\(value)")
         }
     }
 }
@@ -88,7 +88,7 @@ extension CGLineJoin: Codable {
         case "miter": self = .miter
         case "round": self = .round
         case "bevel": self = .bevel
-        case let unrecognized: fatalError(unrecognized)
+        case let value: fatalError(value)
         }
     }
     public func encode(to encoder: Encoder) throws {
@@ -97,7 +97,7 @@ extension CGLineJoin: Codable {
         case .miter: try container.encode("miter")
         case .round: try container.encode("round")
         case .bevel: try container.encode("bevel")
-        case let unrecognized: fatalError("\(unrecognized)")
+        case let value: fatalError("\(value)")
         }
     }
 }

@@ -19,7 +19,7 @@ extension PinnedScrollableViews: CaseIterable, Codable {
             switch try container.decode(String.self) {
             case "sectionHeaders": elements.insert(.sectionHeaders)
             case "sectionFooters": elements.insert(.sectionFooters)
-            case let unrecognized: self.init(rawValue: RawValue(unrecognized)!); return
+            case let value: self.init(rawValue: RawValue(value)!); return
             }
         }
         self = elements
@@ -31,7 +31,7 @@ extension PinnedScrollableViews: CaseIterable, Codable {
                 switch element {
                 case .sectionHeaders: try container.encode("sectionHeaders")
                 case .sectionFooters: try container.encode("sectionFooters")
-                case let unrecognized: fatalError("\(unrecognized)")
+                case let value: fatalError("\(value)")
 //                default: try container.encode(String(rawValue)); return
                 }
             }

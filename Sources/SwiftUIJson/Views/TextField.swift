@@ -9,25 +9,10 @@ import SwiftUI
 
 extension TextField: IAnyView, DynaCodable where Label == Text {
     public var anyView: AnyView { AnyView(self) }
+
     //: Codable
     enum CodingKeys: CodingKey {
         case title, titleKey, text, onEditingChanged, onCommit
-    }
-    public init(from decoder: Decoder, for ptype: PType) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        let text = try container.decode(Binding<String>.self, forKey: .text)
-        let onEditingChanged = try container.decodeAction(Bool.self, forKey: .onEditingChanged)
-        let onCommit = try container.decodeAction(forKey: .onCommit)
-        if container.contains(.title) {
-            let title = try container.decode(String.self, forKey: .title)
-            // does not support TextField(_:value:formatter:onEditingChanged:onCommit:)
-            self.init(title, text: text, onEditingChanged: onEditingChanged, onCommit: onCommit)
-        }
-        else if container.contains(.titleKey) {
-            let titleKey = LocalizedStringKey(try container.decode(String.self, forKey: .titleKey))
-            // does not support TextField(_:value:formatter:onEditingChanged:onCommit:)
-            self.init(titleKey, text: text, onEditingChanged: onEditingChanged, onCommit: onCommit) }
-        else { fatalError() }
     }
     public func encode(to encoder: Encoder) throws {
         Mirror.assert(self, name: "TextField", keys: ["label", "_text", "onEditingChanged", "onCommit", "updatesContinuously", "_uncommittedText", "isSecure"])
@@ -46,9 +31,26 @@ extension TextField: IAnyView, DynaCodable where Label == Text {
         default: fatalError("Not Supported")
         }
         try container.encode(text, forKey: .text)
-        try container.encodeAction(onCommit, forKey: .onCommit)
         try container.encodeAction(onEditingChanged, forKey: .onEditingChanged)
+        try container.encodeAction(onCommit, forKey: .onCommit)
     }
+    public init(from decoder: Decoder, for ptype: PType) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let text = try container.decode(Binding<String>.self, forKey: .text)
+        let onEditingChanged = try container.decodeAction(Bool.self, forKey: .onEditingChanged)
+        let onCommit = try container.decodeAction(forKey: .onCommit)
+        if container.contains(.title) {
+            let title = try container.decode(String.self, forKey: .title)
+            // does not support TextField(_:value:formatter:onEditingChanged:onCommit:)
+            self.init(title, text: text, onEditingChanged: onEditingChanged, onCommit: onCommit)
+        }
+        else if container.contains(.titleKey) {
+            let titleKey = LocalizedStringKey(try container.decode(String.self, forKey: .titleKey))
+            // does not support TextField(_:value:formatter:onEditingChanged:onCommit:)
+            self.init(titleKey, text: text, onEditingChanged: onEditingChanged, onCommit: onCommit) }
+        else { fatalError() }
+    }
+
     //: Register
     static func register() {
         PType.register(TextField<Text>.self)

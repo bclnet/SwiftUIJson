@@ -270,7 +270,7 @@ extension Color: FullyCodable {
                 case "named": return try container.decode(NamedColor.self).apply()
                 case "platform": return try container.decode(PlatformColor.self).apply()
                 case "opacity": return try container.decode(OpacityColor.self).apply()
-                case let unrecognized: fatalError(unrecognized)
+                case let value: fatalError(value)
                 }
             }
             self = try defaultFunc()
@@ -305,7 +305,7 @@ extension Color: FullyCodable {
                 case "NamedColor": try container.encode(NamedColor(any: provider, provider: "named"))
                 case "UICachedDeviceRGBColor", "UICachedDeviceWhiteColor": try container.encode(PlatformColor(any: provider, provider: "platform"))
                 case "OpacityColor": try container.encode(OpacityColor(any: provider, provider: "opacity"))
-                case let unrecognized: fatalError(unrecognized)
+                case let value: fatalError(value)
                 }
             }
             try defaultFunc()

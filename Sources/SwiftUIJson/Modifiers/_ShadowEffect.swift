@@ -8,18 +8,11 @@
 import SwiftUI
 
 extension _ShadowEffect: JsonViewModifier, Codable {
-    //: JsonViewModifier
     public func body(content: AnyView) -> AnyView { AnyView(content.modifier(self)) }
+    
     //: Codable
     enum CodingKeys: CodingKey {
         case color, radius, offset
-    }
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        let color = try container.decode(Color.self, forKey: .color)
-        let radius = try container.decode(CGFloat.self, forKey: .radius)
-        let offset = try container.decode(CGSize.self, forKey: .offset)
-        self.init(color: color, radius: radius, offset: offset)
     }
     public func encode(to encoder: Encoder) throws {
         Mirror.assert(self, name: "_ShadowEffect", keys: ["color", "radius", "offset"])
@@ -28,6 +21,14 @@ extension _ShadowEffect: JsonViewModifier, Codable {
         try container.encode(radius, forKey: .radius)
         try container.encode(offset, forKey: .offset)
     }
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let color = try container.decode(Color.self, forKey: .color)
+        let radius = try container.decode(CGFloat.self, forKey: .radius)
+        let offset = try container.decode(CGSize.self, forKey: .offset)
+        self.init(color: color, radius: radius, offset: offset)
+    }
+
     //: Register
     static func register() {
         PType.register(_ShadowEffect.self)

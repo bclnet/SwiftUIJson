@@ -103,7 +103,7 @@ extension GestureMask: Codable {
             case "none": self = .none; return
             case "gesture": elements.insert(.gesture)
             case "subviews": elements.insert(.subviews)
-            case let unrecognized: self.init(rawValue: RawValue(unrecognized)!); return
+            case let value: self.init(rawValue: RawValue(value)!); return
             }
         }
         self = elements
@@ -117,7 +117,7 @@ extension GestureMask: Codable {
                 case .none: try container.encode("none"); return
                 case .gesture: try container.encode("gesture")
                 case .subviews: try container.encode("subviews")
-                case let unrecognized: fatalError("\(unrecognized)")
+                case let value: fatalError("\(value)")
 //                default: try container.encode(String(rawValue)); return
                 }
             }

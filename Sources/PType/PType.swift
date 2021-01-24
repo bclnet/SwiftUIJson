@@ -161,9 +161,18 @@ public enum PType: RawRepresentable, Codable {
         return convert.init(any: value)
     }
     
+    // MARK: - FindAction
+    public static func findAction<Action>(action: String, forKey key: String) -> Action? {
+        actionTypes[key]![action] as? Action
+    }
+
+    public static func findAction<Action>(actionAndType action: String, forKey key: String) throws -> (Action?, Self) {
+        (find(action: action, forKey: key), try find(forKey: key))
+    }
+
     // MARK: - Find
     let typeParseTokens_breaks = ["<", "(", ",", ")", ">"]
-    private static func typeParse(tokens raw: String) -> [(op: String, value: String)] {
+    private static func typeParseTokens(tokens raw: String) -> [(op: String, value: String)] {
         let name = raw.replacingOccurrences(of: " ", with: "")
         var tokens = [(op: String, value: String)]()
         var nameidx = name.startIndex
@@ -180,18 +189,10 @@ public enum PType: RawRepresentable, Codable {
         return tokens
     }
     
-    public static func find<Action>(actionAndType action: String, forKey key: String) throws -> (Action?, Self) {
-        (find(action: action, forKey: key), try find(forKey: key))
-    }
-    
-    public static func find<Action>(action: String, forKey key: String) -> Action? {
-        actionTypes[key]![action] as? Action
-    }
-
     public static func find(forKey: String) throws -> Self {
         let _ = registered
         if let knownType = knownTypes[forKey] { return knownType }
-        let tokens = typeParse(tokens: forKey)
+        let tokens = typeParseTokens(tokens: forKey)
         var typ: Self = .type(Never.self, "Never")
         var key: String = forKey, any: String = ""
         var keys = [String](), anys = [String](), typs = [Self]()
@@ -232,7 +233,7 @@ public enum PType: RawRepresentable, Codable {
                     }
                     any = anys.joined()
                     stack.append(("t", try findTypeGeneric(key: key, any: any, genericName: genericName, generic: typs), key, any))
-                case let unrecognized: fatalError(unrecognized)
+                case let value: fatalError(value)
                 }
             } while last.op != lastOp
         }
@@ -265,7 +266,7 @@ public enum PType: RawRepresentable, Codable {
         case 08: type = (T, T, T, T, T, T, T, T).Type.self
         case 09: type = (T, T, T, T, T, T, T, T, T).Type.self
         case 10: type = (T, T, T, T, T, T, T, T, T, T).Type.self
-        case let unrecognized: fatalError("\(unrecognized)")
+        case let value: fatalError("\(value)")
         }
         let ptype = .tuple(type, key, tuple)
         knownTypes[key] = ptype
@@ -283,7 +284,7 @@ public enum PType: RawRepresentable, Codable {
         case 08: return (s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7])
         case 09: return (s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7], s[8])
         case 10: return (s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7], s[8], s[9])
-        case let unrecognized: fatalError("\(unrecognized)")
+        case let value: fatalError("\(value)")
         }
     }
     
