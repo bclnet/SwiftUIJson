@@ -11,20 +11,22 @@ import SwiftUI
 extension Path: IAnyShape, DynaCodable {
     public var anyShape: AnyShape { AnyShape(self) }
     public var anyView: AnyView { AnyView(self) }
+    
     //: Codable
     enum CodingKeys: CodingKey {
         case path
-    }
-    public init(from decoder: Decoder, for ptype: PType) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        let description = (try? container.decodeIfPresent(String.self, forKey: .path)) ?? ""
-        self = Path(description) ?? Path()
     }
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         let type = String(String(reflecting: Mirror(reflecting: self).descendant("storage")!).split(separator: "(")[0])
         if type != "SwiftUI.Path.Storage.empty" { try container.encode(description, forKey: .path) }
     }
+    public init(from decoder: Decoder, for ptype: PType) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let description = (try? container.decodeIfPresent(String.self, forKey: .path)) ?? ""
+        self = Path(description) ?? Path()
+    }
+
     //: Register
     static func register() {
         PType.register(Path.self)

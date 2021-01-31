@@ -10,9 +10,16 @@ import SwiftUI
 
 extension _ShapeView: IAnyView, DynaCodable where Content : DynaCodable, Style : DynaCodable {
     public var anyView: AnyView { AnyView(self) }
+
     //: Codable
     enum CodingKeys: CodingKey {
         case shape, style, fillStyle
+    }
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(shape, forKey: .shape)
+        try container.encode(style, forKey: .style)
+        try container.encode(fillStyle, forKey: .fillStyle)
     }
     public init(from decoder: Decoder, for ptype: PType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -21,12 +28,7 @@ extension _ShapeView: IAnyView, DynaCodable where Content : DynaCodable, Style :
         let fillStyle = try container.decode(FillStyle.self, forKey: .fillStyle)
         self.init(shape: shape, style: style, fillStyle: fillStyle)
     }
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(shape, forKey: .shape)
-        try container.encode(style, forKey: .style)
-        try container.encode(fillStyle, forKey: .fillStyle)
-    }
+
     //: Register
     static func register() {
         PType.register(_ShapeView<AnyShape, AngularGradient>.self, any: [AnyShape.self])
@@ -42,23 +44,5 @@ extension _ShapeView: IAnyView, DynaCodable where Content : DynaCodable, Style :
         PType.register(_ShapeView<AnyShape, SelectionShapeStyle>.self, any: [AnyShape.self])
         PType.register(_ShapeView<AnyShape, SeparatorShapeStyle>.self, any: [AnyShape.self])
         #endif
-    }
-}
-
-extension FillStyle: Codable {
-    //: Codable
-    enum CodingKeys: CodingKey {
-        case eoFill, antialiased
-    }
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        if isEOFilled { try container.encode(isEOFilled, forKey: .eoFill) }
-        if isAntialiased { try container.encode(isAntialiased, forKey: .antialiased) }
-    }
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        let eoFill = (try? container.decodeIfPresent(Bool.self, forKey: .eoFill)) ?? true
-        let antialiased = (try? container.decodeIfPresent(Bool.self, forKey: .antialiased)) ?? true
-        self.init(eoFill: eoFill, antialiased: antialiased)
     }
 }

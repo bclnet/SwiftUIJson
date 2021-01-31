@@ -11,19 +11,8 @@ import SwiftUI
 @available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *)
 extension PinnedScrollableViews: CaseIterable, Codable {
     public static let allCases: [Self] = [.sectionHeaders, .sectionFooters]
+    
     //: Codable
-    public init(from decoder: Decoder) throws {
-        var container = try decoder.unkeyedContainer()
-        var elements: Self = []
-        while !container.isAtEnd {
-            switch try container.decode(String.self) {
-            case "sectionHeaders": elements.insert(.sectionHeaders)
-            case "sectionFooters": elements.insert(.sectionFooters)
-            case let value: self.init(rawValue: RawValue(value)!); return
-            }
-        }
-        self = elements
-    }
     public func encode(to encoder: Encoder) throws {
         var container = encoder.unkeyedContainer()
         for (_, element) in Self.allCases.enumerated() {
@@ -36,5 +25,17 @@ extension PinnedScrollableViews: CaseIterable, Codable {
                 }
             }
         }
+    }
+    public init(from decoder: Decoder) throws {
+        var container = try decoder.unkeyedContainer()
+        var elements: Self = []
+        while !container.isAtEnd {
+            switch try container.decode(String.self) {
+            case "sectionHeaders": elements.insert(.sectionHeaders)
+            case "sectionFooters": elements.insert(.sectionFooters)
+            case let value: self.init(rawValue: RawValue(value)!); return
+            }
+        }
+        self = elements
     }
 }

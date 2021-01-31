@@ -8,18 +8,16 @@
 
 import SwiftUI
 
-extension _VariadicView {
-    //: Register
-    static func register() {
-        PType.register(_VariadicView.Tree<_ContextMenuContainer.Container<AnyView>, AnyView>.self)
-    }
-}
-
 extension _VariadicView.Tree: IAnyView, DynaCodable where Root : _VariadicView_ViewRoot, Content : View, Content : DynaCodable {
     public var anyView: AnyView { AnyView(self) }
     //: Codable
     enum CodingKeys: CodingKey {
         case root, content
+    }
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encodeAny(root, forKey: .root)
+        try container.encode(content, forKey: .content)
     }
     public init(from decoder: Decoder, for ptype: PType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -27,13 +25,12 @@ extension _VariadicView.Tree: IAnyView, DynaCodable where Root : _VariadicView_V
         let content = try container.decode(Content.self, forKey: .content, ptype: ptype[1])
         self.init(root, content: { content })
     }
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encodeAny(root, forKey: .root)
-        try container.encode(content, forKey: .content)
+
+    //: Register
+    static func register() {
+        PType.register(_VariadicView.Tree<_ContextMenuContainer.Container<AnyView>, AnyView>.self)
     }
 }
-
 
 //extension _VariadicView_Children { }
 //PType.register(_VariadicView.Tree<JsonAnyVariadicViewRoot, AnyView>.self)
@@ -41,7 +38,6 @@ extension _VariadicView.Tree: IAnyView, DynaCodable where Root : _VariadicView_V
 //    func body(children: _VariadicView.Children) -> Never { fatalError() }
 //    public init(from decoder: Decoder, for ptype: PType) throws { fatalError() }
 //}
-
 
 @available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *)
 protocol _Tree_ViewRoot {

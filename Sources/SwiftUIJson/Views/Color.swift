@@ -25,17 +25,18 @@ extension Color {
         public func apply() -> Color {
             fatalError()
         }
+
         //: Codable
         enum CodingKeys: CodingKey {
             case provider, value
         }
-        public required init(from decoder: Decoder) throws {
-            let container = try decoder.container(keyedBy: CodingKeys.self)
-            provider = try container.decode(String.self, forKey: .provider)
-        }
         public func encode(to encoder: Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
             try container.encode(provider, forKey: .provider)
+        }
+        public required init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            provider = try container.decode(String.self, forKey: .provider)
         }
     }
 }
@@ -51,60 +52,58 @@ extension Color {
             cgColor = any as! CGColor
             super.init(provider: provider)
         }
-        public override func apply() -> Color {
-            Color(cgColor)
-        }
+        public override func apply() -> Color { Color(cgColor)  }
+
         //: Codable
-        public required init(from decoder: Decoder) throws {
-            let container = try decoder.container(keyedBy: AnyColorBox.CodingKeys.self)
-            let baseDecoder = try container.superDecoder(forKey: .value)
-            cgColor = try CGColor.decode(from: baseDecoder)
-            try super.init(from: decoder)
-        }
         public override func encode(to encoder: Encoder) throws {
             var container = encoder.container(keyedBy: AnyColorBox.CodingKeys.self)
             let baseEncoder = container.superEncoder(forKey: .value)
             try cgColor.encode(to: baseEncoder)
             try super.encode(to: encoder)
         }
+        public required init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: AnyColorBox.CodingKeys.self)
+            let baseDecoder = try container.superDecoder(forKey: .value)
+            cgColor = try CGColor.decode(from: baseDecoder)
+            try super.init(from: decoder)
+        }
     }
     
     class _Resolved: AnyColorBox {
-        let red: Float
-        let green: Float
-        let blue: Float
+        let linearRed: Float
+        let linearGreen: Float
+        let linearBlue: Float
         let opacity: Float
         init(any: Any, provider: String) {
             Mirror.assert(any, name: "_Resolved", keys: ["linearRed", "linearGreen", "linearBlue", "opacity"])
             let m = Mirror.children(reflecting: any)
-            red = m["linearRed"]! as! Float
-            green = m["linearGreen"]! as! Float
+            linearRed = m["linearRed"]! as! Float
+            linearGreen = m["linearGreen"]! as! Float
             blue = m["linearBlue"]! as! Float
             opacity = m["opacity"]! as! Float
             super.init(provider: provider)
         }
-        public override func apply() -> Color {
-            Color(.sRGBLinear, red: Double(red), green: Double(green), blue: Double(blue), opacity: Double(opacity))
-        }
+        public override func apply() -> Color { Color(.sRGBLinear, red: Double(linearRed), green: Double(linearGreen), blue: Double(linearBlue), opacity: Double(opacity)) }
+
         //: Codable
         enum CodingKeys: CodingKey {
             case red, green, blue, opacity
         }
-        public required init(from decoder: Decoder) throws {
-            let container = try decoder.container(keyedBy: CodingKeys.self)
-            red = try container.decode(Float.self, forKey: .red)
-            green = try container.decode(Float.self, forKey: .green)
-            blue = try container.decode(Float.self, forKey: .blue)
-            opacity = try container.decode(Float.self, forKey: .opacity)
-            try super.init(from: decoder)
-        }
         public override func encode(to encoder: Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
-            try container.encode(red, forKey: .red)
-            try container.encode(green, forKey: .green)
-            try container.encode(blue, forKey: .blue)
+            try container.encode(linearRed, forKey: .red)
+            try container.encode(linearGreen, forKey: .green)
+            try container.encode(linearBlue, forKey: .blue)
             try container.encode(opacity, forKey: .opacity)
             try super.encode(to: encoder)
+        }
+        public required init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            linearRed = try container.decode(Float.self, forKey: .red)
+            linearGreen = try container.decode(Float.self, forKey: .green)
+            linearBlue = try container.decode(Float.self, forKey: .blue)
+            opacity = try container.decode(Float.self, forKey: .opacity)
+            try super.init(from: decoder)
         }
     }
     
@@ -122,20 +121,11 @@ extension Color {
             opacity = m["opacity"]! as! Float
             super.init(provider: provider)
         }
-        public override func apply() -> Color {
-            Color(.displayP3, red: Double(red), green: Double(green), blue: Double(blue), opacity: Double(opacity))
-        }
+        public override func apply() -> Color { Color(.displayP3, red: Double(red), green: Double(green), blue: Double(blue), opacity: Double(opacity)) }
+
         //: Codable
         enum CodingKeys: CodingKey {
             case red, green, blue, opacity
-        }
-        public required init(from decoder: Decoder) throws {
-            let container = try decoder.container(keyedBy: CodingKeys.self)
-            red = try container.decode(CGFloat.self, forKey: .red)
-            green = try container.decode(CGFloat.self, forKey: .green)
-            blue = try container.decode(CGFloat.self, forKey: .blue)
-            opacity = try container.decode(Float.self, forKey: .opacity)
-            try super.init(from: decoder)
         }
         public override func encode(to encoder: Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
@@ -144,6 +134,14 @@ extension Color {
             try container.encode(blue, forKey: .blue)
             try container.encode(opacity, forKey: .opacity)
             try super.encode(to: encoder)
+        }
+        public required init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            red = try container.decode(CGFloat.self, forKey: .red)
+            green = try container.decode(CGFloat.self, forKey: .green)
+            blue = try container.decode(CGFloat.self, forKey: .blue)
+            opacity = try container.decode(Float.self, forKey: .opacity)
+            try super.init(from: decoder)
         }
     }
     
@@ -157,24 +155,23 @@ extension Color {
             bundle = m["bundle"]! as? Bundle
             super.init(provider: provider)
         }
-        public override func apply() -> Color {
-            Color(name, bundle: bundle)
-        }
+        public override func apply() -> Color { Color(name, bundle: bundle) }
+
         //: Codable
         enum CodingKeys: CodingKey {
             case name, bundle
-        }
-        public required init(from decoder: Decoder) throws {
-            let container = try decoder.container(keyedBy: CodingKeys.self)
-            name = try container.decode(String.self, forKey: .name)
-            bundle = (try? container.decodeIfPresent(CodableWrap<Bundle>.self, forKey: .bundle))?.wrapValue
-            try super.init(from: decoder)
         }
         public override func encode(to encoder: Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
             try container.encode(name, forKey: .name)
             try container.encodeIfPresent(CodableWrap(bundle), forKey: .bundle)
             try super.encode(to: encoder)
+        }
+        public required init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            name = try container.decode(String.self, forKey: .name)
+            bundle = (try? container.decodeIfPresent(CodableWrap<Bundle>.self, forKey: .bundle))?.wrapValue
+            try super.init(from: decoder)
         }
     }
 
@@ -185,21 +182,20 @@ extension Color {
             color = any as! UXColor
             super.init(provider: provider)
         }
-        public override func apply() -> Color {
-            Color(color)
-        }
+        public override func apply() -> Color { Color(color) }
+
         //: Codable
-        public required init(from decoder: Decoder) throws {
-            let container = try decoder.container(keyedBy: AnyColorBox.CodingKeys.self)
-            let baseDecoder = try container.superDecoder(forKey: .value)
-            color = try UXColor.decode(from: baseDecoder)
-            try super.init(from: decoder)
-        }
         public override func encode(to encoder: Encoder) throws {
             var container = encoder.container(keyedBy: AnyColorBox.CodingKeys.self)
             let baseEncoder = container.superEncoder(forKey: .value)
             try color.encode(to: baseEncoder)
             try super.encode(to: encoder)
+        }
+        public required init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: AnyColorBox.CodingKeys.self)
+            let baseDecoder = try container.superDecoder(forKey: .value)
+            color = try UXColor.decode(from: baseDecoder)
+            try super.init(from: decoder)
         }
     }
     
@@ -213,18 +209,11 @@ extension Color {
             opacity = m["opacity"]! as! Double
             super.init(provider: provider)
         }
-        public override func apply() -> Color {
-            base.opacity(opacity)
-        }
+        public override func apply() -> Color { base.opacity(opacity) }
+
         //: Codable
         enum CodingKeys: CodingKey {
             case base, opacity
-        }
-        public required init(from decoder: Decoder) throws {
-            let container = try decoder.container(keyedBy: CodingKeys.self)
-            base = try container.decode(Color.self, forKey: .base)
-            opacity = try container.decode(Double.self, forKey: .opacity)
-            try super.init(from: decoder)
         }
         public override func encode(to encoder: Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
@@ -232,12 +221,52 @@ extension Color {
             try container.encode(opacity, forKey: .opacity)
             try super.encode(to: encoder)
         }
+        public required init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            base = try container.decode(Color.self, forKey: .base)
+            opacity = try container.decode(Double.self, forKey: .opacity)
+            try super.init(from: decoder)
+        }
     }
-
 }
 
 extension Color: FullyCodable {
     //: Codable
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        switch self {
+        case .clear: try container.encode("clear")
+        case .black: try container.encode("black")
+        case .white: try container.encode("white")
+        case .gray: try container.encode("gray")
+        case .red: try container.encode("red")
+        case .green: try container.encode("green")
+        case .blue: try container.encode("blue")
+        case .orange: try container.encode("orange")
+        case .yellow: try container.encode("yellow")
+        case .pink: try container.encode("pink")
+        case .purple: try container.encode("purple")
+        case .primary: try container.encode("primary")
+        case .secondary: try container.encode("secondary")
+        default:
+            let defaultFunc = {
+                let provider = Mirror(reflecting: self).descendant("provider", "base")!
+                switch String(describing: type(of: provider)) {
+                case "__NSCFType":
+                    if #available(iOS 14.0, macOS 11, tvOS 14.0, watchOS 7.0, *) {
+                        try container.encode(__NSCFType(any: provider, provider: "system"))
+                    } else { fatalError() }
+                case "_Resolved": try container.encode(_Resolved(any: provider, provider: "resolved"))
+                case "DisplayP3": try container.encode(DisplayP3(any: provider, provider: "displayP3"))
+                case "NamedColor": try container.encode(NamedColor(any: provider, provider: "named"))
+                case "UICachedDeviceRGBColor", "UICachedDeviceWhiteColor": try container.encode(PlatformColor(any: provider, provider: "platform"))
+                case "OpacityColor": try container.encode(OpacityColor(any: provider, provider: "opacity"))
+                case let value: fatalError(value)
+                }
+            }
+            try defaultFunc()
+        }
+    }
     public init(from decoder: Decoder, for ptype: PType) throws { try self.init(from: decoder) }
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
@@ -276,75 +305,9 @@ extension Color: FullyCodable {
             self = try defaultFunc()
         }
     }
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        switch self {
-        case .clear: try container.encode("clear")
-        case .black: try container.encode("black")
-        case .white: try container.encode("white")
-        case .gray: try container.encode("gray")
-        case .red: try container.encode("red")
-        case .green: try container.encode("green")
-        case .blue: try container.encode("blue")
-        case .orange: try container.encode("orange")
-        case .yellow: try container.encode("yellow")
-        case .pink: try container.encode("pink")
-        case .purple: try container.encode("purple")
-        case .primary: try container.encode("primary")
-        case .secondary: try container.encode("secondary")
-        default:
-            let defaultFunc = {
-                let provider = Mirror(reflecting: self).descendant("provider", "base")!
-                switch String(describing: type(of: provider)) {
-                case "__NSCFType":
-                    if #available(iOS 14.0, macOS 11, tvOS 14.0, watchOS 7.0, *) {
-                        try container.encode(__NSCFType(any: provider, provider: "system"))
-                    } else { fatalError() }
-                case "_Resolved": try container.encode(_Resolved(any: provider, provider: "resolved"))
-                case "DisplayP3": try container.encode(DisplayP3(any: provider, provider: "displayP3"))
-                case "NamedColor": try container.encode(NamedColor(any: provider, provider: "named"))
-                case "UICachedDeviceRGBColor", "UICachedDeviceWhiteColor": try container.encode(PlatformColor(any: provider, provider: "platform"))
-                case "OpacityColor": try container.encode(OpacityColor(any: provider, provider: "opacity"))
-                case let value: fatalError(value)
-                }
-            }
-            try defaultFunc()
-        }
-    }
+
     //: Register
     static func register() {
         PType.register(Color.self)
-    }
-}
-
-extension CGColor {
-    //: Codable
-    public static func decode(from decoder: Decoder) throws -> CGColor {
-        try UXColor.decode(from: decoder).cgColor
-    }
-    public func encode(to encoder: Encoder) throws {
-        #if os(macOS)
-        let color = UXColor(cgColor: self)!
-        #else
-        let color = UXColor(cgColor: self)
-        #endif
-        try color.encode(to: encoder)
-    }
-}
-
-extension UXColor {
-    //: Codable
-    public static func decode(from decoder: Decoder) throws -> UXColor {
-        let container = try decoder.singleValueContainer()
-        let decodedData = try container.decode(Data.self)
-        let coder = try NSKeyedUnarchiver(forReadingFrom: decodedData)
-        guard let color = UXColor(coder: coder) else { throw DecodingError.dataCorruptedError(in: container, debugDescription: "") }
-        return color
-    }
-    public func encode(to encoder: Encoder) throws {
-        let coder = NSKeyedArchiver(requiringSecureCoding: false)
-        self.encode(with: coder)
-        var container = encoder.singleValueContainer()
-        try container.encode(coder.encodedData)
     }
 }

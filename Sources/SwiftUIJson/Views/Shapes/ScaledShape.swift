@@ -20,9 +20,16 @@ extension ScaledShape: IAnyShape, IAnyView, ConvertibleDynaCodable where Content
         let anchor = m["anchor"]! as! UnitPoint
         self.init(shape: shape, scale: scale, anchor: anchor)
     }
+    
     //: Codable
     enum CodingKeys: CodingKey {
         case shape, scale, anchor
+    }
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(shape, forKey: .shape)
+        try container.encode(scale, forKey: .scale)
+        if anchor != .center { try container.encode(anchor, forKey: .anchor) }
     }
     public init(from decoder: Decoder, for ptype: PType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -31,12 +38,7 @@ extension ScaledShape: IAnyShape, IAnyView, ConvertibleDynaCodable where Content
         let anchor = (try? container.decodeIfPresent(UnitPoint.self, forKey: .anchor)) ?? .center
         self.init(shape: shape, scale: scale, anchor: anchor)
     }
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(shape, forKey: .shape)
-        try container.encode(scale, forKey: .scale)
-        if anchor != .center { try container.encode(anchor, forKey: .anchor) }
-    }
+
     //: Register
     static func register() {
         PType.register(ScaledShape<AnyShape>.self, any: [AnyShape.self])

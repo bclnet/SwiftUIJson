@@ -27,28 +27,30 @@ extension AnyView: DynaCodable {
         default: fatalError("AnyView: \(PType.typeKey(for: value))")
         }
     }
-    //: Codable
-    public init(from decoder: Decoder, for ptype: PType) throws {
-        guard let context = decoder.userInfo[.jsonContext] as? JsonContext else { fatalError(".jsonContext") }
-        let value = try context.dynaSuperInit(from: decoder, for: ptype)
-        self = Self.any(value)
-    }
-    public func encode(to encoder: Encoder) throws {
-        guard let context = encoder.userInfo[.jsonContext] as? JsonContext else { fatalError(".jsonContext") }
-        Mirror.assert(self, name: "AnyView", keys: ["storage"])
-        let storage = AnyViewStorage(any: Mirror(reflecting: self).descendant("storage")!)
-        try context.encodeDynaSuper(storage.view, to: encoder)
-    }
-    //: Register
-    static func register() {
-        PType.register(AnyView.self)
-    }
-    
+
     class AnyViewStorage {
         let view: Any
         init(any: Any) {
             Mirror.assert(any, name: "AnyViewStorage", keys: ["view"])
             view = Mirror(reflecting: any).descendant("view")!
         }
+    }
+
+    //: Codable
+    public func encode(to encoder: Encoder) throws {
+        guard let context = encoder.userInfo[.jsonContext] as? JsonContext else { fatalError(".jsonContext") }
+        Mirror.assert(self, name: "AnyView", keys: ["storage"])
+        let storage = AnyViewStorage(any: Mirror(reflecting: self).descendant("storage")!)
+        try context.encodeDynaSuper(storage.view, to: encoder)
+    }
+    public init(from decoder: Decoder, for ptype: PType) throws {
+        guard let context = decoder.userInfo[.jsonContext] as? JsonContext else { fatalError(".jsonContext") }
+        let value = try context.dynaSuperInit(from: decoder, for: ptype)
+        self = Self.any(value)
+    }
+
+    //: Register
+    static func register() {
+        PType.register(AnyView.self)
     }
 }

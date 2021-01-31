@@ -20,9 +20,16 @@ extension RotatedShape: IAnyShape, IAnyView, ConvertibleDynaCodable where Conten
         let anchor = m["anchor"]! as! UnitPoint
         self.init(shape: shape, angle: angle, anchor: anchor)
     }
+
     //: Codable
     enum CodingKeys: CodingKey {
         case shape, angle, anchor
+    }
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(shape, forKey: .shape)
+        try container.encode(angle, forKey: .angle)
+        if anchor != .center { try container.encode(anchor, forKey: .anchor) }
     }
     public init(from decoder: Decoder, for ptype: PType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -31,12 +38,7 @@ extension RotatedShape: IAnyShape, IAnyView, ConvertibleDynaCodable where Conten
         let anchor = (try? container.decodeIfPresent(UnitPoint.self, forKey: .anchor)) ?? .center
         self.init(shape: shape, angle: angle, anchor: anchor)
     }
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(shape, forKey: .shape)
-        try container.encode(angle, forKey: .angle)
-        if anchor != .center { try container.encode(anchor, forKey: .anchor) }
-    }
+
     //: Register
     static func register() {
         PType.register(RotatedShape<AnyShape>.self, any: [AnyShape.self])

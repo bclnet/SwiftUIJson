@@ -19,9 +19,15 @@ extension TransformedShape: IAnyShape, IAnyView, ConvertibleDynaCodable where Co
         let transform = m["transform"]! as! CGAffineTransform
         self.init(shape: shape, transform: transform)
     }
+    
     //: Codable
     enum CodingKeys: CodingKey {
         case shape, transform
+    }
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(shape, forKey: .shape)
+        try container.encode(transform, forKey: .transform)
     }
     public init(from decoder: Decoder, for ptype: PType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -29,11 +35,7 @@ extension TransformedShape: IAnyShape, IAnyView, ConvertibleDynaCodable where Co
         let transform = try container.decode(CGAffineTransform.self, forKey: .transform)
         self.init(shape: shape, transform: transform)
     }
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(shape, forKey: .shape)
-        try container.encode(transform, forKey: .transform)
-    }
+
     //: Register
     static func register() {
         PType.register(TransformedShape<AnyShape>.self, any: [AnyShape.self])

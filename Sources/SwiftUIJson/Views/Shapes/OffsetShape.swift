@@ -19,9 +19,15 @@ extension OffsetShape: IAnyShape, IAnyView, ConvertibleDynaCodable where Content
         let offset = m["offset"]! as! CGSize
         self.init(shape: shape, offset: offset)
     }
+
     //: Codable
     enum CodingKeys: CodingKey {
         case shape, offset
+    }
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(shape, forKey: .shape)
+        try container.encode(offset, forKey: .offset)
     }
     public init(from decoder: Decoder, for ptype: PType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -29,11 +35,7 @@ extension OffsetShape: IAnyShape, IAnyView, ConvertibleDynaCodable where Content
         let offset = try container.decode(CGSize.self, forKey: .offset)
         self.init(shape: shape, offset: offset)
     }
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(shape, forKey: .shape)
-        try container.encode(offset, forKey: .offset)
-    }
+
     //: Register
     static func register() {
         PType.register(OffsetShape<AnyShape>.self, any: [AnyShape.self])
