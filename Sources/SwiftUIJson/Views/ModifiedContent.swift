@@ -29,7 +29,7 @@ extension ModifiedContent: IAnyView, DynaCodable where Content : View, Content :
 
     //: Register
     static func register() {
-        PType.register(ModifiedContent<AnyView, AnyViewModifier>.self)
+        PType.register(ModifiedContent<Any, AnyViewModifier>.self)
     }
 }
 

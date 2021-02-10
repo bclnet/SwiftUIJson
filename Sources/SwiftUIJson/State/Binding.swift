@@ -10,6 +10,9 @@ import SwiftUI
 
 extension Binding: FullyCodable {
     //: Codable
+    public func encode(to encoder: Encoder) throws {
+        Mirror.assert(self, name: "Binding")
+    }
     public init(from decoder: Decoder, for ptype: PType) throws { try self.init(from: decoder) }
     public init(from decoder: Decoder) throws {
         let base: Binding<Value?>
@@ -22,9 +25,6 @@ extension Binding: FullyCodable {
         case let value: fatalError("\(value)")
         }
         self.init(base)!
-    }
-    public func encode(to encoder: Encoder) throws {
-        Mirror.assert(self, name: "Binding")
     }
 }
 
