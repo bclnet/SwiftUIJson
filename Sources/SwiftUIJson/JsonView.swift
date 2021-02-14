@@ -8,6 +8,15 @@
 
 import SwiftUI
 
+//extension View {
+//    func dump() -> some View {
+//        let context = JsonContext[self]
+//        let data = try! JsonUI.encode(view: self.body, context: context)
+//        print(String(data: data, encoding: .utf8)!)
+//        return self
+//    }
+//}
+
 public protocol JsonView: DynaCodable {
     var base: BaseView { get }
 }

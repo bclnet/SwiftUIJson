@@ -16,7 +16,7 @@ struct _EnvironmentKeyWritingModifier<Value>: JsonViewModifier, ConvertibleCodab
         let m = Mirror.children(reflecting: any)
         value = m["value"]! as! Value
         keyPath = m["keyPath"]! as! WritableKeyPath<EnvironmentValues, Value>
-        action = EnvironmentValues.find(keyPath: keyPath)!
+        action = EnvironmentValues.find(keyPath: keyPath)
     }
     //: JsonViewModifier
     func body(content: AnyView) -> AnyView { AnyView(content.environment(keyPath, value)) }

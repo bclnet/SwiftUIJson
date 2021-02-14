@@ -19,7 +19,7 @@ import CoreData
 
 // MARK: - Style:5437
 extension EnvironmentValues {
-    static func find<Root, Value>(keyPath: KeyPath<Root, Value>) -> String! {
+    static func find<Value>(keyPath: KeyPath<Self, Value>) -> String {
         switch keyPath {
         #if !os(watchOS)
         case \EnvironmentValues.disableAutocorrection: return "disableAutocorrection"

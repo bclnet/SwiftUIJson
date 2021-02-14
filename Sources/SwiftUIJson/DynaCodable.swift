@@ -77,11 +77,11 @@ extension Decoder {
             dynaTypeWithNil = try container.decode(DynaTypeWithNil.self, forKey: .type)
         }
         if dynaTypeWithNil.hasNil {
-            printPath("\(String(repeating: "+", count: codingPath.count)) nil \(codingPath)")
+//            printPath("\(String(repeating: "+", count: codingPath.count)) nil \(codingPath)")
             return Optional<Any>.none as Any
         }
         let dynaType = dynaTypeWithNil.dynaType
-        printPath("\(String(repeating: "+", count: codingPath.count)) \(dynaType.underlyingType) \(codingPath)")
+//        printPath("\(String(repeating: "+", count: codingPath.count)) \(dynaType.underlyingType) \(codingPath)")
         return try dynaSuperInit(for: dynaType)
     }
 
@@ -213,7 +213,7 @@ extension KeyedDecodingContainerProtocol {
     /// - throws: `DecodingError.valueNotFound` if `self` has a null entry for
     ///   the given key.
     public func decode<T>(_ type: T.Type, forKey key: Key, dynaType: DynaType) throws -> T where T : DynaDecodable {
-        printPath("\(String(repeating: "-", count: codingPath.count)) \(dynaType.underlyingType) \(codingPath)")
+//        printPath("\(String(repeating: "-", count: codingPath.count)) \(dynaType.underlyingType) \(codingPath)")
         let decoder = try superDecoder(forKey: key)
         return try type.init(from: decoder, for: dynaType)
     }
@@ -234,10 +234,10 @@ extension KeyedDecodingContainerProtocol {
     ///   is not convertible to the requested type.
     public func decodeIfPresent<T>(_ type: T.Type, forKey key: Key, dynaType: DynaType) throws -> T? where T : DynaDecodable {
         if !contains(key) {
-            printPath("\(String(repeating: "-", count: codingPath.count)) nil \(codingPath)")
+//            printPath("\(String(repeating: "-", count: codingPath.count)) nil \(codingPath)")
             return nil
         }
-        printPath("\(String(repeating: "-", count: codingPath.count)) \(dynaType.underlyingType) \(codingPath)")
+//        printPath("\(String(repeating: "-", count: codingPath.count)) \(dynaType.underlyingType) \(codingPath)")
         let decoder = try superDecoder(forKey: key)
         return try type.init(from: decoder, for: dynaType)
     }

@@ -185,10 +185,10 @@ public struct JsonUI: Codable {
         #endif
         EmptyView.register()
 //        EquatableView<AnyView>.register()
-        ForEach<AnyRandomAccessCollection<Any>, AnyHashable, AnyView>.register()
+        ForEach<AnyRandomAccessCollection<NeverCodable>, AnyHashable, AnyView>.register()
         Form<AnyView>.register()
         GeometryReader<AnyView>.register()
-//        Group<AnyView>.register()
+        Group<AnyView>.register()
         #if !os(tvOS) && !os(watchOS)
         if #available(iOS 14.0, macOS 10.15, *) {
             GroupBox<AnyView, AnyView>.register()
@@ -202,8 +202,9 @@ public struct JsonUI: Codable {
         if #available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *) {
             LazyHStack<AnyView>.register()
             LazyVStack<AnyView>.register()
+            Link<AnyView>.register()
         }
-//        List<AnyHashable, AnyView>.register()
+        List<AnyHashable, AnyView>.register()
         #if os(macOS)
         MenuButton<AnyView, AnyView>.register()
         #endif

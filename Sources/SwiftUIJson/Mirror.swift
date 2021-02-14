@@ -8,16 +8,6 @@
 
 import SwiftUI
 
-//@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
-//extension View {
-//    func dump() -> some View {
-//        let context = JsonContext[self]
-//        let data = try! JsonUI.encode(view: self.body, context: context)
-//        print(String(data: data, encoding: .utf8)!)
-//        return self
-//    }
-//}
-
 extension Mirror {
     enum KeyMatch {
         case all, any, single

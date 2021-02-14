@@ -81,14 +81,15 @@ public enum DynaType: RawRepresentable {
         let key = typeKey(for: type, namespace: namespace)
         if knownTypes[key] == nil {
             // register
-            let typeOptional = Optional<T>.self
-            let keyOptional = typeKey(for: typeOptional, namespace: namespace)
+            let array = (type: [T].self, key: typeKey(for: [T].self, namespace: namespace))
+            let optional = (type: Optional<T>.self, key: typeKey(for: Optional<T>.self, namespace: namespace))
             let genericIdx = key.firstIndex(of: "<")
             let baseKey = genericIdx == nil ? key : String(key[..<genericIdx!])
             knownTypes[key] = .type(type, key)
-            knownTypes[keyOptional] = .type(typeOptional, keyOptional)
+            knownTypes[array.key] = .type(array.type, array.key)
+            knownTypes[optional.key] = .type(optional.type, optional.key)
             if alias != nil { knownTypes[alias!] = .type(type, key) }
-            optionalTypes[ObjectIdentifier(typeOptional)] = type
+            optionalTypes[ObjectIdentifier(optional.type)] = type
             // generic
             if genericIdx != nil {
                 let genericKey = baseKey != ":TupleView" ? baseKey : "\(baseKey):\(key.components(separatedBy: ",").count)"
@@ -145,7 +146,7 @@ public enum DynaType: RawRepresentable {
         typeKey(for: String(reflecting: value), namespace: namespace)
     }
     public static func typeKey(for value: String, namespace: String? = nil) -> String {
-        let key = typeKey(removeExtension: value)
+        let key = typeKey(removeComments: value)
             .replacingOccurrences(of: " ", with: "")
             .replacingOccurrences(of: "Swift.Optional", with: "!")
             .replacingOccurrences(of: "Swift.", with: "#")
@@ -154,17 +155,23 @@ public enum DynaType: RawRepresentable {
         let keyIdx = !key.starts(with: "!<") ? key.startIndex : key.index(key.startIndex, offsetBy: 2)
         let genericIdx = key[keyIdx...].firstIndex(of: "<")
         let baseKey = String(genericIdx == nil ? key[keyIdx...] : key[keyIdx..<genericIdx!])
-        let newBaseKey = typeKey(for: "\(namespace)\(baseKey[baseKey.firstIndex(of: ".")!...])")
+        let newBaseKey = typeKey(for: "\(namespace)\(baseKey[(baseKey.firstIndex(of: ".") ?? baseKey.startIndex)...])")
         return key.replacingOccurrences(of: baseKey, with: newBaseKey)
     }
     
-   static func typeKey(removeExtension key: String) -> String {
+    static func typeKey(removeComments key: String) -> String {
         var newKey = key
         while true {
-            guard let idx = newKey.range(of: "(extension", options: .backwards)?.lowerBound else { return newKey }
-            let idx2 = newKey[idx...].range(of: "):")!.upperBound
-            newKey.removeSubrange(idx..<idx2)
+            guard let idx = newKey.range(of: "(extension in ", options: .backwards) else { break }
+            let idx2 = newKey[idx.upperBound...].range(of: "):")!
+            newKey.removeSubrange(idx.lowerBound..<idx2.upperBound)
         }
+        while true {
+            guard let idx = newKey.range(of: "(unknown context at $", options: .backwards) else { break }
+            let idx2 = newKey[idx.upperBound...].range(of: ").")!
+            newKey = newKey.replacingCharacters(in: idx.lowerBound..<idx2.upperBound, with: "\(newKey[idx.upperBound..<idx2.lowerBound])_")
+        }
+        return newKey
     }
     
     public static func typeName(for value: String) -> String {
