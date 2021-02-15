@@ -14,7 +14,21 @@ public typealias UXImage = UIImage
 #endif
 
 extension Image {
-    
+    struct Location {
+        let system: Bool
+        let bundle: Bundle?
+        init(system: Bool, bundle: Bundle?) {
+            self.system = system
+            self.bundle = bundle
+        }
+        init(any: Any) {
+            Mirror.assert(any, name: "Location", keys: ["bundle"])
+            system = String(reflecting: any) == "SwiftUI.Image.Location.system"
+            let m = Mirror.children(reflecting: any)
+            bundle = m["bundle"] as? Bundle
+        }
+    }
+
     class AnyImageBox: Codable {
         public func apply() -> Image { fatalError("Not Supported")  }
     }
@@ -43,9 +57,18 @@ extension Image {
             else if label != nil { return Image(name, bundle: location.bundle, label: label!) }
             else { return Image(name, bundle: location.bundle) }
         }
+
         //: Codable
         enum CodingKeys: CodingKey {
             case label, system, bundle, name, decorative
+        }
+        public override func encode(to encoder: Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encodeIfPresent(label, forKey: .label)
+            if location.system { try container.encode(location.system, forKey: .system) }
+            try container.encodeIfPresent(CodableWrap(location.bundle), forKey: .bundle)
+            try container.encode(name, forKey: .name)
+            if decorative { try container.encode(decorative, forKey: .decorative) }
         }
         public required init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -57,14 +80,6 @@ extension Image {
             decorative = (try? container.decodeIfPresent(Bool.self, forKey: .decorative)) ?? false
             backupLocation = nil
             super.init()
-        }
-        public override func encode(to encoder: Encoder) throws {
-            var container = encoder.container(keyedBy: CodingKeys.self)
-            try container.encode(label, forKey: .label)
-            if location.system { try container.encode(location.system, forKey: .system) }
-            try container.encodeIfPresent(CodableWrap(location.bundle), forKey: .bundle)
-            try container.encode(name, forKey: .name)
-            if decorative { try container.encode(decorative, forKey: .decorative) }
         }
     }
 
@@ -79,20 +94,21 @@ extension Image {
             super.init()
         }
         public override func apply() -> Image { base.renderingMode(renderingMode) }
+
         //: Codable
         enum CodingKeys: CodingKey {
             case base, mode
+        }
+        public override func encode(to encoder: Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(base, forKey: .base)
+            if renderingMode != .original { try container.encode(renderingMode, forKey: .mode) }
         }
         public required init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             base = try container.decode(Image.self, forKey: .base)
             renderingMode = (try? container.decodeIfPresent(TemplateRenderingMode.self, forKey: .mode)) ?? .original
             super.init()
-        }
-        public override func encode(to encoder: Encoder) throws {
-            var container = encoder.container(keyedBy: CodingKeys.self)
-            try container.encode(base, forKey: .base)
-            if renderingMode != .original { try container.encode(renderingMode, forKey: .mode) }
         }
     }
     
@@ -107,20 +123,21 @@ extension Image {
             super.init()
         }
         public override func apply() -> Image { base.interpolation(interpolation) }
+
         //: Codable
         enum CodingKeys: CodingKey {
             case base, interpolation
+        }
+        public override func encode(to encoder: Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(base, forKey: .base)
+            if interpolation != .none { try container.encode(interpolation, forKey: .interpolation) }
         }
         public required init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             base = try container.decode(Image.self, forKey: .base)
             interpolation = (try? container.decodeIfPresent(Interpolation.self, forKey: .interpolation)) ?? .none
             super.init()
-        }
-        public override func encode(to encoder: Encoder) throws {
-            var container = encoder.container(keyedBy: CodingKeys.self)
-            try container.encode(base, forKey: .base)
-            if interpolation != .none { try container.encode(interpolation, forKey: .interpolation) }
         }
     }
     
@@ -135,20 +152,21 @@ extension Image {
             super.init()
         }
         public override func apply() -> Image { base.antialiased(isAntialiased) }
+        
         //: Codable
         enum CodingKeys: CodingKey {
             case base, antialiased
+        }
+        public override func encode(to encoder: Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(base, forKey: .base)
+            if !isAntialiased { try container.encode(isAntialiased, forKey: .antialiased) }
         }
         public required init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             base = try container.decode(Image.self, forKey: .base)
             isAntialiased = (try? container.decodeIfPresent(Bool.self, forKey: .antialiased)) ?? true
             super.init()
-        }
-        public override func encode(to encoder: Encoder) throws {
-            var container = encoder.container(keyedBy: CodingKeys.self)
-            try container.encode(base, forKey: .base)
-            if !isAntialiased { try container.encode(isAntialiased, forKey: .antialiased) }
         }
     }
     
@@ -173,9 +191,19 @@ extension Image {
                 ? Image(decorative: image, scale: scale, orientation: orientation)
                 : Image(image, scale: scale, orientation: orientation, label: label!)
         }
+
         //: Codable
         enum CodingKeys: CodingKey {
             case image, label, decorative, scale, orientation
+        }
+        public override func encode(to encoder: Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            let baseEncoder = container.superEncoder(forKey: .image)
+            try image.encode(to: baseEncoder)
+            try container.encodeIfPresent(label, forKey: .label)
+            if decorative { try container.encode(decorative, forKey: .decorative) }
+            if scale != 0 { try container.encode(scale, forKey: .scale) }
+            if orientation != .up { try container.encode(orientation, forKey: .orientation) }
         }
         public required init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -186,15 +214,6 @@ extension Image {
             scale = (try? container.decodeIfPresent(CGFloat.self, forKey: .scale)) ?? 0
             orientation = (try? container.decodeIfPresent(Orientation.self, forKey: .orientation)) ?? .up
             super.init()
-        }
-        public override func encode(to encoder: Encoder) throws {
-            var container = encoder.container(keyedBy: CodingKeys.self)
-            let baseEncoder = container.superEncoder(forKey: .image)
-            try image.encode(to: baseEncoder)
-            try container.encode(label, forKey: .label)
-            if decorative { try container.encode(decorative, forKey: .decorative) }
-            if scale != 0 { try container.encode(scale, forKey: .scale) }
-            if orientation != .up { try container.encode(orientation, forKey: .orientation) }
         }
     }
     
@@ -216,20 +235,21 @@ extension Image {
             return Image(uiImage: image)
             #endif
         }
+
         //: Codable
+        public override func encode(to encoder: Encoder) throws {
+            try image.encode(to: encoder)
+        }
         public required init(from decoder: Decoder) throws {
             image = try UXImage.decode(from: decoder)
             super.init()
-        }
-        public override func encode(to encoder: Encoder) throws {
-            try image.encode(to: encoder)
         }
     }
     
     class ResizableProvider: AnyImageBox {
         let base: Image
-        let resizingMode: ResizingMode
         let capInsets: EdgeInsets
+        let resizingMode: ResizingMode
         init(any: Any) {
             Mirror.assert(any, name: "ResizableProvider", keys: ["base", "capInsets", "resizingMode"])
             let m = Mirror.children(reflecting: any)
@@ -239,9 +259,16 @@ extension Image {
             super.init()
         }
         public override func apply() -> Image { base.resizable(capInsets: capInsets, resizingMode: resizingMode) }
+
         //: Codable
         enum CodingKeys: CodingKey {
             case base, capInsets, resizingMode
+        }
+        public override func encode(to encoder: Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(base, forKey: .base)
+            if !capInsets.isEmpty { try container.encode(capInsets, forKey: .capInsets) }
+            if resizingMode != .stretch { try container.encode(resizingMode, forKey: .resizingMode) }
         }
         public required init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -250,45 +277,39 @@ extension Image {
             resizingMode = (try? container.decodeIfPresent(ResizingMode.self, forKey: .resizingMode)) ?? .stretch
             super.init()
         }
-        public override func encode(to encoder: Encoder) throws {
-            var container = encoder.container(keyedBy: CodingKeys.self)
-            try container.encode(base, forKey: .base)
-            if !capInsets.isEmpty { try container.encode(capInsets, forKey: .capInsets) }
-            if resizingMode != .stretch { try container.encode(resizingMode, forKey: .resizingMode) }
-        }
     }
-    
-    struct Location {
-        let system: Bool
-        let bundle: Bundle?
-        init(system: Bool, bundle: Bundle?) {
-            self.system = system
-            self.bundle = bundle
-        }
-        init(any: Any) {
-            Mirror.assert(any, name: "Location", keys: ["bundle"])
-            system = String(reflecting: any) == "SwiftUI.Image.Location.system"
-            let m = Mirror.children(reflecting: any)
-            bundle = m["bundle"] as? Bundle
-        }
-    }
-    
 }
 
 extension Image: IAnyView, FullyCodable {
     public var anyView: AnyView { AnyView(self) }
+
     //: Codable
     enum CodingKeys: CodingKey {
-        case named, mode, interpolation, antialiased, cgimage, platform, resizable
+        case named, renderingMode, interpolation, antialiased, cgimage, platform, resizable
     }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws { try self.init(from: decoder) }
+    public func encode(to encoder: Encoder) throws {
+        Mirror.assert(self, name: "Image", keys: ["provider.base"])
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        let provider = Mirror(reflecting: self).descendant("provider", "base")!
+        switch String(describing: type(of: provider)) {
+        case "NamedImageProvider": try container.encode(NamedImageProvider(any: provider), forKey: .named)
+        case "RenderingModeProvider": try container.encode(RenderingModeProvider(any: provider), forKey: .renderingMode)
+        case "InterpolationProvider": try container.encode(InterpolationProvider(any: provider), forKey: .interpolation)
+        case "AntialiasedProvider": try container.encode(AntialiasedProvider(any: provider), forKey: .antialiased)
+        case "CGImageProvider": try container.encode(CGImageProvider(any: provider), forKey: .cgimage)
+        case "UIImage", "NSImage": try container.encode(PlatformProvider(any: provider), forKey: .platform)
+        case "ResizableProvider": try container.encode(ResizableProvider(any: provider), forKey: .resizable)
+        case let value: fatalError(value)
+        }
+    }
+    public init(from decoder: Decoder, for ptype: PType) throws { try self.init(from: decoder) }
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         var provider: AnyImageBox!
         for key in container.allKeys {
             switch key {
             case .named: provider = try container.decode(NamedImageProvider.self, forKey: key)
-            case .mode: provider = try container.decode(RenderingModeProvider.self, forKey: key)
+            case .renderingMode: provider = try container.decode(RenderingModeProvider.self, forKey: key)
             case .interpolation: provider = try container.decode(InterpolationProvider.self, forKey: key)
             case .antialiased: provider = try container.decode(AntialiasedProvider.self, forKey: key)
             case .cgimage: provider = try container.decode(CGImageProvider.self, forKey: key)
@@ -298,42 +319,14 @@ extension Image: IAnyView, FullyCodable {
         }
         self = provider.apply()
     }
-    public func encode(to encoder: Encoder) throws {
-        Mirror.assert(self, name: "Image", keys: ["provider.base"])
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        let provider = Mirror(reflecting: self).descendant("provider", "base")!
-        switch String(describing: type(of: provider)) {
-        case "NamedImageProvider": try container.encode(NamedImageProvider(any: provider), forKey: .named)
-        case "RenderingModeProvider": try container.encode(RenderingModeProvider(any: provider), forKey: .mode)
-        case "InterpolationProvider": try container.encode(InterpolationProvider(any: provider), forKey: .interpolation)
-        case "AntialiasedProvider": try container.encode(AntialiasedProvider(any: provider), forKey: .antialiased)
-        case "CGImageProvider": try container.encode(CGImageProvider(any: provider), forKey: .cgimage)
-        case "UIImage", "NSImage": try container.encode(PlatformProvider(any: provider), forKey: .platform)
-        case "ResizableProvider": try container.encode(ResizableProvider(any: provider), forKey: .resizable)
-        case let unrecognized: fatalError(unrecognized)
-        }
-    }
+
     //: Register
     static func register() {
-        DynaType.register(Image.self)
+        PType.register(Image.self)
     }
 }
 
 extension Image.Orientation: Codable {
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        switch try container.decode(String.self) {
-        case "up": self = .up
-        case "upMirrored": self = .upMirrored
-        case "down": self = .down
-        case "downMirrored": self = .downMirrored
-        case "left": self = .left
-        case "leftMirrored": self = .leftMirrored
-        case "right": self = .right
-        case "rightMirrored": self = .rightMirrored
-        case let unrecognized: fatalError(unrecognized)
-        }
-    }
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         switch self {
@@ -347,60 +340,64 @@ extension Image.Orientation: Codable {
         case .rightMirrored: try container.encode("rightMirrored")
         }
     }
-}
-
-extension Image.TemplateRenderingMode: Codable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         switch try container.decode(String.self) {
-        case "template": self = .template
-        case "original": self = .original
-        case let unrecognized: fatalError(unrecognized)
+        case "up": self = .up
+        case "upMirrored": self = .upMirrored
+        case "down": self = .down
+        case "downMirrored": self = .downMirrored
+        case "left": self = .left
+        case "leftMirrored": self = .leftMirrored
+        case "right": self = .right
+        case "rightMirrored": self = .rightMirrored
+        case let value: fatalError(value)
         }
     }
+}
+
+extension Image.TemplateRenderingMode: Codable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         switch self {
         case .template: try container.encode("template")
         case .original: try container.encode("original")
-        case let unrecognized: fatalError("\(unrecognized)")
+        case let value: fatalError("\(value)")
+        }
+    }
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        switch try container.decode(String.self) {
+        case "template": self = .template
+        case "original": self = .original
+        case let value: fatalError(value)
         }
     }
 }
 
 @available(macOS 11.0, *)
 extension Image.Scale: Codable {
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        switch try container.decode(String.self) {
-        case "small": self = .small
-        case "medium": self = .medium
-        case "large": self = .large
-        case let unrecognized: fatalError(unrecognized)
-        }
-    }
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         switch self {
         case .small: try container.encode("small")
         case .medium: try container.encode("medium")
         case .large: try container.encode("large")
-        case let unrecognized: fatalError("\(unrecognized)")
+        case let value: fatalError("\(value)")
+        }
+    }
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        switch try container.decode(String.self) {
+        case "small": self = .small
+        case "medium": self = .medium
+        case "large": self = .large
+        case let value: fatalError(value)
         }
     }
 }
 
 extension Image.Interpolation: Codable {
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        switch try container.decode(String.self) {
-        case "none": self = .none
-        case "low": self = .low
-        case "medium": self = .medium
-        case "high": self = .high
-        case let unrecognized: fatalError(unrecognized)
-        }
-    }
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         switch self {
@@ -408,31 +405,49 @@ extension Image.Interpolation: Codable {
         case .low: try container.encode("low")
         case .medium: try container.encode("medium")
         case .high: try container.encode("high")
-        case let unrecognized: fatalError("\(unrecognized)")
+        case let value: fatalError("\(value)")
+        }
+    }
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        switch try container.decode(String.self) {
+        case "none": self = .none
+        case "low": self = .low
+        case "medium": self = .medium
+        case "high": self = .high
+        case let value: fatalError(value)
         }
     }
 }
 
 extension Image.ResizingMode: Codable {
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        switch try container.decode(String.self) {
-        case "tile": self = .tile
-        case "stretch": self = .stretch
-        case let unrecognized: fatalError(unrecognized)
-        }
-    }
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         switch self {
         case .tile: try container.encode("tile")
         case .stretch: try container.encode("stretch")
-        case let unrecognized: fatalError("\(unrecognized)")
+        case let value: fatalError("\(value)")
+        }
+    }
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        switch try container.decode(String.self) {
+        case "tile": self = .tile
+        case "stretch": self = .stretch
+        case let value: fatalError(value)
         }
     }
 }
 
 extension CGImage {
+    public func encode(to encoder: Encoder) throws {
+        #if os(macOS)
+        let image = UXImage.init(cgImage: self, size: NSSize(width: self.width, height: self.height))
+        #else
+        let image = UXImage(cgImage: self)
+        #endif
+        try image.encode(to: encoder)
+    }
     public static func decode(from decoder: Decoder) throws -> CGImage {
         #if os(macOS)
         let image = try UXImage.decode(from: decoder)
@@ -441,14 +456,6 @@ extension CGImage {
         #else
         return try UXImage.decode(from: decoder).cgImage!
         #endif
-    }
-    public func encode(to encoder: Encoder) throws {
-        #if os(macOS)
-        let image = UXImage.init(cgImage: self, size: NSSize(width: self.width, height: self.height))
-        #else
-        let image = UXImage(cgImage: self)
-        #endif
-        try image.encode(to: encoder)
     }
 }
 
@@ -490,13 +497,13 @@ extension UXImage {
             : jpegData(compressionQuality: 1.0)
     }
     #endif
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(self.getData() ?? Data())
+    }
     public static func decode(from decoder: Decoder) throws -> UXImage {
         let container = try decoder.singleValueContainer()
         let data = try container.decode(Data.self)
         return UXImage(data: data) ?? UXImage()
-    }
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        try container.encode(self.getData() ?? Data())
     }
 }

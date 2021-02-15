@@ -53,12 +53,11 @@ extension ForEach: IAnyView, DynaDecodable, Encodable where Content : View {
     enum CodingKeys: CodingKey {
         case data, id, content
     }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+    public init(from decoder: Decoder, for ptype: PType) throws {
 //        let container = try decoder.container(keyedBy: CodingKeys.self)
-//        let data = try container.decode(Data.self, forKey: .data)
-//        let id = try container.decode(KeyPath<Data.Element, ID>.self, forKey: .id)
-//        let content = try container.decode(Content.self, forKey: .content, dynaType: dynaType[0])
-//        self.init(data, id: id, content: { element in content })
+//        let root = (try? container.decodeIfPresent(_HStackLayout.self, forKey: .root)) ?? _HStackLayout(alignment: .center, spacing: nil)
+//        let content = try container.decode(Content.self, forKey: .content, ptype: ptype[0])
+//        self.init(alignment: root.alignment, spacing: root.spacing) { content }
         fatalError()
     }
     public func encode(to encoder: Encoder) throws {
@@ -68,7 +67,7 @@ extension ForEach: IAnyView, DynaDecodable, Encodable where Content : View {
     
     //: Register
     static func register() {
-        DynaType.register(ForEach<AnyRandomAccessCollection<Any>, AnyHashable, AnyView>.self)
+        PType.register(ForEach<AnyRandomAccessCollection<Any>, AnyHashable, AnyView>.self)
     }
     
     struct IDGenerator {

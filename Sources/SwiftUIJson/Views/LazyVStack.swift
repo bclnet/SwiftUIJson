@@ -14,10 +14,10 @@ extension LazyVStack: IAnyView, DynaCodable where Content : View, Content : Dyna
     enum CodingKeys: CodingKey {
         case root, content
     }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+    public init(from decoder: Decoder, for ptype: PType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let root = (try? container.decodeIfPresent(LazyVStackLayout.self, forKey: .root)) ?? LazyVStackLayout(alignment: .center, spacing: nil, pinnedViews: .init())
-        let content = try container.decode(Content.self, forKey: .content, dynaType: dynaType[0])
+        let content = try container.decode(Content.self, forKey: .content, ptype: ptype[0])
         self.init(alignment: root.alignment, spacing: root.spacing, pinnedViews: root.pinnedViews, content: { content })
     }
     public func encode(to encoder: Encoder) throws {
@@ -30,7 +30,7 @@ extension LazyVStack: IAnyView, DynaCodable where Content : View, Content : Dyna
     }
     //: Register
     static func register() {
-        DynaType.register(LazyVStack<AnyView>.self)
+        PType.register(LazyVStack<AnyView>.self)
     }
 }
 

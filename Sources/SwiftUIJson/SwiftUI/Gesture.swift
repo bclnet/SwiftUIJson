@@ -16,27 +16,29 @@ struct ModifierGesture<Modifier, Content>: ConvertibleDynaCodable {
         modifier = m["modifier"]! as! Modifier
         content = m["content"]! as! Content
     }
+
     //: Codable
     enum CodingKeys: CodingKey {
         case modifier, content
-    }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        modifier = try container.decodeAny(Modifier.self, forKey: .modifier, dynaType: dynaType[0])
-        content = try container.decodeAny(Content.self, forKey: .content, dynaType: dynaType[1])
     }
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encodeAny(modifier, forKey: .modifier)
         try container.encodeAny(content, forKey: .content)
     }
+    public init(from decoder: Decoder, for ptype: PType) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        modifier = try container.decodeAny(Modifier.self, forKey: .modifier, ptype: ptype[0])
+        content = try container.decodeAny(Content.self, forKey: .content, ptype: ptype[1])
+    }
+
     //: Register
     static func register() {
-        DynaType.register(CallbacksGesture<Any>.self, any: [Any.self], namespace: "SwiftUI")
-        DynaType.register(PressableGestureCallbacks<Any>.self, any: [Any.self], namespace: "SwiftUI")
-        DynaType.register(LongPressGesture.self)
-        DynaType.register(ModifierGesture<Any, Any>.self, any: [Any.self, Any.self], namespace: "SwiftUI")
-        DynaType.register(AddGestureModifier<Any>.self, any: [Any.self], namespace: "SwiftUI", actions: [
+        PType.register(CallbacksGesture<Any>.self, any: [Any.self], namespace: "SwiftUI")
+        PType.register(PressableGestureCallbacks<Any>.self, any: [Any.self], namespace: "SwiftUI")
+        PType.register(LongPressGesture.self)
+        PType.register(ModifierGesture<Any, Any>.self, any: [Any.self, Any.self], namespace: "SwiftUI")
+        PType.register(AddGestureModifier<Any>.self, any: [Any.self], namespace: "SwiftUI", actions: [
                             "longPressGesture": { (view: AnyView, mask: GestureMask, gesture: Any) -> AnyView in
                                 let g = gesture as! ModifierGesture<Any, Any>
                                 let modifier = g.modifier as! CallbacksGesture<Any>
@@ -55,14 +57,15 @@ struct CallbacksGesture<Callbacks>: ConvertibleDynaCodable {
         Mirror.assert(any, name: "CallbacksGesture", keys: ["callbacks"])
         callbacks = Mirror(reflecting: any).descendant("callbacks")! as! Callbacks
     }
+
     //: Codable
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
-        var container = try decoder.unkeyedContainer()
-        callbacks = try container.decodeAny(Callbacks.self, dynaType: dynaType[0])
-    }
     public func encode(to encoder: Encoder) throws {
         var container = encoder.unkeyedContainer()
         try container.encodeAny(callbacks)
+    }
+    public init(from decoder: Decoder, for ptype: PType) throws {
+        var container = try decoder.unkeyedContainer()
+        callbacks = try container.decodeAny(Callbacks.self, ptype: ptype[0])
     }
 }
 
@@ -75,39 +78,27 @@ struct PressableGestureCallbacks<Gesture>: ConvertibleCodable {
         pressing = m["pressing"]! as? ((Bool) -> ())
         pressed = m["pressed"]! as! (() -> ())
     }
+
     //: Codable
     enum CodingKeys: CodingKey {
         case pressing, pressed
-    }
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        pressing = try container.decodeActionIfPresent(Bool.self, forKey: .pressing)
-        pressed = try container.decodeAction(forKey: .pressed)
     }
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encodeActionIfPresent(pressing, forKey: .pressing)
         try container.encodeAction(pressed, forKey: .pressed)
     }
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        pressing = try container.decodeActionIfPresent(Bool.self, forKey: .pressing)
+        pressed = try container.decodeAction(forKey: .pressed)
+    }
 }
 
 extension GestureMask: Codable {
     public static let allCases: [Self] = [.all, .none, .gesture, .subviews]
+
     //: Codable
-    public init(from decoder: Decoder) throws {
-        var container = try decoder.unkeyedContainer()
-        var elements: Self = []
-        while !container.isAtEnd {
-            switch try container.decode(String.self) {
-            case "all": self = .all; return
-            case "none": self = .none; return
-            case "gesture": elements.insert(.gesture)
-            case "subviews": elements.insert(.subviews)
-            case let unrecognized: self.init(rawValue: RawValue(unrecognized)!); return
-            }
-        }
-        self = elements
-    }
     public func encode(to encoder: Encoder) throws {
         var container = encoder.unkeyedContainer()
         for (_, element) in Self.allCases.enumerated() {
@@ -117,11 +108,25 @@ extension GestureMask: Codable {
                 case .none: try container.encode("none"); return
                 case .gesture: try container.encode("gesture")
                 case .subviews: try container.encode("subviews")
-                case let unrecognized: fatalError("\(unrecognized)")
+                case let value: fatalError("\(value)")
 //                default: try container.encode(String(rawValue)); return
                 }
             }
         }
+    }
+    public init(from decoder: Decoder) throws {
+        var container = try decoder.unkeyedContainer()
+        var elements: Self = []
+        while !container.isAtEnd {
+            switch try container.decode(String.self) {
+            case "all": self = .all; return
+            case "none": self = .none; return
+            case "gesture": elements.insert(.gesture)
+            case "subviews": elements.insert(.subviews)
+            case let value: self.init(rawValue: RawValue(value)!); return
+            }
+        }
+        self = elements
     }
 }
 
@@ -131,15 +136,15 @@ extension LongPressGesture: Codable {
     enum CodingKeys: CodingKey {
         case minimumDuration, maximumDistance
     }
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        if minimumDuration != 0.5 { try container.encode(minimumDuration, forKey: .minimumDuration) }
+        if maximumDistance != 10 { try container.encode(maximumDistance, forKey: .maximumDistance) }
+    }
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let minimumDuration = (try? container.decodeIfPresent(Double.self, forKey: .minimumDuration)) ?? 0.5
         let maximumDistance = (try? container.decodeIfPresent(CGFloat.self, forKey: .maximumDistance)) ?? 10
         self.init(minimumDuration: minimumDuration, maximumDistance: maximumDistance)
-    }
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        if minimumDuration != 0.5 { try container.encode(minimumDuration, forKey: .minimumDuration) }
-        if maximumDistance != 10 { try container.encode(maximumDistance, forKey: .maximumDistance) }
     }
 }

@@ -11,23 +11,25 @@ import SwiftUI
 extension Path: IAnyShape, DynaCodable {
     public var anyShape: AnyShape { AnyShape(self) }
     public var anyView: AnyView { AnyView(self) }
+    
     //: Codable
     enum CodingKeys: CodingKey {
         case path
-    }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        let description = (try? container.decodeIfPresent(String.self, forKey: .path)) ?? ""
-        self = Path(description) ?? Path()
     }
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         let type = String(String(reflecting: Mirror(reflecting: self).descendant("storage")!).split(separator: "(")[0])
         if type != "SwiftUI.Path.Storage.empty" { try container.encode(description, forKey: .path) }
     }
+    public init(from decoder: Decoder, for ptype: PType) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let description = (try? container.decodeIfPresent(String.self, forKey: .path)) ?? ""
+        self = Path(description) ?? Path()
+    }
+
     //: Register
     static func register() {
-        DynaType.register(Path.self)
+        PType.register(Path.self)
     }
 }
 
@@ -39,7 +41,7 @@ extension Path: IAnyShape, DynaCodable {
     enum CodingKeys: CodingKey {
         case empty, path, rect, roundedRect, ellipse
     }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+    public init(from decoder: Decoder, for ptype: PType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         switch container.allKeys.first {
         case .empty: self.init()
@@ -67,7 +69,7 @@ extension Path: IAnyShape, DynaCodable {
     }
     //: Register
     static func register() {
-        DynaType.register(Path.self)
+        PType.register(Path.self)
     }
     
     internal enum Storage {
@@ -85,7 +87,7 @@ extension Path: IAnyShape, DynaCodable {
             case "SwiftUI.Path.Storage.rect": self = .rect(m["rect"]! as! CGRect)
             case "SwiftUI.Path.Storage.roundedRect": self = .roundedRect(FixedRoundedRect(any: m["roundedRect"]!))
             case "SwiftUI.Path.Storage.ellipse": self = .ellipse(m["ellipse"]! as! CGRect)
-            case let unrecognized: fatalError(unrecognized)
+            case let value: fatalError(value)
             }
         }
     }
@@ -127,7 +129,7 @@ extension CGMutablePath {
             case "addQuadCurve": path.addQuadCurve(to: points[0], control: points[1])
             case "addCurve": path.addCurve(to: points[0], control1: points[1], control2: points[2])
             case "close": path.closeSubpath()
-            case let unrecognized: fatalError(unrecognized!)
+            case let value: fatalError(value!)
             }
         }
         return path
@@ -159,7 +161,7 @@ extension CGMutablePath {
             case .closeSubpath:
                 var baseContainer = container.nestedUnkeyedContainer()
                 try! baseContainer.encode("close")
-            case let unrecognized: fatalError("\(unrecognized)")
+            case let value: fatalError("\(value)")
             }
         }
     }

@@ -11,17 +11,10 @@ import SwiftUI
 extension RoundedRectangle: IAnyShape, DynaCodable {
     public var anyShape: AnyShape { AnyShape(self) }
     public var anyView: AnyView { AnyView(self) }
+
     //: Codable
     enum CodingKeys: CodingKey {
         case cornerSize, cornerRadius, style
-    }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        let cornerSize = try? container.decodeIfPresent(CGSize.self, forKey: .cornerSize)
-        let cornerRadius = try? container.decodeIfPresent(CGFloat.self, forKey: .cornerRadius)
-        let style = (try? container.decodeIfPresent(RoundedCornerStyle.self, forKey: .style)) ?? .circular
-        if cornerSize != nil { self.init(cornerSize: cornerSize!, style: style) }
-        else { self.init(cornerRadius: cornerRadius!, style: style) }
     }
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
@@ -29,10 +22,19 @@ extension RoundedRectangle: IAnyShape, DynaCodable {
         else { try container.encode(cornerSize.width, forKey: .cornerRadius) }
         if style != .circular { try container.encode(style, forKey: .style) }
     }
+    public init(from decoder: Decoder, for ptype: PType) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let cornerSize = try? container.decodeIfPresent(CGSize.self, forKey: .cornerSize)
+        let cornerRadius = try? container.decodeIfPresent(CGFloat.self, forKey: .cornerRadius)
+        let style = (try? container.decodeIfPresent(RoundedCornerStyle.self, forKey: .style)) ?? .circular
+        if cornerSize != nil { self.init(cornerSize: cornerSize!, style: style) }
+        else { self.init(cornerRadius: cornerRadius!, style: style) }
+    }
+
     //: Register
     static func register() {
-        DynaType.register(RoundedRectangle.self)
-        DynaType.register(RoundedRectangle._Inset.self)
+        PType.register(RoundedRectangle.self)
+        PType.register(RoundedRectangle._Inset.self)
     }
     
     struct _Inset: IAnyShape, IAnyView, ConvertibleDynaCodable {
@@ -46,52 +48,20 @@ extension RoundedRectangle: IAnyShape, DynaCodable {
             base = m["base"]! as! RoundedRectangle
             amount = m["amount"]! as! CGFloat
         }
+
         //: Codable
         enum CodingKeys: CodingKey {
             case base, amount
-        }
-        public init(from decoder: Decoder, for dynaType: DynaType) throws {
-            let container = try decoder.container(keyedBy: CodingKeys.self)
-            base = try container.decode(RoundedRectangle.self, forKey: .base, dynaType: dynaType[0])
-            amount = try container.decode(CGFloat.self, forKey: .amount)
         }
         public func encode(to encoder: Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
             try container.encode(base, forKey: .base)
             try container.encode(amount, forKey: .amount)
         }
-    }
-}
-
-struct FixedRoundedRect: Codable {
-    let rect: CGRect
-    let cornerSize: CGSize
-    let style: RoundedCornerStyle
-    init(any: Any) {
-        Mirror.assert(any, name: "FixedRoundedRect", keys: ["rect", "cornerSize", "style"])
-        let m = Mirror.children(reflecting: any)
-        rect = m["rect"]! as! CGRect
-        cornerSize = m["cornerSize"]! as! CGSize
-        style = m["style"]! as! RoundedCornerStyle
-    }
-}
-
-extension RoundedCornerStyle: Codable {
-    //: Codable
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        switch try container.decode(String.self) {
-        case "circular": self = .circular
-        case "continuous": self = .continuous
-        case let unrecognized: fatalError(unrecognized)
-        }
-    }
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        switch self {
-        case .circular: try container.encode("circular")
-        case .continuous: try container.encode("continuous")
-        case let unrecognized: fatalError("\(unrecognized)")
+        public init(from decoder: Decoder, for ptype: PType) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            base = try container.decode(RoundedRectangle.self, forKey: .base, ptype: ptype[0])
+            amount = try container.decode(CGFloat.self, forKey: .amount)
         }
     }
 }

@@ -21,16 +21,16 @@ extension Slider: IAnyView, DynaCodable where Label : View, Label : DynaCodable,
     enum CodingKeys: CodingKey {
         case value, from, till, step, onEditingChanged, maximumValueLabel, minimumValueLabel, label
     }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+    public init(from decoder: Decoder, for ptype: PType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let value = try container.decode(Binding<Double>.self, forKey: .value)
         let from = try container.decode(Double.self, forKey: .from)
         let till = try container.decode(Double.self, forKey: .till)
         let step = try container.decodeIfPresent(Double.self, forKey: .step)
         let onEditingChanged = try container.decodeAction(Bool.self, forKey: .onEditingChanged)
-        let maximumValueLabel = (try? container.decodeIfPresent(ValueLabel.self, forKey: .maximumValueLabel, dynaType: dynaType[1])) ?? (AnyView(EmptyView()) as! ValueLabel)
-        let minimumValueLabel = (try? container.decodeIfPresent(ValueLabel.self, forKey: .minimumValueLabel, dynaType: dynaType[1])) ?? (AnyView(EmptyView()) as! ValueLabel)
-        let label = try container.decode(Label.self, forKey: .label, dynaType: dynaType[0])
+        let maximumValueLabel = (try? container.decodeIfPresent(ValueLabel.self, forKey: .maximumValueLabel, ptype: ptype[1])) ?? (AnyView(EmptyView()) as! ValueLabel)
+        let minimumValueLabel = (try? container.decodeIfPresent(ValueLabel.self, forKey: .minimumValueLabel, ptype: ptype[1])) ?? (AnyView(EmptyView()) as! ValueLabel)
+        let label = try container.decode(Label.self, forKey: .label, ptype: ptype[0])
         if step == nil {
             self.init(value: value, in: from...till,
                       onEditingChanged: onEditingChanged,
@@ -85,7 +85,7 @@ extension Slider: IAnyView, DynaCodable where Label : View, Label : DynaCodable,
     }
     //: Register
     static func register() {
-        DynaType.register(Slider<AnyView, EmptyView>.self)
-        DynaType.register(Slider<AnyView, AnyView>.self)
+        PType.register(Slider<AnyView, EmptyView>.self)
+        PType.register(Slider<AnyView, AnyView>.self)
     }
 }

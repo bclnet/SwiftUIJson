@@ -8,6 +8,28 @@
 import SwiftUI
 
 extension Text {
+
+    enum Storage {
+        case text(String)
+        case verbatim(String)
+        case anyTextStorage(Any)
+        init(any: Any) {
+            Mirror.assert(any, name: "Storage", keys: ["verbatim", "anyTextStorage"], keyMatch: .single)
+            let m = Mirror(reflecting: any).children.first!
+            if String(describing: type(of: m.value)) == "LocalizedTextStorage" {
+                let localized = LocalizedTextStorage(any: m.value, provider: "localized")
+                if localized.table == nil && localized.bundle == nil {
+                    self = .text(localized.key.encodeValue)
+                    return
+                }
+            }
+            switch m.label! {
+            case "verbatim": self = .verbatim(m.value as! String)
+            case "anyTextStorage": self = .anyTextStorage(m.value)
+            case let value: fatalError(value)
+            }
+        }
+    }
     
     class AnyTextStorage: Codable {
         let provider: String
@@ -15,17 +37,20 @@ extension Text {
             self.provider = provider
         }
         public func apply() -> Text { fatalError("Not Implemented") }
+    }
+
+    extension AnyTextStorage: Codable {
         //: Codable
         enum CodingKeys: CodingKey {
             case provider
         }
-        public required init(from decoder: Decoder) throws {
-            let container = try decoder.container(keyedBy: CodingKeys.self)
-            provider = try container.decode(String.self, forKey: .provider)
-        }
         public func encode(to encoder: Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
             try container.encode(provider, forKey: .provider)
+        }
+        public required init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            provider = try container.decode(String.self, forKey: .provider)
         }
     }
     
@@ -39,19 +64,20 @@ extension Text {
             super.init(provider: provider)
         }
         public override func apply() -> Text { Text(image) }
+
         //: Codable
         enum CodingKeys: CodingKey {
             case image
-        }
-        public required init(from decoder: Decoder) throws {
-            let container = try decoder.container(keyedBy: CodingKeys.self)
-            image = try container.decode(Image.self, forKey: .image)
-            try super.init(from: decoder)
         }
         public override func encode(to encoder: Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
             try container.encode(image, forKey: .image)
             try super.encode(to: encoder)
+        }
+        public required init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            image = try container.decode(Image.self, forKey: .image)
+            try super.init(from: decoder)
         }
     }
     
@@ -68,9 +94,17 @@ extension Text {
             super.init(provider: provider)
         }
         public override func apply() -> Text { Text(key, tableName: table, bundle: bundle, comment: nil) }
+
         //: Codable
         enum CodingKeys: CodingKey {
             case text, table, bundle
+        }
+        public override func encode(to encoder: Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(key.encodeValue, forKey: .text)
+            try container.encodeIfPresent(table, forKey: .table)
+            try container.encodeIfPresent(CodableWrap(bundle), forKey: .bundle)
+            try super.encode(to: encoder)
         }
         public required init(from decoder: Decoder) throws {
             let context = decoder.userInfo[.jsonContext] as! JsonContext
@@ -79,13 +113,6 @@ extension Text {
             table = try? container.decodeIfPresent(String.self, forKey: .table, forContext: context)
             bundle = (try? container.decodeIfPresent(CodableWrap<Bundle>.self, forKey: .bundle))?.wrapValue
             try super.init(from: decoder)
-        }
-        public override func encode(to encoder: Encoder) throws {
-            var container = encoder.container(keyedBy: CodingKeys.self)
-            try container.encode(key.encodeValue, forKey: .text)
-            try container.encodeIfPresent(table, forKey: .table)
-            try container.encodeIfPresent(CodableWrap(bundle), forKey: .bundle)
-            try super.encode(to: encoder)
         }
     }
     
@@ -101,21 +128,22 @@ extension Text {
             super.init(provider: provider)
         }
         public override func apply() -> Text { Text(object, formatter: formatter) }
+
         //: Codable
         enum CodingKeys: CodingKey {
             case object, formatter
-        }
-        public required init(from decoder: Decoder) throws {
-            let container = try decoder.container(keyedBy: CodingKeys.self)
-            object = try container.decode(NSObjectWrap<NSObject>.self, forKey: .object).wrapValue
-            formatter = try container.decode(NSObjectWrap<Formatter>.self, forKey: .formatter).wrapValue
-            try super.init(from: decoder)
         }
         public override func encode(to encoder: Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
             try container.encode(NSObjectWrap(object), forKey: .object)
             try container.encode(NSObjectWrap(formatter), forKey: .formatter)
             try super.encode(to: encoder)
+        }
+        public required init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            object = try container.decode(NSObjectWrap<NSObject>.self, forKey: .object).wrapValue
+            formatter = try container.decode(NSObjectWrap<Formatter>.self, forKey: .formatter).wrapValue
+            try super.init(from: decoder)
         }
     }
 
@@ -134,14 +162,15 @@ extension Text {
             case .interval(let interval): return Text(interval)
             }
         }
+
         //: Codable
-        public required init(from decoder: Decoder) throws {
-            storage = try Storage.init(from: decoder)
-            try super.init(from: decoder)
-        }
         public override func encode(to encoder: Encoder) throws {
             try storage.encode(to: encoder)
             try super.encode(to: encoder)
+        }
+        public required init(from decoder: Decoder) throws {
+            storage = try Storage.init(from: decoder)
+            try super.init(from: decoder)
         }
         
         enum Storage: Codable {
@@ -153,25 +182,13 @@ extension Text {
                 switch m.key {
                 case "absolute": let v = m.value as! (date: Date, style: Text.DateStyle); self = .absolute(date: v.date, style: v.style)
                 case "interval": self = .interval(m.value as! DateInterval)
-                case let unrecognized: fatalError(unrecognized)
+                case let value: fatalError(value)
                 }
             }
+
             //: Codable
             enum CodingKeys: CodingKey {
                 case value, date, style, interval
-            }
-            init(from decoder: Decoder) throws {
-                let container = try decoder.container(keyedBy: CodingKeys.self)
-                switch try container.decode(String.self, forKey: .value) {
-                case "absolute":
-                    let date = try container.decode(Date.self, forKey: .date)
-                    let style = try container.decode(Text.DateStyle.self, forKey: .style)
-                    self = .absolute(date: date, style: style)
-                case "interval":
-                    let interval = try container.decode(DateInterval.self, forKey: .interval)
-                    self = .interval(interval)
-                case let unrecognized: fatalError(unrecognized)
-                }
             }
             func encode(to encoder: Encoder) throws {
                 var container = encoder.container(keyedBy: CodingKeys.self)
@@ -185,104 +202,25 @@ extension Text {
                     try container.encode("interval", forKey: .value)
                 }
             }
+            init(from decoder: Decoder) throws {
+                let container = try decoder.container(keyedBy: CodingKeys.self)
+                switch try container.decode(String.self, forKey: .value) {
+                case "absolute":
+                    let date = try container.decode(Date.self, forKey: .date)
+                    let style = try container.decode(Text.DateStyle.self, forKey: .style)
+                    self = .absolute(date: date, style: style)
+                case "interval":
+                    let interval = try container.decode(DateInterval.self, forKey: .interval)
+                    self = .interval(interval)
+                case let value: fatalError(value)
+                }
+            }
         }
     }
 }
 
 extension Text {
-    
-    class AnyTextModifier: Codable {
-        let provider: String
-        init(provider: String) {
-            self.provider = provider
-        }
-        public func apply(_ text: Text) -> Text { fatalError("Not Implemented") }
-        //: Codable
-        enum CodingKeys: CodingKey {
-            case provider
-        }
-        public required init(from decoder: Decoder) throws {
-            let container = try decoder.container(keyedBy: CodingKeys.self)
-            provider = try container.decode(String.self, forKey: .provider)
-        }
-        public func encode(to encoder: Encoder) throws {
-            var container = encoder.container(keyedBy: CodingKeys.self)
-            try container.encode(provider, forKey: .provider)
-        }
-    }
-        
-    class BoldTextModifier: AnyTextModifier {
-        init(any: Any, provider: String) {
-            Mirror.assert(any, name: "BoldTextModifier", keys: [])
-            super.init(provider: provider)
-        }
-        public override func apply(_ text: Text) -> Text { text.bold() }
-        //: Codable
-        public required init(from decoder: Decoder) throws { try super.init(from: decoder) }
-    }
-    
-    class StrikethroughTextModifier: AnyTextModifier {
-        let lineStyle: LineStyle?
-        init(any: Any, provider: String) {
-            Mirror.assert(any, name: "StrikethroughTextModifier", keys: ["lineStyle"])
-            lineStyle = LineStyle(any: Mirror.optional(any: Mirror(reflecting: any).descendant("lineStyle")!))
-            super.init(provider: provider)
-        }
-        public override func apply(_ text: Text) -> Text { text.strikethrough(lineStyle?.active ?? true, color: lineStyle?.color) }
-        //: Codable
-        enum CodingKeys: CodingKey {
-            case active, color
-        }
-        public required init(from decoder: Decoder) throws {
-            let container = try decoder.container(keyedBy: CodingKeys.self)
-            let active = (try? container.decodeIfPresent(Bool.self, forKey: .active)) ?? true
-            let color = try? container.decodeIfPresent(Color.self, forKey: .color)
-            lineStyle = LineStyle(active: active, color: color)
-            try super.init(from: decoder)
-        }
-        public override func encode(to encoder: Encoder) throws {
-            guard let lineStyle = lineStyle else {
-                try super.encode(to: encoder)
-                return
-            }
-            var container = encoder.container(keyedBy: CodingKeys.self)
-            if !lineStyle.active { try container.encode(lineStyle.active, forKey: .active) }
-            try container.encodeIfPresent(lineStyle.color, forKey: .color)
-            try super.encode(to: encoder)
-        }
-    }
-    
-    class UnderlineTextModifier: AnyTextModifier {
-        let lineStyle: LineStyle?
-        init(any: Any, provider: String) {
-            Mirror.assert(any, name: "UnderlineTextModifier", keys: ["lineStyle"])
-            lineStyle = LineStyle(any: Mirror.optional(any: Mirror(reflecting: any).descendant("lineStyle")!))
-            super.init(provider: provider)
-        }
-        public override func apply(_ text: Text) -> Text { text.underline(lineStyle?.active ?? true, color: lineStyle?.color) }
-        //: Codable
-        enum CodingKeys: CodingKey {
-            case active, color
-        }
-        public required init(from decoder: Decoder) throws {
-            let container = try decoder.container(keyedBy: CodingKeys.self)
-            let active = (try? container.decodeIfPresent(Bool.self, forKey: .active)) ?? true
-            let color = try? container.decodeIfPresent(Color.self, forKey: .color)
-            lineStyle = LineStyle(active: active, color: color)
-            try super.init(from: decoder)
-        }
-        public override func encode(to encoder: Encoder) throws {
-            guard let lineStyle = lineStyle else {
-                try super.encode(to: encoder)
-                return
-            }
-            var container = encoder.container(keyedBy: CodingKeys.self)
-            if !lineStyle.active { try container.encode(lineStyle.active, forKey: .active) }
-            try container.encodeIfPresent(lineStyle.color, forKey: .color)
-            try super.encode(to: encoder)
-        }
-    }
-    
+
     struct LineStyle {
         let active: Bool
         let color: Color?
@@ -298,32 +236,7 @@ extension Text {
             color = m["color"]! as? Color
         }
     }
-}
 
-extension Text {
-
-    enum Storage  {
-        case text(String)
-        case verbatim(String)
-        case anyTextStorage(Any)
-        init(any: Any) {
-            Mirror.assert(any, name: "Storage", keys: ["verbatim", "anyTextStorage"], keyMatch: .single)
-            let m = Mirror(reflecting: any).children.first!
-            if String(describing: type(of: m.value)) == "LocalizedTextStorage" {
-                let localized = LocalizedTextStorage(any: m.value, provider: "localized")
-                if localized.table == nil && localized.bundle == nil {
-                    self = .text(localized.key.encodeValue)
-                    return
-                }
-            }
-            switch m.label! {
-            case "verbatim": self = .verbatim(m.value as! String)
-            case "anyTextStorage": self = .anyTextStorage(m.value)
-            case let unrecognized: fatalError(unrecognized)
-            }
-        }
-    }
-    
     enum Modifier: Codable {
         case color(Color?)
         case font(Font?)
@@ -344,7 +257,7 @@ extension Text {
             case "tracking": self = .tracking(m.value as! CoreGraphics.CGFloat)
             case "baseline": self = .baseline(m.value as! CoreGraphics.CGFloat)
             case "anyTextModifier": self = .anyTextModifier(m.value)
-            case let unrecognized: fatalError(unrecognized)
+            case let value: fatalError(value)
             }
         }
         func apply(_ text: Text) -> Text {
@@ -359,28 +272,10 @@ extension Text {
             case .anyTextModifier(let value): return (value as! AnyTextModifier).apply(text)
             }
         }
+
         //: Codable
         enum CodingKeys: CodingKey {
-            case color, font, italic, weight, kerning, tracking, baseline, rounded, any
-        }
-        public init(from decoder: Decoder) throws {
-            let context = decoder.userInfo[.jsonContext] as! JsonContext, container = try decoder.container(keyedBy: CodingKeys.self)
-            if container.contains(.color) { self = .color(try container.decodeOptional(Color.self, forKey: .color, forContext: context)) }
-            else if container.contains(.font) { self = .font(try container.decodeOptional(Font.self, forKey: .font, forContext: context)) }
-            else if container.contains(.italic) { self = .italic }
-            else if container.contains(.weight) { self = .weight(try container.decodeOptional(Font.Weight.self, forKey: .weight, forContext: context)) }
-            else if container.contains(.kerning) { self = .kerning(try container.decode(CoreGraphics.CGFloat.self, forKey: .kerning, forContext: context)) }
-            else if container.contains(.tracking) { self = .tracking(try container.decode(CoreGraphics.CGFloat.self, forKey: .tracking, forContext: context)) }
-            else if container.contains(.baseline) { self = .baseline(try container.decode(CoreGraphics.CGFloat.self, forKey: .baseline, forContext: context)) }
-            else if container.contains(.any) {
-                switch try container.decode(AnyTextModifier.self, forKey: .any).provider {
-                case "bold": self = .anyTextModifier(try container.decode(BoldTextModifier.self, forKey: .any))
-                case "strikethrough": self = .anyTextModifier(try container.decode(StrikethroughTextModifier.self, forKey: .any))
-                case "underline": self = .anyTextModifier(try container.decode(UnderlineTextModifier.self, forKey: .any))
-                case let unrecognized: fatalError(unrecognized)
-                }
-            }
-            else { fatalError() }
+            case color, font, italic, weight, kerning, tracking, baseline, rounded, bold, strikethrough, underline
         }
         public func encode(to encoder: Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
@@ -394,51 +289,132 @@ extension Text {
             case .baseline(let value): try container.encode(value, forKey: .baseline)
             case .anyTextModifier(let value):
                 switch String(describing: type(of: value)) {
-                case "BoldTextModifier": try container.encode(BoldTextModifier(any: value, provider: "bold"), forKey: .any)
-                case "StrikethroughTextModifier": try container.encode(StrikethroughTextModifier(any: value, provider: "strikethrough"), forKey: .any)
-                case "UnderlineTextModifier": try container.encode(UnderlineTextModifier(any: value, provider: "underline"), forKey: .any)
-                case let unrecognized: fatalError(unrecognized)
+                case "BoldTextModifier": try container.encode(BoldTextModifier(any: value, provider: "bold"), forKey: .bold)
+                case "StrikethroughTextModifier": try container.encode(StrikethroughTextModifier(any: value, provider: "strikethrough"), forKey: .strikethrough)
+                case "UnderlineTextModifier": try container.encode(UnderlineTextModifier(any: value, provider: "underline"), forKey: .underline)
+                case let value: fatalError(value)
                 }
             }
         }
+        public init(from decoder: Decoder) throws {
+            let context = decoder.userInfo[.jsonContext] as! JsonContext, container = try decoder.container(keyedBy: CodingKeys.self)
+            if container.contains(.color) { self = .color(try container.decodeOptional(Color.self, forKey: .color, forContext: context)) }
+            else if container.contains(.font) { self = .font(try container.decodeOptional(Font.self, forKey: .font, forContext: context)) }
+            else if container.contains(.italic) { self = .italic }
+            else if container.contains(.weight) { self = .weight(try container.decodeOptional(Font.Weight.self, forKey: .weight, forContext: context)) }
+            else if container.contains(.kerning) { self = .kerning(try container.decode(CoreGraphics.CGFloat.self, forKey: .kerning, forContext: context)) }
+            else if container.contains(.tracking) { self = .tracking(try container.decode(CoreGraphics.CGFloat.self, forKey: .tracking, forContext: context)) }
+            else if container.contains(.baseline) { self = .baseline(try container.decode(CoreGraphics.CGFloat.self, forKey: .baseline, forContext: context)) }
+            else if container.contains(.bold) { self = .anyTextModifier(try container.decode(BoldTextModifier.self, forKey: .bold)) }
+            else if container.contains(.strikethrough) { self = .anyTextModifier(try container.decode(StrikethroughTextModifier.self, forKey: .strikethrough)) }
+            else if container.contains(.underline) { self = .anyTextModifier(try container.decode(UnderlineTextModifier.self, forKey: .underline)) }
+            else { fatalError() }
+        }
     }
     
+    class AnyTextModifier: Codable {
+        let provider: String
+        init(provider: String) {
+            self.provider = provider
+        }
+        public func apply(_ text: Text) -> Text { fatalError("Not Implemented") }
+
+        //: Codable
+        enum CodingKeys: CodingKey {
+            case provider
+        }
+        public required init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            provider = try container.decode(String.self, forKey: .provider)
+        }
+        public func encode(to encoder: Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(provider, forKey: .provider)
+        }
+    }
+        
+    class BoldTextModifier: AnyTextModifier {
+        init(any: Any, provider: String) {
+            Mirror.assert(any, name: "BoldTextModifier", keys: [])
+            super.init(provider: provider)
+        }
+        public override func apply(_ text: Text) -> Text { text.bold() }
+
+        //: Codable
+        public required init(from decoder: Decoder) throws { try super.init(from: decoder) }
+    }
+    
+    class StrikethroughTextModifier: AnyTextModifier {
+        let lineStyle: LineStyle?
+        init(any: Any, provider: String) {
+            Mirror.assert(any, name: "StrikethroughTextModifier", keys: ["lineStyle"])
+            lineStyle = LineStyle(any: Mirror.optional(any: Mirror(reflecting: any).descendant("lineStyle")!))
+            super.init(provider: provider)
+        }
+        public override func apply(_ text: Text) -> Text { text.strikethrough(lineStyle?.active ?? true, color: lineStyle?.color) }
+
+        //: Codable
+        enum CodingKeys: CodingKey {
+            case active, color
+        }
+        public override func encode(to encoder: Encoder) throws {
+            guard let lineStyle = lineStyle else {
+                try super.encode(to: encoder)
+                return
+            }
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            if !lineStyle.active { try container.encode(lineStyle.active, forKey: .active) }
+            try container.encodeIfPresent(lineStyle.color, forKey: .color)
+            try super.encode(to: encoder)
+        }
+        public required init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            let active = (try? container.decodeIfPresent(Bool.self, forKey: .active)) ?? true
+            let color = try? container.decodeIfPresent(Color.self, forKey: .color)
+            lineStyle = LineStyle(active: active, color: color)
+            try super.init(from: decoder)
+        }
+    }
+    
+    class UnderlineTextModifier: AnyTextModifier {
+        let lineStyle: LineStyle?
+        init(any: Any, provider: String) {
+            Mirror.assert(any, name: "UnderlineTextModifier", keys: ["lineStyle"])
+            lineStyle = LineStyle(any: Mirror.optional(any: Mirror(reflecting: any).descendant("lineStyle")!))
+            super.init(provider: provider)
+        }
+        public override func apply(_ text: Text) -> Text { text.underline(lineStyle?.active ?? true, color: lineStyle?.color) }
+
+        //: Codable
+        enum CodingKeys: CodingKey {
+            case active, color
+        }
+        public override func encode(to encoder: Encoder) throws {
+            guard let lineStyle = lineStyle else {
+                try super.encode(to: encoder)
+                return
+            }
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            if !lineStyle.active { try container.encode(lineStyle.active, forKey: .active) }
+            try container.encodeIfPresent(lineStyle.color, forKey: .color)
+            try super.encode(to: encoder)
+        }
+        public required init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            let active = (try? container.decodeIfPresent(Bool.self, forKey: .active)) ?? true
+            let color = try? container.decodeIfPresent(Color.self, forKey: .color)
+            lineStyle = LineStyle(active: active, color: color)
+            try super.init(from: decoder)
+        }
+    }
 }
 
 extension Text: IAnyView, FullyCodable {
     public var anyView: AnyView { AnyView(self) }
+
     //: Codable
     enum CodingKeys: CodingKey {
         case text, verbatim, any, modifiers
-    }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws { try self.init(from: decoder) }
-    public init(from decoder: Decoder) throws {
-        let context = decoder.userInfo[.jsonContext] as! JsonContext
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        // storage
-        if container.contains(.text) { self = Text(try container.decode(String.self, forKey: .text, forContext: context)) }
-        else if container.contains(.verbatim) { self = Text(verbatim: try container.decode(String.self, forKey: .verbatim, forContext: context)) }
-        else if container.contains(.any) {
-            switch try container.decode(AnyTextStorage.self, forKey: .any).provider {
-            case "localized": self = try container.decode(LocalizedTextStorage.self, forKey: .any).apply()
-            case let unrecognized:
-                if #available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *) {
-                    switch unrecognized {
-                    case "attachment": self = try container.decode(AttachmentTextStorage.self, forKey: .any).apply()
-                    case "formatter": self = try container.decode(FormatterTextStorage.self, forKey: .any).apply()
-                    case "date": self = try container.decode(DateTextStorage.self, forKey: .any).apply()
-                    case let unrecognized: fatalError(unrecognized)
-                    }
-                }
-                else { fatalError(unrecognized) }
-            }
-        }
-        else { fatalError() }
-        // modifiers
-        guard let modifiers = try? container.decodeIfPresent([Modifier].self, forKey: .modifiers) else { return }
-        for modifier in modifiers {
-            self = modifier.apply(self)
-        }
     }
     public func encode(to encoder: Encoder) throws {
         Mirror.assert(self, name: "Text", keys: ["storage", "modifiers"])
@@ -457,24 +433,56 @@ extension Text: IAnyView, FullyCodable {
         case .anyTextStorage(let value):
             switch String(describing: type(of: value)) {
             case "LocalizedTextStorage": try container.encode(LocalizedTextStorage(any: value, provider: "localized"), forKey: .any)
-            case let unrecognized:
+            case let value:
                 if #available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *) {
-                    switch unrecognized {
+                    switch value {
                     case "AttachmentTextStorage": try container.encode(AttachmentTextStorage(any: value, provider: "attachment"), forKey: .any)
                     case "FormatterTextStorage": try container.encode(FormatterTextStorage(any: value, provider: "formatter"), forKey: .any)
                     case "DateTextStorage": try container.encode(DateTextStorage(any: value, provider: "date"), forKey: .any)
-                    case let unrecognized: fatalError(unrecognized)
+                    case let value: fatalError(value)
                     }
                 }
-                else { fatalError(unrecognized) }
+                else { fatalError(value) }
             }
         }
-        if !modifiers.isEmpty { try container.encode(modifiers, forKey: .modifiers) }
+        if !modifiers.isEmpty {
+            try container.encode(modifiers, forKey: .modifiers)
+        }
     }
+    public init(from decoder: Decoder, for ptype: PType) throws { try self.init(from: decoder) }
+    public init(from decoder: Decoder) throws {
+        let context = decoder.userInfo[.jsonContext] as! JsonContext
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        // storage
+        if container.contains(.text) { self = Text(try container.decode(String.self, forKey: .text, forContext: context)) }
+        else if container.contains(.verbatim) { self = Text(verbatim: try container.decode(String.self, forKey: .verbatim, forContext: context)) }
+        else if container.contains(.any) {
+            switch try container.decode(AnyTextStorage.self, forKey: .any).provider {
+            case "localized": self = try container.decode(LocalizedTextStorage.self, forKey: .any).apply()
+            case let value:
+                if #available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *) {
+                    switch value {
+                    case "attachment": self = try container.decode(AttachmentTextStorage.self, forKey: .any).apply()
+                    case "formatter": self = try container.decode(FormatterTextStorage.self, forKey: .any).apply()
+                    case "date": self = try container.decode(DateTextStorage.self, forKey: .any).apply()
+                    case let value: fatalError(value)
+                    }
+                }
+                else { fatalError(value) }
+            }
+        }
+        else { fatalError() }
+        // modifiers
+        guard let modifiers = try? container.decodeIfPresent([Modifier].self, forKey: .modifiers) else { return }
+        for modifier in modifiers {
+            self = modifier.apply(self)
+        }
+    }
+
     //: Register
     static func register() {
-        DynaType.register(Text.self)
-        DynaType.register(Text.TruncationMode.self)
+        PType.register(Text.self)
+        PType.register(Text.TruncationMode.self)
     }
 }
 
@@ -485,7 +493,7 @@ extension Text.TruncationMode: Codable {
         case "head": self = .head
         case "tail": self = .tail
         case "middle": self = .middle
-        case let unrecognized: fatalError(unrecognized)
+        case let value: fatalError(value)
         }
     }
     public func encode(to encoder: Encoder) throws {
@@ -494,7 +502,7 @@ extension Text.TruncationMode: Codable {
         case .head: try container.encode("head")
         case .tail: try container.encode("tail")
         case .middle: try container.encode("middle")
-        case let unrecognized: fatalError("\(unrecognized)")
+        case let value: fatalError("\(value)")
         }
     }
 }
@@ -506,7 +514,7 @@ extension Text.Case: Codable {
         switch try container.decode(String.self) {
         case "uppercase": self = .uppercase
         case "lowercase": self = .lowercase
-        case let unrecognized: fatalError(unrecognized)
+        case let value: fatalError(value)
         }
     }
     public func encode(to encoder: Encoder) throws {
@@ -514,7 +522,7 @@ extension Text.Case: Codable {
         switch self {
         case .uppercase: try container.encode("uppercase")
         case .lowercase: try container.encode("lowercase")
-        case let unrecognized: fatalError("\(unrecognized)")
+        case let value: fatalError("\(value)")
         }
     }
 }
@@ -526,7 +534,7 @@ extension TextAlignment: Codable {
         case "leading": self = .leading
         case "center": self = .center
         case "trailing": self = .trailing
-        case let unrecognized: fatalError(unrecognized)
+        case let value: fatalError(value)
         }
     }
     public func encode(to encoder: Encoder) throws {

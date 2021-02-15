@@ -8,17 +8,11 @@
 import SwiftUI
 
 extension _BackgroundModifier: JsonViewModifier, DynaCodable where Background : DynaCodable {
-    //: JsonViewModifier
     public func body(content: AnyView) -> AnyView { AnyView(content.modifier(self)) }
+
     //: Codable
     enum CodingKeys: CodingKey {
         case background, alignment
-    }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        let background = try container.decode(Background.self, forKey: .background, dynaType: dynaType[0])
-        let alignment = try container.decode(Alignment.self, forKey: .alignment)
-        self.init(background: background, alignment: alignment)
     }
     public func encode(to encoder: Encoder) throws {
         Mirror.assert(self, name: "_BackgroundModifier", keys: ["background", "alignment"])
@@ -26,8 +20,15 @@ extension _BackgroundModifier: JsonViewModifier, DynaCodable where Background : 
         try container.encode(background, forKey: .background)
         try container.encode(alignment, forKey: .alignment)
     }
+    public init(from decoder: Decoder, for ptype: PType) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let background = try container.decode(Background.self, forKey: .background, ptype: ptype[0])
+        let alignment = try container.decode(Alignment.self, forKey: .alignment)
+        self.init(background: background, alignment: alignment)
+    }
+
     //: Register
     static func register() {
-        DynaType.register(_BackgroundModifier<AnyView>.self, any: [AnyView.self])
+        PType.register(_BackgroundModifier<AnyView>.self, any: [AnyView.self])
     }
 }

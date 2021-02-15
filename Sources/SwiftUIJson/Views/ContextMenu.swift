@@ -11,10 +11,11 @@ import SwiftUI
 @available(tvOS, unavailable)
 extension ContextMenu: Codable where MenuItems : View {
     //: Codable
-    public init(from decoder: Decoder) throws { fatalError() }
     public func encode(to encoder: Encoder) throws {}
+    public init(from decoder: Decoder) throws { fatalError() }
+    
     //: Register
     static func register() {
-        DynaType.register(ContextMenu<AnyView>.self)
+        PType.register(ContextMenu<AnyView>.self)
     }
 }

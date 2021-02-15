@@ -12,13 +12,15 @@ import SwiftUI
 extension ContainerRelativeShape: IAnyShape, DynaCodable {
     public var anyShape: AnyShape { AnyShape(self) }
     public var anyView: AnyView { AnyView(self) }
+
     //: Codable
-    public init(from decoder: Decoder, for dynaType: DynaType) throws { self.init() }
     public func encode(to encoder: Encoder) throws {}
+    public init(from decoder: Decoder, for ptype: PType) throws { self.init() }
+
     //: Register
     static func register() {
-        DynaType.register(ContainerRelativeShape.self)
-        DynaType.register(ContainerRelativeShape._Inset.self)
+        PType.register(ContainerRelativeShape.self)
+        PType.register(ContainerRelativeShape._Inset.self)
     }
     
     struct _Inset: IAnyShape, IAnyView, ConvertibleDynaCodable {
@@ -29,17 +31,18 @@ extension ContainerRelativeShape: IAnyShape, DynaCodable {
             Mirror.assert(any, name: "_Inset", keys: ["amount"])
             amount = Mirror(reflecting: any).descendant("amount") as! CGFloat
         }
+        
         //: Codable
         enum CodingKeys: CodingKey {
             case amount
         }
-        public init(from decoder: Decoder, for dynaType: DynaType) throws {
-            let container = try decoder.container(keyedBy: CodingKeys.self)
-            amount = try container.decode(CGFloat.self, forKey: .amount)
-        }
         public func encode(to encoder: Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
             try container.encode(amount, forKey: .amount)
+        }
+        public init(from decoder: Decoder, for ptype: PType) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            amount = try container.decode(CGFloat.self, forKey: .amount)
         }
     }
 }

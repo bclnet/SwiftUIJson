@@ -14,14 +14,10 @@ import SwiftUI
 extension _TouchBarModifier: JsonViewModifier, DynaCodable where Content : DynaCodable {
     //: JsonViewModifier
     public func body(content: AnyView) -> AnyView { AnyView(content.modifier(self)) }
+    
     //: Codable
     enum CodingKeys: CodingKey {
         case content
-    }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        let content = try container.decode(TouchBar<Content>.self, forKey: .content, dynaType: dynaType[0])
-        self = (Capsule().touchBar(content) as! ModifiedContent<Capsule, _TouchBarModifier<Content>>).modifier
     }
     public func encode(to encoder: Encoder) throws {
         Mirror.assert(self, name: "_TouchBarModifier", keys: ["touchBar"])
@@ -29,8 +25,14 @@ extension _TouchBarModifier: JsonViewModifier, DynaCodable where Content : DynaC
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(touchBar, forKey: .content)
     }
+    public init(from decoder: Decoder, for ptype: PType) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let content = try container.decode(TouchBar<Content>.self, forKey: .content, ptype: ptype[0])
+        self = (Capsule().touchBar(content) as! ModifiedContent<Capsule, _TouchBarModifier<Content>>).modifier
+    }
+
     //: Register
     static func register() {
-        DynaType.register(_TouchBarModifier<AnyView>.self, any: [AnyView.self])
+        PType.register(_TouchBarModifier<AnyView>.self, any: [AnyView.self])
     }
 }

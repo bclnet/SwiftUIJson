@@ -17,10 +17,10 @@ extension MenuButton: IAnyView, DynaCodable where Label : View, Label : DynaCoda
     enum CodingKeys: CodingKey {
         case label, content
     }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+    public init(from decoder: Decoder, for ptype: PType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let label = try container.decode(Label.self, forKey: .label, dynaType: dynaType[0])
-        let content = try container.decode(Content.self, forKey: .content, dynaType: dynaType[1])
+        let label = try container.decode(Label.self, forKey: .label, ptype: ptype[0])
+        let content = try container.decode(Content.self, forKey: .content, ptype: ptype[1])
         self.init(label: label, content: { content })
     }
     public func encode(to encoder: Encoder) throws {
@@ -34,6 +34,6 @@ extension MenuButton: IAnyView, DynaCodable where Label : View, Label : DynaCoda
     }
     //: Register
     static func register() {
-        DynaType.register(MenuButton<AnyView, AnyView>.self)
+        PType.register(MenuButton<AnyView, AnyView>.self)
     }
 }

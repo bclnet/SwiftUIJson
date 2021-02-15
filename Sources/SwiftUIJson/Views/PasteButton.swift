@@ -18,7 +18,7 @@ extension PasteButton: IAnyView, DynaCodable {
     enum CodingKeys: CodingKey {
         case supportedContentTypes, supportedTypes, validatingDataHandler
     }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+    public init(from decoder: Decoder, for ptype: PType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let validatingDataHandler = try container.decodeFunc([NSItemProvider].self, (() -> ())?.self, forKey: .validatingDataHandler)
         if #available(macOS 11.0, *) {
@@ -49,6 +49,6 @@ extension PasteButton: IAnyView, DynaCodable {
     }
     //: Register
     static func register() {
-        DynaType.register(PasteButton.self)
+        PType.register(PasteButton.self)
     }
 }

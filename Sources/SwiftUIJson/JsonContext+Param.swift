@@ -9,32 +9,7 @@
 import SwiftUI
 
 extension JsonContext {
-    // MARK: - Slot
-    struct Slot: Codable {
-        public let type: DynaType
-        public let value: Any
-        //: Codable
-        enum CodingKeys: CodingKey {
-            case type, `default`
-        }
-        public init<T>(_ type: T.Type, value: Any) {
-            self.type = try! DynaType.type(for: type)
-            self.value = value
-        }
-        public init(from decoder: Decoder) throws {
-            let container = try decoder.container(keyedBy: CodingKeys.self)
-            type = try container.decode(DynaType.self, forKey: .type)
-            let baseDecoder = try container.superDecoder(forKey: .default)
-            value = try baseDecoder.dynaSuperInit(for: type)
-        }
-        public func encode(to encoder: Encoder) throws {
-            var container = encoder.container(keyedBy: CodingKeys.self)
-            try container.encode(type, forKey: .type)
-            guard let value = value as? Encodable else { fatalError() }
-            let baseEncoder = container.superEncoder(forKey: .default)
-            try value.encode(to: baseEncoder)
-        }
-    }
+    
     
     // MARK: - Variable
     func nextKey(forKey: String?) -> (String, Int) {

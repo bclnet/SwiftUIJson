@@ -16,11 +16,11 @@ extension DatePicker: IAnyView, DynaCodable where Label : View, Label : DynaCoda
     enum CodingKeys: CodingKey {
         case maximumDate, displayedComponents, label, selection, minimumDate
     }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+    public init(from decoder: Decoder, for ptype: PType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let maximumDate = try? container.decodeIfPresent(Date.self, forKey: .maximumDate)
         let displayedComponents = try container.decode(DatePickerComponents.self, forKey: .displayedComponents)
-        let label = try container.decode(Label.self, forKey: .label, dynaType: dynaType[0])
+        let label = try container.decode(Label.self, forKey: .label, ptype: ptype[0])
         let selection = try container.decode(Binding<Date>.self, forKey: .selection)
         let minimumDate = try? container.decodeIfPresent(Date.self, forKey: .minimumDate)
         if minimumDate == nil && maximumDate == nil { self.init(selection: selection, displayedComponents: displayedComponents, label: { label }) }
@@ -46,7 +46,7 @@ extension DatePicker: IAnyView, DynaCodable where Label : View, Label : DynaCoda
     }
     //: Register
     static func register() {
-        DynaType.register(DatePicker<AnyView>.self)
+        PType.register(DatePicker<AnyView>.self)
     }
 }
 
@@ -60,7 +60,7 @@ extension DatePickerComponents: Codable {
             switch try container.decode(String.self) {
             case "hourAndMinute": elements.insert(.hourAndMinute)
             case "date": elements.insert(.date)
-            case let unrecognized: self.init(rawValue: RawValue(unrecognized)!); return
+            case let value: self.init(rawValue: RawValue(value)!); return
             }
         }
         self = elements
@@ -72,7 +72,7 @@ extension DatePickerComponents: Codable {
                 switch element {
                 case .hourAndMinute: try container.encode("hourAndMinute")
                 case .date: try container.encode("date")
-                case let unrecognized: fatalError("\(unrecognized)")
+                case let value: fatalError("\(value)")
 //                default: try container.encode(String(rawValue)); return
                 }
             }

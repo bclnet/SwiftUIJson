@@ -8,8 +8,8 @@
 
 import SwiftUI
 
-public struct NeverCodable: FullyCodable, CodableKeyPath {
-    public init(from decoder: Decoder, for dynaType: DynaType) throws { fatalError("Never") }
+public struct NeverCodable: FullyCodable {
+    public init(from decoder: Decoder, for ptype: PType) throws { fatalError("Never") }
     public init(from decoder: Decoder) throws { fatalError("Never") }
     public func encode(to encoder: Encoder) throws { fatalError("Never") }
     public static func encodeKeyPath(_ keyPath: AnyKeyPath) -> String { fatalError("Never") }

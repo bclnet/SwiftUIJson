@@ -13,7 +13,7 @@ extension Spacer: IAnyView, DynaCodable {
     enum CodingKeys: CodingKey {
         case minLength
     }
-    public init(from decoder: Decoder, for dynaType: DynaType) throws {
+    public init(from decoder: Decoder, for ptype: PType) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let minLength = try? container.decodeIfPresent(CGFloat.self, forKey: .minLength)
         self.init(minLength: minLength)
@@ -25,7 +25,7 @@ extension Spacer: IAnyView, DynaCodable {
     }
     //: Register
     static func register() {
-        DynaType.register(Spacer.self)
+        PType.register(Spacer.self)
     }
 }
 
